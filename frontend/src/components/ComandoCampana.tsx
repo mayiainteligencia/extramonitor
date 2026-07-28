@@ -32,7 +32,7 @@ const NIVEL_ACT = [
   { label: 'Bajo', pct: 18, color: colores.textoOscuro },
 ];
 
-export const ComandoCentral: React.FC = () => {
+export const ComandoCampana: React.FC = () => {
   const isMobile = useIsMobile();
   const grid = (cols: string): React.CSSProperties => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : cols, gap: 16 });
 

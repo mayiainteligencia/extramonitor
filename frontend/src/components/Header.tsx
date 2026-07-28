@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
 
   // Mini-jarvis: va al dashboard (donde vive el asistente) y lo abre.
   const abrirJarvis = () => {
-    onSectionChange?.('dashboard');
+    onSectionChange?.('warroom');
     setTimeout(() => window.dispatchEvent(new CustomEvent('jarvis:open')), 350);
   };
 

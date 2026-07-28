@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { brandingConfig } from '../../config/branding';
 
-export const Ciberseguridad: React.FC = () => {
+export const StudioCreativo: React.FC = () => {
   const { colores } = brandingConfig;
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -14,25 +14,24 @@ export const Ciberseguridad: React.FC = () => {
   }, []);
 
   const cards = [
-    { id: 1, titulo: 'CIBER RIESGO',                descripcion: 'Consultor Digital para portafolio estratégico - $98,000',           mediaSrc: '/assets/ciberS/ciberS1.png' },
-    { id: 2, titulo: 'Soluciones de Ciberseguridad', descripcion: 'Técnico IA especializado para MIPYME',                              mediaSrc: '/assets/ciberS/ciberS2.png' },
-    { id: 3, titulo: 'Centro de Ciberresiliencia',   descripcion: 'Protección especializada para Inteligencia Artificial',             mediaSrc: '/assets/ciberS/ciberS3.png' },
-    { id: 4, titulo: 'Monitoreo 24/7 en I.A. NOC',  descripcion: 'Vigilancia física y virtual continua',                              mediaSrc: '/assets/ciberS/ciberS4.png' },
-    { id: 5, titulo: 'ISO 27001',                    descripcion: 'Certificación y cumplimiento normativo de seguridad',               mediaSrc: '/assets/ciberS/ciberS5.png' },
-    { id: 6, titulo: 'Ciberseguridad Avanzada',      descripcion: 'Supervisión 24/7 con estándares de seguridad avanzada',            mediaSrc: '/assets/ciberS/ciberS6.png' },
+    { id: 1, titulo: 'API Testing',            descripcion: 'Pruebas de integración y endpoints',          mediaSrc: '/assets/playG/apitest.png'       },
+    { id: 2, titulo: 'Code Sandbox',           descripcion: 'Entorno de desarrollo experimental',          mediaSrc: '/assets/playG/codesandbox.png'   },
+    { id: 3, titulo: 'IA Generativa',          descripcion: 'Modelos de lenguaje y prompts',               mediaSrc: '/assets/playG/ia-gen.png'        },
+    { id: 4, titulo: 'Visualización de Datos', descripcion: 'Gráficos y dashboards interactivos',          mediaSrc: '/assets/playG/visualizacion.png' },
+    { id: 5, titulo: 'Automatización',         descripcion: 'Scripts y flujos de trabajo',                 mediaSrc: '/assets/playG/automatizacion.png'},
   ];
 
   const imgH = isMobile ? '180px' : '260px';
-  const minCard = isMobile ? '150px' : '180px';
+  const minCard = isMobile ? '150px' : '200px';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: isMobile ? '16px' : '0' }}>
       <div>
         <h2 style={{ fontSize: isMobile ? '24px' : '32px', fontWeight: 'bold', color: colores.textoClaro, marginBottom: '6px' }}>
-          CiberSeguridad
+          StudioCreativo
         </h2>
         <p style={{ color: colores.textoMedio, fontSize: isMobile ? '14px' : '16px', margin: 0 }}>
-          Protección integral y monitoreo continuo
+          Zona de pruebas y desarrollo experimental
         </p>
       </div>
 
@@ -63,20 +62,20 @@ export const Ciberseguridad: React.FC = () => {
                 <img
                   src={card.mediaSrc}
                   alt={card.titulo}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease', transform: isHovered ? 'scale(1.07)' : 'scale(1)', filter: isHovered ? 'brightness(1.1)' : 'brightness(1)' }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease', transform: isHovered ? 'scale(1.08)' : 'scale(1)', filter: isHovered ? 'brightness(1.1)' : 'brightness(1)' }}
                   onError={(e) => {
                     const t = e.target as HTMLImageElement;
                     t.style.display = 'none';
                     const c = t.parentElement;
-                    if (c) c.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:${colores.textoMedio};background:${colores.fondoTerciario}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>`;
+                    if (c) c.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:${colores.textoMedio};background:${colores.fondoTerciario}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>`;
                   }}
                 />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(3,140,174,0.95) 0%, rgba(3,140,174,0.7) 40%, transparent 100%)', display: 'flex', alignItems: 'flex-end', padding: '14px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-                  <p style={{ color: '#fff', fontSize: '11px', margin: 0, lineHeight: '1.4', fontWeight: '600' }}>{card.descripcion}</p>
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(3,140,174,0.95) 0%, rgba(3,140,174,0.7) 40%, transparent 100%)', display: 'flex', alignItems: 'flex-end', padding: '16px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+                  <p style={{ color: '#fff', fontSize: '12px', margin: 0, lineHeight: '1.5', fontWeight: '600' }}>{card.descripcion}</p>
                 </div>
               </div>
-              <div style={{ padding: '12px', backgroundColor: isHovered ? colores.fondoTerciario : 'transparent', transition: 'background-color 0.3s ease', minHeight: '50px' }}>
-                <h4 style={{ fontSize: '12px', fontWeight: '600', color: isHovered ? colores.primario : colores.textoClaro, margin: 0, lineHeight: '1.3', transition: 'color 0.3s ease' }}>
+              <div style={{ padding: '12px 14px', backgroundColor: isHovered ? colores.fondoTerciario : 'transparent', transition: 'background-color 0.3s ease' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: '600', color: isHovered ? colores.primario : colores.textoClaro, margin: 0, lineHeight: '1.3', transition: 'color 0.3s ease' }}>
                   {card.titulo}
                 </h4>
               </div>

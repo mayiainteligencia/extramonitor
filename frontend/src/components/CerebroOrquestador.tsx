@@ -9,7 +9,7 @@ import {
   Tooltip, RadialBarChart, RadialBar,
 } from 'recharts';
 import { brandingConfig } from '../config/branding';
-import { ModuloDetalleModal } from './MonitorIADetalles';
+import { ModuloDetalleModal } from './CerebroOrquestadorDetalles';
 
 const { colores } = brandingConfig;
 
@@ -385,7 +385,7 @@ const ModuloCard: React.FC<{ m: Modulo; i: number; onOpen: (num: number) => void
 
 // ───────────────────────── COMPONENTE PRINCIPAL ─────────────────────────
 
-export const MonitorIA: React.FC = () => {
+export const CerebroOrquestador: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [openNum, setOpenNum] = useState<number | null>(null);
   useEffect(() => {

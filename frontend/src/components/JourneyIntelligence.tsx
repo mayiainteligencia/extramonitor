@@ -196,7 +196,7 @@ const Panel: React.FC<{
 
 // ───────────────────────── PÁGINA ─────────────────────────
 
-export const InteligenciaElectoral: React.FC = () => {
+export const JourneyIntelligence: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 900);

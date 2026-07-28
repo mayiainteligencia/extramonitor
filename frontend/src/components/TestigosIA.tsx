@@ -1,4 +1,4 @@
-// src/components/modules/MonitorMedios.tsx
+// src/components/modules/TestigosIA.tsx
 import { useState, useEffect, useRef } from 'react';
 import { brandingConfig } from '../config/branding';
 import { Search, RotateCcw, Radio, ChevronDown, ChevronUp } from 'lucide-react';
@@ -59,7 +59,7 @@ const EMISORAS_PREDEFINIDAS = [
   },
 ];
 
-export const MonitorMedios = () => {
+export const TestigosIA = () => {
   const [sesiones, setSesiones] = useState<Sesion[]>([]);
   const [testigos, setTestigos] = useState<Testigo[]>([]);
   const [emisoraUrl, setEmisoraUrl] = useState('');

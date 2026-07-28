@@ -63,7 +63,7 @@ export const ResumenElectoralCards: React.FC<{ onSectionChange?: (s: string) => 
         ]}
       />
       <Card
-        icon={ClipboardList} titulo="Resultados" subtitulo="Elecciones municipales" seccion="resultados" onGo={onSectionChange} cta="Ver resultados"
+        icon={ClipboardList} titulo="Resultados" subtitulo="Elecciones municipales" seccion="investment" onGo={onSectionChange} cta="Ver resultados"
         rows={topPartidos.map(([p, v]) => ({ label: p, value: `${fmt(v)}`, color: PARTIDO_COLOR[p] }))}
       />
       <Card

@@ -1,24 +1,32 @@
 // Cerebro / asistente front-only (sin backend, sin Gemini).
 // Navega a secciones y responde preguntas con los datos que ya tenemos en mano.
 import { porAnio, ULTIMO, fmt, proyeccionPRI } from './electoral';
+import { secciones } from '../config/menu';
 
 const D = porAnio[ULTIMO];
 
 export type Seccion = { id: string; titulo: string; alias: string[] };
 
-export const SECCIONES: Seccion[] = [
-  { id: 'dashboard',      titulo: 'Dashboard General',      alias: ['inicio', 'principal', 'home', 'general', 'panel'] },
-  { id: 'comando',        titulo: 'Comando Central',        alias: ['comando', 'mando', 'central'] },
-  { id: 'resultados',     titulo: 'Resultados Electorales', alias: ['resultados', 'votos', 'eleccion', 'elecciones'] },
-  { id: 'alertas',        titulo: 'Alertas',                alias: ['alertas', 'focos', 'riesgos', 'atencion'] },
-  { id: 'monitoria',      titulo: 'Cerebro Electoral',      alias: ['cerebro', 'monitor ia', 'mayia'] },
-  { id: 'monitor',        titulo: 'Monitor de Medios',      alias: ['medios', 'radio', 'testigos'] },
-  { id: 'digital',        titulo: 'Monitor Digital',        alias: ['digital', 'web', 'redes'] },
-  { id: 'electoral',      titulo: 'Inteligencia Electoral', alias: ['inteligencia', 'electoral', 'sentimiento'] },
-  { id: 'ciberseguridad', titulo: 'CiberSeguridad',         alias: ['ciber', 'seguridad'] },
-  { id: 'playground',     titulo: 'Playground',             alias: ['playground', 'pruebas'] },
-  { id: 'academia',       titulo: 'Academia',               alias: ['academia', 'cursos'] },
-];
+// Alias de voz/búsqueda por sección. Los títulos salen de config/menu.ts.
+const ALIAS: Record<string, string[]> = {
+  warroom:    ['inicio', 'principal', 'home', 'general', 'panel', 'war room'],
+  testigos:   ['testigos', 'radio', 'medios', 'on air', 'spots'],
+  cerebro:    ['cerebro', 'orquestador', 'operadores', 'modelos', 'mayia'],
+  comando:    ['comando', 'campana', 'mando', 'central'],
+  investment: ['investment', 'inversion', 'valor', 'roi', 'presupuesto'],
+  alertas:    ['alertas', 'marca', 'focos', 'riesgos', 'atencion'],
+  digital:    ['digital', 'ecommerce', 'e-commerce', 'web', 'redes'],
+  journey:    ['journey', 'customer journey', 'recorrido', 'embudo', 'funnel'],
+  adfraud:    ['fraude', 'ad fraud', 'brand safety', 'seguridad'],
+  studio:     ['studio', 'creativo', 'piezas', 'creatividades'],
+  academia:   ['academia', 'cursos', 'capacitacion'],
+};
+
+export const SECCIONES: Seccion[] = secciones.map(s => ({
+  id: s.id,
+  titulo: s.nombre,
+  alias: ALIAS[s.id] ?? [],
+}));
 
 export const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 

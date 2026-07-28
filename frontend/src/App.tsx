@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { ResponsiveLayout } from './components/ResponsiveLayout';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { Dashboard } from './components/Dashboard';
-import { Ciberseguridad } from './components/departamentos/Ciberseguridad';
-import { Playground } from './components/departamentos/Playground';
+import { WarRoom } from './components/WarRoom';
+import { AdFraudBrandSafety } from './components/departamentos/AdFraudBrandSafety';
+import { StudioCreativo } from './components/departamentos/StudioCreativo';
 import { Academia } from './components/departamentos/Academia';
 
-import { MonitorMedios } from './components/MonitorMedios';
-import { MonitorIA } from './components/MonitorIA';
+import { TestigosIA } from './components/TestigosIA';
+import { CerebroOrquestador } from './components/CerebroOrquestador';
 import { MonitorDigital } from './components/MonitorDigital';
-import { InteligenciaElectoral } from './components/InteligenciaElectoral';
-import { ComandoCentral } from './components/ComandoCentral';
-import { ResultadosElectorales } from './components/ResultadosElectorales';
-import { AlertasElectoral } from './components/AlertasElectoral';
+import { JourneyIntelligence } from './components/JourneyIntelligence';
+import { ComandoCampana } from './components/ComandoCampana';
+import { InvestmentValue } from './components/InvestmentValue';
+import { AlertasMarca } from './components/AlertasMarca';
 import { ToastProvider } from './components/electoral/toast';
 import { ConfirmProvider } from './components/electoral/confirm';
 import { brandingConfig } from './config/branding';
@@ -23,27 +23,27 @@ import { secciones } from './config/menu';
 import './responsive.css';
 
 function App() {
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const [activeSection, setActiveSection] = useState('warroom');
   const { colores } = brandingConfig;
 
   const getTitulo = () =>
-    secciones.find(s => s.id === activeSection)?.nombre ?? 'Dashboard';
+    secciones.find(s => s.id === activeSection)?.nombre ?? 'War Room de Cliente';
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'dashboard':      return <Dashboard onSectionChange={setActiveSection} />;
-      case 'ciberseguridad': return <Ciberseguridad />;
-      case 'playground':     return <Playground />;
-      case 'academia':       return <Academia />;
+      case 'warroom':    return <WarRoom onSectionChange={setActiveSection} />;
+      case 'testigos':   return <TestigosIA />;
+      case 'cerebro':    return <CerebroOrquestador />;
+      case 'comando':    return <ComandoCampana />;
+      case 'investment': return <InvestmentValue />;
+      case 'alertas':    return <AlertasMarca />;
+      case 'digital':    return <MonitorDigital />;
+      case 'journey':    return <JourneyIntelligence />;
 
-      case 'monitor': return <MonitorMedios />;
-      case 'monitoria': return <MonitorIA />;
-      case 'comando': return <ComandoCentral />;
-      case 'resultados': return <ResultadosElectorales />;
-      case 'alertas': return <AlertasElectoral />;
-      case 'digital': return <MonitorDigital />;
-      case 'electoral': return <InteligenciaElectoral />;
-      default:               return <Dashboard onSectionChange={setActiveSection} />;
+      case 'adfraud':    return <AdFraudBrandSafety />;
+      case 'studio':     return <StudioCreativo />;
+      case 'academia':   return <Academia />;
+      default:           return <WarRoom onSectionChange={setActiveSection} />;
     }
   };
 

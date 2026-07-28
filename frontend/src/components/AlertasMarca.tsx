@@ -43,7 +43,7 @@ const RecuperableRow: React.FC<{ m: typeof D.recuperables[number] }> = ({ m }) =
   );
 };
 
-export const AlertasElectoral: React.FC = () => {
+export const AlertasMarca: React.FC = () => {
   const isMobile = useIsMobile();
   const { push } = useToast();
   const grid = (cols: string): React.CSSProperties => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : cols, gap: 16 });

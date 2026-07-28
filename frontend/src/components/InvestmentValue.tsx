@@ -12,7 +12,7 @@ const V = colores.primario;
 
 const tendencia = ANIOS.map(a => ({ anio: String(a), share: porAnio[String(a)].sharePRI, ganados: porAnio[String(a)].ganadosPRI }));
 
-export const ResultadosElectorales: React.FC = () => {
+export const InvestmentValue: React.FC = () => {
   const isMobile = useIsMobile();
   const [anio, setAnio] = useState(ULTIMO);
   const D = porAnio[anio];

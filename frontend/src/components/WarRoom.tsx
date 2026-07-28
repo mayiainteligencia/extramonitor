@@ -9,11 +9,11 @@ import { RadiosEscuchadasCard } from './modules/dashboardModules/RadiosEscuchada
 import { PalabrasBuscadasCard } from './modules/dashboardModules/PalabrasBuscadasCard';
 import { CSVGeneradosCard } from './modules/dashboardModules/CSVGeneradosCard';
 
-interface DashboardProps {
+interface WarRoomProps {
   onSectionChange?: (section: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ onSectionChange }) => {
+export const WarRoom: React.FC<WarRoomProps> = ({ onSectionChange }) => {
   const { colores } = brandingConfig;
   const [isMobile, setIsMobile] = useState(false);
 
