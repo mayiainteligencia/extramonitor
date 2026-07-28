@@ -17,6 +17,7 @@ import { AlertasElectoral } from './components/AlertasElectoral';
 import { ToastProvider } from './components/electoral/toast';
 import { ConfirmProvider } from './components/electoral/confirm';
 import { brandingConfig } from './config/branding';
+import { secciones } from './config/menu';
 
 
 import './responsive.css';
@@ -25,23 +26,8 @@ function App() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const { colores } = brandingConfig;
 
-  const getTitulo = () => {
-    const titulos: Record<string, string> = {
-      dashboard:      'Dashboard General',
-      ciberseguridad: 'CiberSeguridad',
-      playground:     'Playground',
-      academia:       'Academia',
-
-      monitor: 'Monitor de Medios',
-      monitoria: 'Cerebro Electoral',
-      comando: 'Comando Central',
-      resultados: 'Resultados Electorales',
-      alertas: 'Alertas',
-      digital: 'Monitor Digital',
-      electoral: 'Inteligencia Electoral',
-    };
-    return titulos[activeSection] || 'Dashboard';
-  };
+  const getTitulo = () =>
+    secciones.find(s => s.id === activeSection)?.nombre ?? 'Dashboard';
 
   const renderContent = () => {
     switch (activeSection) {
