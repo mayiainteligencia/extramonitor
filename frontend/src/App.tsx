@@ -14,8 +14,8 @@ import { JourneyIntelligence } from './components/JourneyIntelligence';
 import { ComandoCampana } from './components/ComandoCampana';
 import { InvestmentValue } from './components/InvestmentValue';
 import { AlertasMarca } from './components/AlertasMarca';
-import { ToastProvider } from './components/electoral/toast';
-import { ConfirmProvider } from './components/electoral/confirm';
+import { ToastProvider } from './components/shared/toast';
+import { ConfirmProvider } from './components/shared/confirm';
 import { brandingConfig } from './config/branding';
 import { secciones } from './config/menu';
 

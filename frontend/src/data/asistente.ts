@@ -1,9 +1,9 @@
 // Cerebro / asistente front-only (sin backend, sin Gemini).
 // Navega a secciones y responde preguntas con los datos que ya tenemos en mano.
-import { porAnio, ULTIMO, fmt, proyeccionPRI } from './electoral';
+import { porPeriodo, ULTIMO, CLIENTE, fmt, fmtMXNCorto, proyeccionSOV } from './media';
 import { secciones } from '../config/menu';
 
-const D = porAnio[ULTIMO];
+const D = porPeriodo[ULTIMO];
 
 export type Seccion = { id: string; titulo: string; alias: string[] };
 
@@ -57,31 +57,34 @@ export function responder(texto: string): Respuesta {
 
   // ── Preguntas sobre los datos ──
   if (/(redes|social|facebook|twitter|instagram|tiktok)/.test(t)) {
-    return { text: `En redes sociales la conversación crece: ${fmt(Math.round(D.votosPRI / 1000))}K menciones estimadas esta semana, +18% vs la anterior. El sentimiento a favor ronda el ${D.recuperables ? 46 : 46}%. Abre Monitor Digital para el detalle.`, navigateTo: undefined };
+    return { text: `En redes la conversación crece: ${fmt(Math.round(D.impactos / 1_000_000))}M de impactos estimados esta semana, +18% vs la anterior. El sentimiento a favor ronda el 46%. Abre Monitor Digital & E-Commerce para el detalle.` };
   }
-  if (/(a mi favor|a favor|me ven|como me ven|sentimiento|apoyo)/.test(t)) {
-    return { text: `La gente te ve mayormente a favor: 46% positivo, 34% neutral, 20% negativo. En tus plazas fuertes el positivo sube. Revisa Inteligencia Electoral para el desglose por estación.` };
+  if (/(a favor|nos ven|como nos ven|sentimiento|percepcion)/.test(t)) {
+    return { text: `La audiencia ve a ${CLIENTE.nombre} mayormente a favor: 46% positivo, 34% neutral, 20% negativo. En las plazas líderes el positivo sube. Revisa Journey Intelligence para el desglose por etapa.` };
   }
-  if (/(que dicen|dicen de mi|hablan de mi|menciones|narrativa)/.test(t)) {
-    return { text: `Lo que más dicen de ti: seguridad y obras (positivo), dudas sobre empleo (neutral). Tu último spot se cita textual en 3 estaciones. ${D.segundaFuerza} es tu principal competencia con ${D.ganadosSegunda} municipios.` };
+  if (/(que dicen|dicen de|hablan de|menciones|narrativa)/.test(t)) {
+    return { text: `Lo que más se dice de ${CLIENTE.nombre}: servicio y disponibilidad (positivo), dudas sobre precio (neutral). El último spot se cita textual en 3 estaciones. ${D.segundaMarca} es la principal competencia con ${D.lideradasSegunda} plazas lideradas.` };
   }
-  if (/(ultima mencion|mencion.*radio|radio.*mencion|en radio)/.test(t)) {
-    return { text: `Tu última mención en radio fue hace 8 min en MVS Radio 102.5: "…el PRI mantiene ventaja en Tlacolula…", sentimiento positivo. Abre Monitor de Medios para escuchar el testigo.` };
+  if (/(ultima mencion|mencion.*radio|radio.*mencion|en radio|on air|al aire)/.test(t)) {
+    return { text: `La última mención al aire fue hace 8 min en MVS Radio 102.5, sentimiento positivo. Abre Testigos IA para escuchar el testigo.` };
   }
-  if (/(municipios ganados|como vamos|cuantos municipios|vamos en municipios)/.test(t)) {
-    return { text: `Vas fuerte: el PRI ganó ${fmt(D.ganadosPRI)} de ${fmt(D.totalMunicipios)} municipios (${D.sharePRI}% de la votación, ${fmt(D.votosPRI)} votos). Hay ${D.recuperables.length} municipios recuperables por margen mínimo.` };
+  if (/(plazas|como vamos|share of voice|sov|cuantas plazas)/.test(t)) {
+    return { text: `Vamos bien: ${CLIENTE.nombre} lidera ${fmt(D.plazasLideradas)} de ${fmt(D.totalPlazas)} plazas con ${D.sovCliente}% de Share of Voice ponderado (${fmt(D.grpsTotal)} GRPs). Hay ${D.discrepancias.length} plazas con discrepancias de pauta abiertas.` };
   }
-  if (/(abstencion|participacion)/.test(t)) {
-    return { text: `La abstención promedio es ${D.abstProm}%. Hay plazas con más de 90% de abstención histórica — foco de movilización en Alertas.` };
+  if (/(inversion|presupuesto|gasto|cuanto invertimos)/.test(t)) {
+    return { text: `La inversión de ${CLIENTE.nombre} en el periodo es ${fmtMXNCorto(D.inversionCliente)} sobre ${fmtMXNCorto(D.inversionTotal)} de categoría. Investment Value IA tiene el desglose por plaza.` };
   }
-  if (/(competencia|segunda fuerza|rival|oposicion)/.test(t)) {
-    return { text: `Tu segunda fuerza es ${D.segundaFuerza} con ${D.ganadosSegunda} municipios, ${D.ganadosPRI - D.ganadosSegunda} plazas por debajo del PRI.` };
+  if (/(alcance|cobertura)/.test(t)) {
+    return { text: `El alcance promedio es ${D.alcanceProm}%. Hay ${D.riesgoAlcance.length} plazas por debajo del objetivo de cobertura — foco de trabajo en Alertas de Marca.` };
   }
-  if (/(prediccion|proyeccion|proxima eleccion|2027|futuro)/.test(t)) {
-    return { text: `Proyección: si la tendencia se mantiene, el PRI llegaría a ~${proyeccionPRI()}% la próxima elección (venía de ${porAnio['1998'].sharePRI}% en 1998 a ${D.sharePRI}% en ${ULTIMO}).` };
+  if (/(competencia|segunda marca|rival|competidor)/.test(t)) {
+    return { text: `La segunda marca es ${D.segundaMarca} con ${D.lideradasSegunda} plazas lideradas, ${D.plazasLideradas - D.lideradasSegunda} por debajo de ${CLIENTE.nombre}.` };
+  }
+  if (/(prediccion|proyeccion|proximo periodo|futuro|forecast)/.test(t)) {
+    return { text: `Proyección: si la tendencia se mantiene, ${CLIENTE.nombre} llegaría a ~${proyeccionSOV()}% de SOV el próximo periodo (venía de ${porPeriodo['2023'].sovCliente}% en 2023 a ${D.sovCliente}% en ${ULTIMO}).` };
   }
 
   return {
-    text: 'Puedo dirigirte a una sección ("ve a Alertas") o responderte: cómo vamos en municipios ganados, qué dicen de ti, cómo te ve la gente, cómo vamos en redes, o tu última mención en radio.',
+    text: 'Puedo dirigirte a una sección ("ve a Alertas") o responderte: cómo vamos en plazas, cuánto invertimos, qué dicen de la marca, cómo va el alcance, o la última mención al aire.',
   };
 }

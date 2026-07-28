@@ -11,10 +11,10 @@ import {
 } from 'lucide-react';
 import { brandingConfig } from '../config/branding';
 import { SECCIONES, buscarSeccion } from '../data/asistente';
-import { porAnio, ULTIMO, fmt } from '../data/electoral';
+import { porPeriodo, ULTIMO, CLIENTE, fmt, fmtMXNCorto, ALERTAS } from '../data/media';
 import { BrainCanvas } from './modules/dashboardModules/BrainCanvas';
-import { useConfirm } from './electoral/confirm';
-import { useToast } from './electoral/toast';
+import { useConfirm } from './shared/confirm';
+import { useToast } from './shared/toast';
 
 interface HeaderProps {
   title: string;
@@ -31,13 +31,14 @@ interface Notification {
   plan?: string;
 }
 
-const D = porAnio[ULTIMO];
+const D = porPeriodo[ULTIMO];
+const recuperableMXN = D.discrepancias.reduce((s, d) => s + d.montoMXN, 0);
 const notificacionesEstaticas: Notification[] = [
-  { id: 1, tipo: 'urgente', titulo: 'Oportunidad: 6 municipios por ≤5 votos',        mensaje: `El PRI quedó a ≤5 votos de ganar en 6 municipios. Un plan de movilización focalizada podría voltearlos. Revisa Alertas.`, tiempo: 'Hace 3 min',  leida: false, plan: 'Desplegar movilización focalizada en los 6 municipios de margen mínimo para intentar voltearlos.' },
-  { id: 2, tipo: 'alerta',  titulo: 'Detección en radio · MVS 102.5',               mensaje: `Nueva mención del PRI en Tlacolula, sentimiento positivo. Escucha el testigo en Monitor de Medios.`,                        tiempo: 'Hace 8 min',  leida: false },
-  { id: 3, tipo: 'alerta',  titulo: `Abstención crítica (${D.abstProm}%)`, mensaje: `Santo Domingo Ixcatlán registra 96.7% de abstención histórica. Foco de trabajo para movilización.`,                        tiempo: 'Hace 22 min', leida: false, plan: 'Reforzar estructura territorial en las plazas de mayor abstención histórica.' },
-  { id: 4, tipo: 'exito',   titulo: 'Cómputo de ganadores completado',              mensaje: `El PRI ganó ${fmt(D.ganadosPRI)} de ${fmt(D.totalMunicipios)} municipios (${D.sharePRI}% de la votación) en ${ULTIMO}.`,     tiempo: 'Hace 1 hora', leida: true  },
-  { id: 5, tipo: 'info',    titulo: `${D.segundaFuerza} avanza como 2ª fuerza`,      mensaje: `${D.segundaFuerza} concentra ${D.ganadosSegunda} municipios. Vigilar su avance de cara a la próxima elección.`,           tiempo: 'Hace 2 horas', leida: true  },
+  { id: 1, tipo: 'urgente', titulo: `Pauta no emitida: ${fmtMXNCorto(recuperableMXN)} recuperables`, mensaje: `Testigos IA detectó spots contratados que no salieron al aire en ${D.discrepancias.length} plazas. El monto es reclamable al medio. Revisa Alertas de Marca.`, tiempo: 'Hace 3 min',  leida: false, plan: `Generar el reclamo automático a las ${D.discrepancias.length} emisoras con spots faltantes.` },
+  { id: 2, tipo: 'alerta',  titulo: 'Detección on-air · MVS 102.5',                 mensaje: `Nueva mención de ${CLIENTE.nombre} en el bloque matutino, sentimiento positivo. Escucha el testigo en Testigos IA.`,       tiempo: 'Hace 8 min',  leida: false },
+  { id: 3, tipo: 'alerta',  titulo: `${ALERTAS[1].plaza}: spike de competencia`,     mensaje: ALERTAS[1].descripcion,                                                                                                          tiempo: 'Hace 22 min', leida: false, plan: 'Reforzar frecuencia en drive time en la plaza afectada durante 7 días.' },
+  { id: 4, tipo: 'exito',   titulo: 'Cálculo de Share of Voice completado',          mensaje: `${CLIENTE.nombre} lidera ${fmt(D.plazasLideradas)} de ${fmt(D.totalPlazas)} plazas (${D.sovCliente}% de SOV ponderado) en ${ULTIMO}.`, tiempo: 'Hace 1 hora', leida: true  },
+  { id: 5, tipo: 'info',    titulo: `${D.segundaMarca} avanza como 2ª marca`,        mensaje: `${D.segundaMarca} lidera ${D.lideradasSegunda} plazas. Vigilar su avance de cara al siguiente flight.`,                       tiempo: 'Hace 2 horas', leida: true  },
 ];
 
 export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {

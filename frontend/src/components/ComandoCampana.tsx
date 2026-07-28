@@ -1,35 +1,37 @@
 import React from 'react';
-import { Gauge, Bell, Activity, MapPin, TrendingUp, Users, Vote, FileSpreadsheet } from 'lucide-react';
-import { Panel, Kpi, Insight, SectionHero, LiveDot, keyframes, wrap, inner, useIsMobile } from './electoral/ui';
+import { Gauge, Bell, Activity, Megaphone } from 'lucide-react';
+import { Panel, Kpi, Insight, SectionHero, LiveDot, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
-import { porAnio, REPRESENTANTES, ULTIMO, fmt, fmtMXN, PARTIDO_COLOR } from '../data/electoral';
+import {
+  porPeriodo, COBERTURA, ULTIMO, MARCAS, CLIENTE, fmt, fmtMXN, fmtMXNCorto, MARCA_COLOR, MARCA_NOMBRE,
+} from '../data/media';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
-const D = porAnio[ULTIMO];
+const D = porPeriodo[ULTIMO];
 
 // Alertas del sistema derivadas de los datos
-const ALERTAS = [
-  { tipo: 'Resultados',    nivel: 'OK',    fuente: ULTIMO, texto: `PRI ganó ${D.ganadosPRI} de ${D.totalMunicipios} municipios en ${ULTIMO}` },
-  { tipo: 'Competencia',   nivel: 'Alta',  fuente: 'México', texto: `${D.segundaFuerza} es 2ª fuerza con ${D.ganadosSegunda} municipios` },
-  { tipo: 'Plaza fuerte',  nivel: 'Info',  fuente: ULTIMO, texto: `Mayor votación PRI: ${D.topPRI[0].municipio} (${fmt(D.topPRI[0].votosPRI)})` },
-  { tipo: 'Participación', nivel: 'Alta',  fuente: 'México', texto: `Abstención promedio ${D.abstProm}%` },
-  { tipo: 'Padrón',        nivel: 'Info',  fuente: 'México', texto: `Lista nominal ${fmt(D.listaNominal)} · ${fmt(D.casillas)} casillas` },
+const ALERTAS_SISTEMA = [
+  { tipo: 'Share of Voice', nivel: 'OK',   fuente: ULTIMO,   texto: `${CLIENTE.nombre} lidera ${D.plazasLideradas} de ${D.totalPlazas} plazas` },
+  { tipo: 'Competencia',    nivel: 'Alta', fuente: 'México', texto: `${D.segundaMarca} es 2ª marca con ${D.lideradasSegunda} plazas lideradas` },
+  { tipo: 'Plaza clave',    nivel: 'Info', fuente: ULTIMO,   texto: `Mayor inversión: ${D.topPlazas[0].plaza} (${fmtMXNCorto(D.topPlazas[0].inversionMXN)})` },
+  { tipo: 'Cobertura',      nivel: 'Alta', fuente: 'México', texto: `Alcance promedio ${D.alcanceProm}% — 6 plazas por debajo del objetivo` },
+  { tipo: 'Pauta',          nivel: 'Info', fuente: 'México', texto: `${fmt(COBERTURA.emisoras)} emisoras monitoreadas · ${fmt(D.grpsTotal)} GRPs` },
 ];
 const NIVEL_COLOR: Record<string, string> = { OK: colores.exito, Alta: colores.advertencia, Info: '#0047AB' };
 
 const ACTIVIDAD = [
-  { titulo: 'COMPILADO.xlsx procesado', meta: `${D.totalMunicipios} municipios · datalab`, cuando: 'hoy' },
-  { titulo: 'Representantes extraídos', meta: `${REPRESENTANTES.municipios} registros · datalab`, cuando: 'hoy' },
-  { titulo: 'Cómputo de ganadores', meta: 'México · sistema', cuando: 'hoy' },
-  { titulo: 'Perfilado de calidad', meta: 'NULLs conservados · datalab', cuando: 'hoy' },
+  { titulo: 'Plan de medios del trimestre cargado', meta: `${D.totalPlazas} plazas · planning`, cuando: 'hoy' },
+  { titulo: 'Testigos IA verificó la pauta del día', meta: `${COBERTURA.emisoras} emisoras · on-air`, cuando: 'hoy' },
+  { titulo: 'Cálculo de Share of Voice', meta: 'México · Cerebro Orquestador', cuando: 'hoy' },
+  { titulo: 'Conciliación de spots vs contrato', meta: `${D.discrepancias.length} discrepancias abiertas`, cuando: 'hoy' },
 ];
 
 const NIVEL_ACT = [
-  { label: 'Crítico', pct: 12, color: colores.peligro },
-  { label: 'Alto', pct: 38, color: colores.advertencia },
-  { label: 'Medio', pct: 32, color: V },
-  { label: 'Bajo', pct: 18, color: colores.textoOscuro },
+  { label: 'Drive time AM (06-10)', pct: 34, color: V },
+  { label: 'Mediodía (10-15)', pct: 21, color: colores.advertencia },
+  { label: 'Drive time PM (15-20)', pct: 31, color: colores.exito },
+  { label: 'Nocturno (20-00)', pct: 14, color: colores.textoOscuro },
 ];
 
 export const ComandoCampana: React.FC = () => {
@@ -41,36 +43,36 @@ export const ComandoCampana: React.FC = () => {
       <style>{keyframes}</style>
       <div style={inner}>
         <SectionHero
-          eyebrow="Comando Central"
-          title={<>Cerebro <strong style={{ fontWeight: 800 }}>Electoral</strong> · México</>}
-          subtitle="Vista de mando sobre los resultados municipales reales. Esto es lo que hicimos con la data que nos compartieron — con más datos, MAYIA hace mucho más."
+          eyebrow="Comando de Campaña"
+          title={<>Comando de <strong style={{ fontWeight: 800 }}>Campaña</strong> · {CLIENTE.nombre}</>}
+          subtitle="Vista de mando sobre la campaña en curso: inversión, Share of Voice y cobertura por plaza en las 32 entidades."
           insights={<>
-            <Insight kind="Análisis" title={`PRI gobierna ${D.ganadosPRI} de ${D.totalMunicipios} municipios`}>
-              En {ULTIMO} el PRI ganó el {Math.round(D.ganadosPRI / D.totalMunicipios * 100)}% de los municipios con {D.sharePRI}% de la votación.
+            <Insight kind="Análisis" title={`${CLIENTE.nombre} lidera ${D.plazasLideradas} de ${D.totalPlazas} plazas`}>
+              En {ULTIMO} la marca es #1 en Share of Voice en el {Math.round(D.plazasLideradas / D.totalPlazas * 100)}% de las plazas, con {D.sovCliente}% de SOV nacional ponderado.
             </Insight>
-            <Insight kind="Análisis" title={`Plaza fuerte: ${D.topPRI[0].municipio}`}>
-              {D.topPRI[0].municipio} aporta la mayor votación PRI ({fmt(D.topPRI[0].votosPRI)} votos). Núcleo a proteger.
+            <Insight kind="Análisis" title={`Plaza clave: ${D.topPlazas[0].plaza}`}>
+              {D.topPlazas[0].plaza} concentra la mayor inversión de la categoría ({fmtMXNCorto(D.topPlazas[0].inversionMXN)}). Núcleo a defender.
             </Insight>
-            <Insight kind="Sugerencia" title={`Presupuesto de representantes: ${fmtMXN(REPRESENTANTES.presupuesto)}`} plan={`Despliegue de ${fmt(REPRESENTANTES.total)} representantes optimizado por rendimiento electoral.`}>
-              {fmt(REPRESENTANTES.municipios)} municipios con representantes de casilla y generales. MAYIA puede optimizar el despliegue por rendimiento electoral.
+            <Insight kind="Sugerencia" title={`Inversión del cliente: ${fmtMXN(D.inversionCliente)}`} plan={`Rebalanceo de ${fmt(D.grpsTotal)} GRPs hacia las plazas con menor costo por punto.`}>
+              {fmt(COBERTURA.emisoras)} emisoras monitoreadas en {fmt(COBERTURA.plazas)} plazas. El Cerebro Orquestador puede rebalancear la pauta por rendimiento.
             </Insight>
           </>}
         />
 
         {/* KPIs */}
         <div style={{ ...grid('repeat(5, 1fr)'), marginBottom: 22 }}>
-          <Kpi label={`Municipios ${ULTIMO}`} value={fmt(D.totalMunicipios)} sub="México" up />
-          <Kpi label="Municipios ganados PRI" value={fmt(D.ganadosPRI)} delta={`2ª: ${D.segundaFuerza} ${D.ganadosSegunda}`} up />
-          <Kpi label="Votación PRI" value={`${D.sharePRI}%`} delta={`${fmt(D.votosPRI)} votos`} up />
-          <Kpi label="Representantes" value={fmt(REPRESENTANTES.total)} delta={fmtMXN(REPRESENTANTES.presupuesto)} up />
-          <Kpi label="Cobertura estatal" value="74%" sub="pendiente: 26%" up />
+          <Kpi label={`Plazas ${ULTIMO}`} value={fmt(D.totalPlazas)} sub="México" up />
+          <Kpi label="Plazas lideradas" value={fmt(D.plazasLideradas)} delta={`2ª: ${D.segundaMarca} ${D.lideradasSegunda}`} up />
+          <Kpi label={`SOV ${CLIENTE.nombre}`} value={`${D.sovCliente}%`} delta={`${fmt(D.grpsTotal)} GRPs`} up />
+          <Kpi label="Inversión del cliente" value={fmtMXNCorto(D.inversionCliente)} delta={`categoría ${fmtMXNCorto(D.inversionTotal)}`} up />
+          <Kpi label="Alcance promedio" value={`${D.alcanceProm}%`} sub={`${fmt(Math.round(D.impactos / 1_000_000))} M de impactos`} up />
         </div>
 
         {/* Alertas + Actividad */}
         <div style={{ ...grid('1.4fr 1fr'), marginBottom: 22 }}>
-          <Panel title="Alertas del Sistema" icon={<Bell size={17} color={V} />} right={<span style={{ fontSize: 22, fontWeight: 800, color: colores.textoClaro }}>{ALERTAS.length}</span>}>
+          <Panel title="Alertas del Sistema" icon={<Bell size={17} color={V} />} right={<span style={{ fontSize: 22, fontWeight: 800, color: colores.textoClaro }}>{ALERTAS_SISTEMA.length}</span>}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {ALERTAS.map((a, i) => (
+              {ALERTAS_SISTEMA.map((a, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, padding: '11px 13px' }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: NIVEL_COLOR[a.nivel], background: `${NIVEL_COLOR[a.nivel]}18`, padding: '3px 9px', borderRadius: 999, flexShrink: 0 }}>{a.nivel}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -102,19 +104,19 @@ export const ComandoCampana: React.FC = () => {
 
         {/* Votos por partido + nivel de actividad */}
         <div style={grid('1.4fr 1fr')}>
-          <Panel title={`Votos por partido · ${ULTIMO}`} icon={<Vote size={17} color={V} />}>
+          <Panel title={`Inversión por marca · ${ULTIMO}`} icon={<Megaphone size={17} color={V} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
-              {Object.entries(D.votosPorPartido).map(([p, v]) => {
-                const pct = Math.round(v / D.totalVotos * 1000) / 10;
-                const color = PARTIDO_COLOR[p] || colores.textoOscuro;
+              {MARCAS.map(m => {
+                const v = D.inversionPorMarca[m.id];
+                const pct = Math.round(v / D.inversionTotal * 1000) / 10;
                 return (
-                  <div key={p}>
+                  <div key={m.id}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
-                      <span style={{ fontWeight: 700, color: colores.textoClaro }}>{p}</span>
-                      <span style={{ color: colores.textoOscuro, fontVariantNumeric: 'tabular-nums' }}>{fmt(v)} · {pct}%</span>
+                      <span style={{ fontWeight: 700, color: colores.textoClaro }}>{MARCA_NOMBRE[m.id]}</span>
+                      <span style={{ color: colores.textoOscuro, fontVariantNumeric: 'tabular-nums' }}>{fmtMXNCorto(v)} · {pct}%</span>
                     </div>
                     <div style={{ height: 8, borderRadius: 999, background: colores.fondoTerciario, overflow: 'hidden' }}>
-                      <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: 999 }} />
+                      <div style={{ width: `${pct}%`, height: '100%', background: MARCA_COLOR[m.id], borderRadius: 999 }} />
                     </div>
                   </div>
                 );
@@ -122,7 +124,7 @@ export const ComandoCampana: React.FC = () => {
             </div>
           </Panel>
 
-          <Panel title="Por nivel de actividad" icon={<Gauge size={17} color={V} />}>
+          <Panel title="Pauta por franja horaria" icon={<Gauge size={17} color={V} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {NIVEL_ACT.map(n => (
                 <div key={n.label}>

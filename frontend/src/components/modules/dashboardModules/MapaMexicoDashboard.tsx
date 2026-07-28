@@ -2,63 +2,68 @@ import React, { useState } from 'react';
 import { Radio, Smartphone, Globe, MessageCircle, Brain, Sparkles, Check, MapPin } from 'lucide-react';
 import { brandingConfig } from '../../../config/branding';
 import { estadosPaths } from '../../../data/mexicoPaths';
-import { porAnio, ULTIMO, fmt } from '../../../data/electoral';
-import { useToast } from '../../electoral/toast';
-import { useConfirm } from '../../electoral/confirm';
+import { porPeriodo, ULTIMO, CLIENTE, fmt, fmtMXNCorto } from '../../../data/media';
+import { useToast } from '../../shared/toast';
+import { useConfirm } from '../../shared/confirm';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
-const OAXACA = 'MX_OA';
-const D = porAnio[ULTIMO];
+const D = porPeriodo[ULTIMO];
+const PLAZA_POR_ID = Object.fromEntries(D.plazas.map(p => [p.id, p]));
+// Plaza con monitoreo on-air en vivo (Testigos IA); el resto es proyección.
+const PLAZA_VIVA = 'MX_DF';
 
-// Seed determinista por estado → señales dummy plausibles (real solo Oaxaca).
+// Seed determinista por plaza → señales dummy plausibles.
 function hash(s: string) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
 
 type Señal = {
   radio: number; inApp: number; openWeb: number; redes: number;
   pos: number; neu: number; neg: number;
+  sov: number; inversionMXN: number; grps: number; alcancePct: number;
   prediccion: string; speech: string; real: boolean;
 };
 
 const PREDICCIONES = [
-  'tu mensaje de seguridad gana tracción en radio; conviene reforzarlo en redes esta semana.',
-  'el tema económico polariza; un ajuste de discurso bajaría el sentimiento negativo.',
-  'hay ventana de oportunidad en open web: el rival no está ocupando ese espacio.',
-  'la conversación en redes crece más rápido que en radio; prioriza contenido corto.',
-  'el electorado responde mejor a mensajes locales; personaliza por municipio.',
+  'el mensaje de producto gana tracción en radio; conviene reforzarlo en redes esta semana.',
+  'el eje de precio polariza; un ajuste de copy bajaría el sentimiento negativo.',
+  'hay ventana en open web: la competencia no está ocupando ese espacio.',
+  'la conversación en redes crece más rápido que en radio; prioriza formatos cortos.',
+  'la audiencia responde mejor a creatividades locales; personaliza por plaza.',
 ];
 const SPEECHES = [
-  'la gente repite tus frases sobre bienestar, pero pide ejemplos concretos.',
-  'el público reacciona positivo a seguridad y frío a temas fiscales.',
-  'tu último spot se cita textual en 3 estaciones; el mensaje pegó.',
-  'hay dudas recurrentes sobre el plan de empleo; conviene aclararlo.',
-  'las menciones suben cuando hablas de obras; la audiencia lo valida.',
+  'la gente repite el claim de la campaña, pero pide ejemplos concretos.',
+  'el público reacciona positivo a disponibilidad y frío a temas de precio.',
+  'el último spot se cita textual en 3 estaciones; el mensaje pegó.',
+  'hay dudas recurrentes sobre el tiempo de entrega; conviene aclararlo.',
+  'las menciones suben cuando se habla de servicio; la audiencia lo valida.',
 ];
 
-function señal(id: string, label: string): Señal {
-  if (id === OAXACA) {
-    return {
-      radio: D.casillas, inApp: Math.round(D.listaNominal / 1000), openWeb: D.recuperables.length * 40, redes: Math.round(D.votosPRI / 1000),
-      pos: 46, neu: 34, neg: 20, real: true,
-      prediccion: `el PRI ganó ${D.ganadosPRI}/${D.totalMunicipios} municipios (${D.sharePRI}%). Con ${D.recuperables.length} municipios recuperables, un plan focalizado sube la ventaja.`,
-      speech: `${D.segundaFuerza} (2ª fuerza) crece; la audiencia responde a mensajes de plaza local.`,
-    };
-  }
+function señal(id: string, _label: string): Señal {
+  const p = PLAZA_POR_ID[id];
   const h = hash(id);
+  const sov = p?.sovPorMarca[CLIENTE.id] ?? 0;
   const radio = 20 + (h % 180), inApp = 15 + ((h >> 3) % 140), openWeb = 10 + ((h >> 6) % 120), redes = 40 + ((h >> 9) % 320);
   const pos = 28 + (h % 30), neg = 15 + ((h >> 4) % 25); const neu = Math.max(10, 100 - pos - neg);
+  const real = id === PLAZA_VIVA;
   return {
-    radio, inApp, openWeb, redes, pos, neu, neg, real: false,
-    prediccion: PREDICCIONES[h % PREDICCIONES.length],
+    radio, inApp, openWeb, redes, pos, neu, neg,
+    sov,
+    inversionMXN: p?.inversionMXN ?? 0,
+    grps: p?.grps ?? 0,
+    alcancePct: p?.alcancePct ?? 0,
+    real,
+    prediccion: real
+      ? `${CLIENTE.nombre} tiene ${sov}% de SOV en la plaza con ${fmt(p?.grps ?? 0)} GRPs. Rebalancear al drive time PM sube la cobertura sin más inversión.`
+      : PREDICCIONES[h % PREDICCIONES.length],
     speech: SPEECHES[(h >> 5) % SPEECHES.length],
   };
 }
 
+// Intensidad del mapa = Share of Voice del cliente en la plaza.
 function nivel(s: Señal): 'low' | 'medium' | 'high' | 'critical' {
-  const total = s.radio + s.inApp + s.openWeb + s.redes;
   if (s.neg >= 32) return 'critical';
-  if (total > 500) return 'high';
-  if (total > 300) return 'medium';
+  if (s.sov >= 34) return 'high';
+  if (s.sov >= 27) return 'medium';
   return 'low';
 }
 const FILL: Record<string, string> = {
@@ -73,10 +78,17 @@ const CANALES = (s: Señal) => [
   { Icon: MessageCircle, label: 'Redes', v: s.redes, color: colores.exito },
 ];
 
+const METRICAS = (s: Señal) => [
+  { label: 'Share of Voice', v: `${s.sov}%` },
+  { label: 'Inversión', v: fmtMXNCorto(s.inversionMXN) },
+  { label: 'GRPs', v: fmt(s.grps) },
+  { label: 'Alcance', v: `${s.alcancePct}%` },
+];
+
 export const MapaMexicoDashboard: React.FC = () => {
   const { push } = useToast();
   const confirmar = useConfirm();
-  const [sel, setSel] = useState<{ id: string; label: string }>({ id: OAXACA, label: 'Oaxaca' });
+  const [sel, setSel] = useState<{ id: string; label: string }>({ id: PLAZA_VIVA, label: 'Ciudad de México' });
   const s = señal(sel.id, sel.label);
   const dataMap = React.useMemo(() => {
     const m: Record<string, Señal> = {};
@@ -91,8 +103,8 @@ export const MapaMexicoDashboard: React.FC = () => {
           <MapPin size={20} color={V} />
         </div>
         <div>
-          <h3 style={{ fontSize: 16, fontWeight: 700, color: colores.textoClaro, margin: 0 }}>Señales por estado</h3>
-          <p style={{ fontSize: 12, color: colores.textoOscuro, margin: '2px 0 0' }}>Radio · In-App · Open Web · Redes · pasa el cursor</p>
+          <h3 style={{ fontSize: 16, fontWeight: 700, color: colores.textoClaro, margin: 0 }}>Share of Voice por plaza</h3>
+          <p style={{ fontSize: 12, color: colores.textoOscuro, margin: '2px 0 0' }}>Intensidad = SOV de {CLIENTE.nombre} · pasa el cursor</p>
         </div>
       </div>
 
@@ -102,14 +114,14 @@ export const MapaMexicoDashboard: React.FC = () => {
           {estadosPaths.map(e => {
             const lv = nivel(dataMap[e.id]);
             const active = sel.id === e.id;
-            const isOax = e.id === OAXACA;
+            const isViva = e.id === PLAZA_VIVA;
             return (
               <path
                 key={e.id}
                 d={e.path}
                 fill={active ? STROKE[lv] : FILL[lv]}
-                stroke={active || isOax ? STROKE[lv] : colores.fondoClaro}
-                strokeWidth={active ? 2.4 : isOax ? 1.8 : 0.8}
+                stroke={active || isViva ? STROKE[lv] : colores.fondoClaro}
+                strokeWidth={active ? 2.4 : isViva ? 1.8 : 0.8}
                 style={{ cursor: 'pointer', transition: 'fill .18s, stroke .18s' }}
                 onMouseEnter={() => setSel({ id: e.id, label: e.label })}
                 onClick={() => setSel({ id: e.id, label: e.label })}
@@ -126,8 +138,18 @@ export const MapaMexicoDashboard: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
           <span style={{ fontSize: 15, fontWeight: 800, color: colores.textoClaro }}>{sel.label}</span>
           {s.real
-            ? <span style={{ fontSize: 10.5, fontWeight: 700, color: colores.exito, background: `${colores.exito}18`, padding: '2px 8px', borderRadius: 999 }}>DATOS REALES</span>
+            ? <span style={{ fontSize: 10.5, fontWeight: 700, color: colores.exito, background: `${colores.exito}18`, padding: '2px 8px', borderRadius: 999 }}>ON-AIR EN VIVO</span>
             : <span style={{ fontSize: 10.5, fontWeight: 700, color: colores.textoOscuro, background: colores.fondoTerciario, padding: '2px 8px', borderRadius: 999 }}>proyección</span>}
+        </div>
+
+        {/* Métricas de plaza */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
+          {METRICAS(s).map(m => (
+            <div key={m.label} style={{ background: colores.fondoClaro, border: `1px solid ${colores.borde}`, borderRadius: 10, padding: '9px 8px', textAlign: 'center' }}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: colores.textoClaro, fontVariantNumeric: 'tabular-nums', lineHeight: 1.2 }}>{m.v}</div>
+              <div style={{ fontSize: 10, color: colores.textoOscuro, marginTop: 2 }}>{m.label}</div>
+            </div>
+          ))}
         </div>
 
         {/* Canales detectados */}

@@ -3,7 +3,7 @@ import { brandingConfig } from '../config/branding';
 import { WelcomeHeader } from './modules/dashboardModules/WelcomeHeader';
 import { HeroCard } from './modules/dashboardModules/Herocard';
 import { ProductivityChart } from './modules/dashboardModules/Productivitychart';
-import { ResumenElectoralCards } from './modules/dashboardModules/ResumenElectoralCards';
+import { ResumenMediosCards } from './modules/dashboardModules/ResumenMediosCards';
 import { MapaMexicoDashboard } from './modules/dashboardModules/MapaMexicoDashboard';
 import { RadiosEscuchadasCard } from './modules/dashboardModules/RadiosEscuchadasCard';
 import { PalabrasBuscadasCard } from './modules/dashboardModules/PalabrasBuscadasCard';
@@ -33,7 +33,7 @@ export const WarRoom: React.FC<WarRoomProps> = ({ onSectionChange }) => {
           {isMobile ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 16 }}>
               <HeroCard onNavigate={onSectionChange} />
-              <ResumenElectoralCards onSectionChange={onSectionChange} />
+              <ResumenMediosCards onSectionChange={onSectionChange} />
               <MapaMexicoDashboard />
               <RadiosEscuchadasCard />
               <PalabrasBuscadasCard />
@@ -45,7 +45,7 @@ export const WarRoom: React.FC<WarRoomProps> = ({ onSectionChange }) => {
                 <div style={{ height: 330 }}>
                   <HeroCard onNavigate={onSectionChange} />
                 </div>
-                <ResumenElectoralCards onSectionChange={onSectionChange} />
+                <ResumenMediosCards onSectionChange={onSectionChange} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
                 <div style={{ height: 620 }}>

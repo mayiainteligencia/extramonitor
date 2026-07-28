@@ -1,11 +1,11 @@
 import React from 'react';
 import { Command, ClipboardList, Bell, ArrowUpRight, ChevronRight } from 'lucide-react';
 import { brandingConfig } from '../../../config/branding';
-import { porAnio, REPRESENTANTES, ULTIMO, fmt, PARTIDO_COLOR } from '../../../data/electoral';
+import { porPeriodo, ULTIMO, MARCAS, CLIENTE, ALERTAS, fmt, fmtMXNCorto, MARCA_COLOR } from '../../../data/media';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
-const D = porAnio[ULTIMO];
+const D = porPeriodo[ULTIMO];
 
 type Row = { label: string; value: string; color?: string };
 
@@ -50,28 +50,30 @@ const Card: React.FC<{
   </button>
 );
 
-export const ResumenElectoralCards: React.FC<{ onSectionChange?: (s: string) => void }> = ({ onSectionChange }) => {
-  const topPartidos = Object.entries(D.votosPorPartido).slice(0, 3);
+export const ResumenMediosCards: React.FC<{ onSectionChange?: (s: string) => void }> = ({ onSectionChange }) => {
+  const topMarcas = MARCAS.slice(0, 3);
+  const altas = ALERTAS.filter(a => a.severidad === 'alta').length;
+  const recuperable = D.discrepancias.reduce((s, d) => s + d.montoMXN, 0);
   return (
     <>
       <Card
-        icon={Command} titulo="Comando Central" subtitulo={`México · ${ULTIMO}`} seccion="comando" onGo={onSectionChange} cta="Abrir comando"
+        icon={Command} titulo="Comando de Campaña" subtitulo={`México · ${ULTIMO}`} seccion="comando" onGo={onSectionChange} cta="Abrir comando"
         rows={[
-          { label: 'Municipios ganados PRI', value: `${fmt(D.ganadosPRI)} / ${fmt(D.totalMunicipios)}` },
-          { label: 'Votación PRI', value: `${D.sharePRI}%`, color: PARTIDO_COLOR.PRI },
-          { label: 'Representantes', value: fmt(REPRESENTANTES.total) },
+          { label: 'Plazas lideradas', value: `${fmt(D.plazasLideradas)} / ${fmt(D.totalPlazas)}` },
+          { label: `Share of Voice ${CLIENTE.nombre}`, value: `${D.sovCliente}%`, color: CLIENTE.color },
+          { label: 'GRPs del periodo', value: fmt(D.grpsTotal) },
         ]}
       />
       <Card
-        icon={ClipboardList} titulo="Resultados" subtitulo="Elecciones municipales" seccion="investment" onGo={onSectionChange} cta="Ver resultados"
-        rows={topPartidos.map(([p, v]) => ({ label: p, value: `${fmt(v)}`, color: PARTIDO_COLOR[p] }))}
+        icon={ClipboardList} titulo="Investment Value" subtitulo="Inversión por marca" seccion="investment" onGo={onSectionChange} cta="Ver inversión"
+        rows={topMarcas.map(m => ({ label: m.nombre, value: fmtMXNCorto(D.inversionPorMarca[m.id]), color: MARCA_COLOR[m.id] }))}
       />
       <Card
-        icon={Bell} titulo="Alertas" subtitulo="Focos de atención" seccion="alertas" onGo={onSectionChange} cta="Revisar alertas"
+        icon={Bell} titulo="Alertas de Marca" subtitulo="Focos de atención" seccion="alertas" onGo={onSectionChange} cta="Revisar alertas"
         rows={[
-          { label: 'Municipios recuperables', value: fmt(D.recuperables.length), color: V },
-          { label: 'Abstención promedio', value: `${D.abstProm}%`, color: colores.advertencia },
-          { label: `2ª fuerza (${D.segundaFuerza})`, value: `${D.ganadosSegunda} mun.` },
+          { label: 'Alertas de severidad alta', value: fmt(altas), color: colores.peligro },
+          { label: 'Presupuesto recuperable', value: fmtMXNCorto(recuperable), color: V },
+          { label: `2ª marca (${D.segundaMarca})`, value: `${D.lideradasSegunda} plazas` },
         ]}
       />
     </>
