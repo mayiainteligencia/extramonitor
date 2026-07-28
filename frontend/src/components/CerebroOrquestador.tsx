@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Megaphone, Cog, Mic2, Swords, TrendingUp, Users2, LayoutPanelLeft,
-  Database, Rocket, RefreshCw, Radio, Activity,
+  Megaphone, Palette, ShoppingCart, Swords, TrendingUp, Users2, Tag,
+  ShieldAlert, PieChart as PieChartIcon, Radio, Activity,
   ArrowUpRight, ArrowDownRight, CircleDot,
 } from 'lucide-react';
 import {
@@ -10,8 +10,13 @@ import {
 } from 'recharts';
 import { brandingConfig } from '../config/branding';
 import { ModuloDetalleModal } from './CerebroOrquestadorDetalles';
+import {
+  porPeriodo, ULTIMO, COBERTURA, MARCAS, CLIENTE, ALERTAS, fmt, fmtMXNCorto,
+} from '../data/media';
 
 const { colores } = brandingConfig;
+const D = porPeriodo[ULTIMO];
+const recuperableMXN = D.discrepancias.reduce((s, d) => s + d.montoMXN, 0);
 
 const PALETA = ['#7C3AED', '#1A1A1A', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'];
 
@@ -39,156 +44,160 @@ interface Modulo {
 const serie = (vals: number[]): { x: string; v: number }[] =>
   vals.map((v, i) => ({ x: `${i}`, v }));
 
+// Jerarquía: Operadores ejecutan, Modelos predicen, Agentes de Insights generan hallazgos.
 const MODULOS: Modulo[] = [
   {
-    num: 1, icon: Megaphone, tag: 'Comercial',
-    titulo: 'Activación automática de campañas',
-    descripcion: 'Detecta menciones en radio y dispara pauta en Meta / Google sincronizada.',
-    badge: { texto: 'EN VIVO', color: colores.exito },
+    num: 1, icon: Radio, tag: 'Operador',
+    titulo: 'Operador de Testigos',
+    descripcion: 'Verificación on-air de la pauta contratada, conectado a la sección Testigos IA.',
+    badge: { texto: 'DATOS EN VIVO', color: colores.exito },
     kpis: [
-      { label: 'Campañas activas', value: '24', delta: 12 },
-      { label: 'Marcas detectadas', value: '187', delta: 8 },
-      { label: 'Sync APIs', value: '99.2%' },
+      { label: 'Emisoras monitoreadas', value: fmt(COBERTURA.emisoras), delta: 4 },
+      { label: 'Spots verificados hoy', value: '1,342', delta: 23 },
+      { label: 'Precisión de match', value: '98.6%' },
     ],
-    semanas: '8–10 sem',
-    viz: { tipo: 'donut', data: [{ label: 'Meta Ads', value: 58 }, { label: 'Google Ads', value: 42 }] },
-  },
-  {
-    num: 2, icon: Cog, tag: 'Automatización',
-    titulo: 'Centros de procesos automatizados',
-    descripcion: 'Corte automático de audio, clips verificables y reportes sin intervención manual.',
-    badge: { texto: 'AUTOMÁTICO', color: colores.primario },
-    kpis: [
-      { label: 'Clips generados', value: '1,342', delta: 23 },
-      { label: 'Reportes/día', value: '96', delta: 5 },
-      { label: 'Alertas auto', value: '418' },
-    ],
-    semanas: '6 sem',
+    semanas: 'Operando',
     viz: { tipo: 'sparkbars', data: [40, 65, 50, 80, 72, 95, 88, 120, 110, 140] },
   },
   {
-    num: 3, icon: Mic2, tag: 'Editorial',
-    titulo: 'Talento y programación',
-    descripcion: 'Diarización de voz, tiempo aire por locutor y desempeño por programa.',
-    badge: { texto: 'ANÁLISIS', color: '#8B5CF6' },
+    num: 2, icon: Megaphone, tag: 'Operador',
+    titulo: 'Operador de Pauta',
+    descripcion: 'Optimiza la compra online y offline y rebalancea la inversión entre plazas.',
+    badge: { texto: 'EJECUCIÓN', color: colores.primario },
     kpis: [
-      { label: 'Locutores', value: '38' },
-      { label: 'Hrs aire/sem', value: '612', delta: 4 },
-      { label: 'Engagement', value: '74%', delta: 9 },
+      { label: 'Plazas optimizadas', value: fmt(D.totalPlazas), delta: 12 },
+      { label: 'Inversión gestionada', value: fmtMXNCorto(D.inversionCliente), delta: 9 },
+      { label: 'Ahorro por rebalanceo', value: '7.4%' },
+    ],
+    semanas: '8–10 sem',
+    viz: { tipo: 'donut', data: [{ label: 'Offline', value: 61 }, { label: 'Online', value: 39 }] },
+  },
+  {
+    num: 3, icon: Palette, tag: 'Operador',
+    titulo: 'Operador de Contenido',
+    descripcion: 'Genera variantes creativas por formato y plaza a partir de la pieza maestra.',
+    badge: { texto: 'GENERATIVO', color: '#8B5CF6' },
+    kpis: [
+      { label: 'Piezas generadas', value: '486', delta: 31 },
+      { label: 'Formatos activos', value: '9' },
+      { label: 'Aprobación en 1er pase', value: '72%', delta: 6 },
     ],
     semanas: '10 sem',
     viz: {
       tipo: 'barsH', data: [
-        { label: 'C. López', value: 92 }, { label: 'M. Ruiz', value: 78 },
-        { label: 'A. Vega', value: 64 }, { label: 'J. Soto', value: 51 },
+        { label: 'Radio 20s', value: 92 }, { label: 'Video 15s', value: 78 },
+        { label: 'Display', value: 64 }, { label: 'Social', value: 51 },
       ],
     },
   },
   {
-    num: 4, icon: Swords, tag: 'Competencia',
-    titulo: 'Inteligencia competitiva',
-    descripcion: 'Share of Voice de competidores y detección de oportunidades comerciales.',
-    badge: { texto: 'SHARE OF VOICE', color: colores.advertencia },
+    num: 4, icon: ShoppingCart, tag: 'Operador',
+    titulo: 'Operador de E-Commerce',
+    descripcion: 'Vigila catálogo, precio y disponibilidad en marketplaces y retail propio.',
+    badge: { texto: 'RETAIL', color: '#3B82F6' },
     kpis: [
-      { label: 'Marcas rastreadas', value: '52' },
-      { label: 'Tu SoV', value: '34%', delta: 6 },
-      { label: 'Oportunidades', value: '17' },
-    ],
-    semanas: '6 sem',
-    viz: {
-      tipo: 'donut', data: [
-        { label: 'MVS', value: 34 }, { label: 'Comp. A', value: 28 },
-        { label: 'Comp. B', value: 22 }, { label: 'Otros', value: 16 },
-      ],
-    },
-  },
-  {
-    num: 5, icon: TrendingUp, tag: 'Trending',
-    titulo: 'Trending topics radio + redes',
-    descripcion: 'Cruce de conversación entre radio y X, Instagram y TikTok en tiempo real.',
-    badge: { texto: 'TENDENCIAS', color: colores.exito },
-    kpis: [
-      { label: 'Temas activos', value: '29', delta: 14 },
-      { label: 'Volumen 24h', value: '84K', delta: 31 },
-      { label: 'Pico correlación', value: '+62%' },
+      { label: 'SKUs monitoreados', value: '1,208' },
+      { label: 'Quiebres de stock', value: '17', delta: -22 },
+      { label: 'Buy box ganada', value: '68%', delta: 5 },
     ],
     semanas: '8 sem',
+    viz: { tipo: 'area', data: serie([44, 52, 48, 61, 58, 70, 66, 78, 74, 86]) },
+  },
+  {
+    num: 5, icon: PieChartIcon, tag: 'Modelo',
+    titulo: 'Modelo de Mix de Medios (MMM)',
+    descripcion: 'Atribuye la contribución de cada canal a las ventas y guía el reparto de inversión.',
+    badge: { texto: 'ATRIBUCIÓN', color: colores.advertencia },
+    kpis: [
+      { label: 'Canales modelados', value: '7' },
+      { label: 'R² del modelo', value: '0.86' },
+      { label: 'ROI incremental', value: '2.4x', delta: 11 },
+    ],
+    semanas: '12 sem',
+    viz: {
+      tipo: 'donut', data: [
+        { label: 'Radio', value: 34 }, { label: 'Digital', value: 28 },
+        { label: 'TV', value: 22 }, { label: 'OOH', value: 16 },
+      ],
+    },
+  },
+  {
+    num: 6, icon: TrendingUp, tag: 'Modelo',
+    titulo: 'Modelo Predictivo de Alcance',
+    descripcion: 'Forecast de cobertura y frecuencia efectiva antes de comprometer la compra.',
+    badge: { texto: 'FORECAST', color: colores.exito },
+    kpis: [
+      { label: 'Alcance proyectado', value: `${D.alcanceProm + 6}%`, delta: 6 },
+      { label: 'Frecuencia efectiva', value: '4.2' },
+      { label: 'Error vs real', value: '±3.1 pts' },
+    ],
+    semanas: '10 sem',
     viz: { tipo: 'area', data: serie([20, 35, 28, 50, 44, 70, 62, 88, 76, 110]) },
   },
   {
-    num: 6, icon: Users2, tag: 'Audiencias',
-    titulo: 'Hipersegmentación de audiencias',
-    descripcion: 'Clustering avanzado, perfilamiento demográfico y detección de “audiencia oro”.',
-    badge: { texto: 'ML CLUSTERING', color: '#3B82F6' },
+    num: 7, icon: Tag, tag: 'Modelo',
+    titulo: 'Modelo de Elasticidad de Precio',
+    descripcion: 'Estima la sensibilidad al precio por plaza y el umbral de promoción rentable.',
+    badge: { texto: 'PRICING', color: '#3B82F6' },
+    kpis: [
+      { label: 'Elasticidad media', value: '-1.34' },
+      { label: 'Plazas sensibles', value: '11' },
+      { label: 'Margen protegido', value: fmtMXNCorto(38_400_000), delta: 4 },
+    ],
+    semanas: '14 sem',
+    viz: {
+      tipo: 'barsH', data: [
+        { label: 'CDMX', value: 88 }, { label: 'Jalisco', value: 71 },
+        { label: 'N. León', value: 55 }, { label: 'Puebla', value: 40 },
+      ],
+    },
+  },
+  {
+    num: 8, icon: Users2, tag: 'Agente de Insights',
+    titulo: 'Agente de Insights de Consumidor',
+    descripcion: 'Convierte señales de audiencia en hallazgos accionables por segmento.',
+    badge: { texto: 'HALLAZGOS', color: '#8B5CF6' },
     kpis: [
       { label: 'Clústeres', value: '12' },
-      { label: 'Audiencia oro', value: '8.4%', delta: 3 },
-      { label: 'Perfiles', value: '2.1M' },
+      { label: 'Audiencia prioritaria', value: '8.4%', delta: 3 },
+      { label: 'Insights del mes', value: '46', delta: 18 },
     ],
     semanas: '18 sem',
     viz: {
       tipo: 'donut', data: [
-        { label: 'Oro', value: 8 }, { label: 'Premium', value: 22 },
+        { label: 'Prioritaria', value: 8 }, { label: 'Premium', value: 22 },
         { label: 'Frecuente', value: 41 }, { label: 'Casual', value: 29 },
       ],
     },
   },
   {
-    num: 7, icon: LayoutPanelLeft, tag: 'Brand Portal',
-    titulo: 'Portal para clientes',
-    descripcion: 'Dashboard self-service para anunciantes: menciones, clips y reportes.',
-    badge: { texto: 'SELF-SERVICE', color: colores.primario },
+    num: 9, icon: Swords, tag: 'Agente de Insights',
+    titulo: 'Agente de Competencia',
+    descripcion: 'Sigue el Share of Voice y los movimientos de pauta del mercado.',
+    badge: { texto: 'SHARE OF VOICE', color: colores.advertencia },
     kpis: [
-      { label: 'Clientes activos', value: '46', delta: 10 },
-      { label: 'Clips descargados', value: '3,907' },
-      { label: 'Reportes enviados', value: '512' },
+      { label: 'Marcas rastreadas', value: '52' },
+      { label: `SOV ${CLIENTE.nombre}`, value: `${D.sovCliente}%`, delta: 6 },
+      { label: 'Movimientos detectados', value: '17' },
     ],
     semanas: '6 sem',
-    viz: { tipo: 'sparkbars', data: [30, 45, 38, 60, 72, 65, 90, 84, 100, 118] },
-  },
-  {
-    num: 8, icon: Database, tag: 'INRA',
-    titulo: 'Integración con INRA y audiencia',
-    descripcion: 'Cruce de monitoreo con métricas de audiencia: impacto y valor de pauta.',
-    badge: { texto: 'DATA SYNC', color: '#8B5CF6' },
-    kpis: [
-      { label: 'Valor pauta', value: '$4.2M', delta: 7 },
-      { label: 'Ranking impacto', value: 'Top 8' },
-      { label: 'Cobertura', value: '91%' },
-    ],
-    semanas: '8 sem',
     viz: {
-      tipo: 'barsH', data: [
-        { label: 'Estación A', value: 88 }, { label: 'Estación B', value: 71 },
-        { label: 'Estación C', value: 55 }, { label: 'Estación D', value: 40 },
-      ],
+      tipo: 'donut',
+      data: MARCAS.map(m => ({ label: m.nombre, value: Math.round(D.inversionPorMarca[m.id] / D.inversionTotal * 100) })),
     },
   },
   {
-    num: 9, icon: Rocket, tag: 'Roadmap',
-    titulo: 'Estrategia hacia el 2027',
-    descripcion: 'Plan evolutivo de la plataforma y nuevas líneas de producto.',
-    badge: { texto: 'PLANEACIÓN', color: colores.advertencia },
+    num: 10, icon: ShieldAlert, tag: 'Agente de Insights',
+    titulo: 'Agente de Anomalías',
+    descripcion: 'Detecta fraude publicitario, discrepancias de pauta y gasto desperdiciado.',
+    badge: { texto: 'VIGILANCIA', color: colores.peligro },
     kpis: [
-      { label: 'Fases', value: '4' },
-      { label: 'Avance', value: '35%', delta: 5 },
-      { label: 'Hitos', value: '11' },
+      { label: 'Anomalías abiertas', value: fmt(ALERTAS.length) },
+      { label: 'Presupuesto recuperable', value: fmtMXNCorto(recuperableMXN), delta: 9 },
+      { label: 'Tráfico inválido', value: '4.7%', delta: -12 },
     ],
-    semanas: '10–15 sem',
-    viz: { tipo: 'gauge', value: 35 },
-  },
-  {
-    num: 10, icon: RefreshCw, tag: 'Web Services',
-    titulo: 'Integración Web Services INRA',
-    descripcion: 'Ingestión y actualización diaria automática en un dashboard unificado.',
-    badge: { texto: 'SYNC DIARIO', color: colores.exito },
-    kpis: [
-      { label: 'Uptime', value: '99.9%' },
-      { label: 'Última sync', value: 'Hoy 06:00' },
-      { label: 'Registros/día', value: '24K' },
-    ],
-    semanas: '4 sem',
-    viz: { tipo: 'gauge', value: 99 },
+    semanas: '8 sem',
+    viz: { tipo: 'gauge', value: 95 },
   },
 ];
 
@@ -396,10 +405,10 @@ export const CerebroOrquestador: React.FC = () => {
   }, []);
 
   const kpisTop = [
-    { icon: Radio, label: 'Estaciones monitoreadas', value: '42', delta: 3 },
-    { icon: Activity, label: 'Menciones hoy', value: '12,480', delta: 18 },
-    { icon: Megaphone, label: 'Campañas activas', value: '24', delta: 12 },
-    { icon: Users2, label: 'Audiencia analizada', value: '2.1M', delta: 6 },
+    { icon: Radio, label: 'Emisoras monitoreadas', value: fmt(COBERTURA.emisoras), delta: 3 },
+    { icon: Activity, label: 'Detecciones hoy', value: '12,480', delta: 18 },
+    { icon: Megaphone, label: 'Plazas activas', value: fmt(D.totalPlazas), delta: 12 },
+    { icon: Users2, label: 'Impactos del periodo', value: `${fmt(Math.round(D.impactos / 1_000_000))}M`, delta: 6 },
   ];
 
   return (
@@ -431,10 +440,10 @@ export const CerebroOrquestador: React.FC = () => {
           }} />
           <Badge texto="EN VIVO" color={colores.primario} pulse />
           <h1 style={{ fontSize: isMobile ? 26 : 38, fontWeight: 300, color: '#fff', margin: '14px 0 6px', letterSpacing: '-0.5px' }}>
-            Cerebro <span style={{ fontWeight: 800, color: colores.primario }}>Electoral</span>
+            Cerebro <span style={{ fontWeight: 800, color: colores.primario }}>Orquestador</span>
           </h1>
           <p style={{ fontSize: isMobile ? 14 : 16, color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: 620, lineHeight: 1.5 }}>
-            Plataforma de inteligencia mediática: del audio en radio al análisis semántico, comercial y político en tiempo real.
+            La capa que coordina la plataforma: Operadores que ejecutan, Modelos que predicen y Agentes de Insights que generan hallazgos.
           </p>
 
           <div style={{
@@ -462,8 +471,8 @@ export const CerebroOrquestador: React.FC = () => {
 
         {/* SECCIÓN MÓDULOS */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 16px' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Módulos de inteligencia</h2>
-          <span style={{ fontSize: 12, color: colores.textoOscuro }}>10 módulos · plataforma extendida</span>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Módulos orquestados</h2>
+          <span style={{ fontSize: 12, color: colores.textoOscuro }}>4 Operadores · 3 Modelos · 3 Agentes de Insights</span>
         </div>
 
         <div style={{
