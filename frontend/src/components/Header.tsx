@@ -233,8 +233,24 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
           />
         </div>
 
-        {/* ── DERECHA: Jarvis + Fecha + Bell + Avatar ── */}
+        {/* ── DERECHA: Contexto de cliente + Jarvis + Fecha + Bell + Avatar ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Cliente y campaña activos */}
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
+            padding: '5px 14px', borderRadius: '14px',
+            backgroundColor: colores.fondoTerciario, border: `1px solid ${colores.borde}`,
+            flexShrink: 0, maxWidth: 230,
+          }} title={`${CLIENTE.nombre} · ${title}`}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', fontWeight: 700, color: colores.textoClaro, whiteSpace: 'nowrap' }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: CLIENTE.color }} />
+              {CLIENTE.nombre}
+            </span>
+            <span style={{ fontSize: '11px', color: colores.textoOscuro, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+              Campaña {ULTIMO} · {title}
+            </span>
+          </div>
+
           {/* Mini-jarvis (átomo) — acceso rápido al asistente */}
           <button
             onClick={abrirJarvis}

@@ -121,7 +121,7 @@ export const InvestmentValue: React.FC = () => {
           </Panel>
         </div>
 
-        {/* Votos por partido + Top municipios */}
+        {/* Inversión por marca + top plazas */}
         <div style={grid('1fr 1fr')}>
           <Panel title={`Inversión por marca · ${anio}`} icon={<Megaphone size={17} color={V} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>

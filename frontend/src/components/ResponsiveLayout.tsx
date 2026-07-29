@@ -206,7 +206,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <img
-            src="/assets/logosNativos/cerebroElectoralLogo.png"
+            src={empresa.logo}
             alt={empresa.nombre}
             style={{ height: '28px', objectFit: 'contain' }}
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -284,7 +284,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <img
-                    src="/assets/logosNativos/cerebroElectoralLogo.png"
+                    src={empresa.logo}
                     alt={empresa.nombre}
                     style={{ width: '100%', objectFit: 'contain', padding: '4px' }}
                     onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}

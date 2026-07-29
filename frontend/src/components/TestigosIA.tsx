@@ -1,9 +1,13 @@
-// src/components/modules/TestigosIA.tsx
+// src/components/TestigosIA.tsx
 import { useState, useEffect, useRef } from 'react';
 import { brandingConfig } from '../config/branding';
 import { Search, RotateCcw, Radio, ChevronDown, ChevronUp } from 'lucide-react';
 
 const { colores } = brandingConfig;
+
+// El REST del monitor va por el proxy de Vite (/api/monitor); el WebSocket no,
+// así que la URL se toma del entorno y cae a localhost en desarrollo.
+const WS_BASE = import.meta.env.VITE_MONITOR_WS_URL ?? 'ws://localhost:8001';
 
 interface Sesion {
   sesion_id: string;
@@ -110,7 +114,7 @@ export const TestigosIA = () => {
   };
 
   const conectarWS = (sesionId: string) => {
-    const ws = new WebSocket(`ws://localhost:8001/ws/${sesionId}`);
+    const ws = new WebSocket(`${WS_BASE}/ws/${sesionId}`);
     ws.onmessage = (e) => {
       const alerta: Testigo = JSON.parse(e.data);
       setTestigos(prev => [alerta, ...prev]);
@@ -577,10 +581,10 @@ export const TestigosIA = () => {
         {/* Header */}
         <div style={{ marginBottom: isMobile ? 16 : 28 }}>
           <h1 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 700, color: colores.textoClaro, margin: 0 }}>
-            Monitor de Medios
+            Testigos IA
           </h1>
           <p style={{ fontSize: 13, color: colores.textoOscuro, margin: '4px 0 0' }}>
-            Detección automática de menciones en radio en vivo
+            Verificación on-air: detección automática de marcas y spots en radio en vivo
           </p>
         </div>
 

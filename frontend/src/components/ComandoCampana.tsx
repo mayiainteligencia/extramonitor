@@ -102,7 +102,7 @@ export const ComandoCampana: React.FC = () => {
           </Panel>
         </div>
 
-        {/* Votos por partido + nivel de actividad */}
+        {/* Inversión por marca + pauta por franja */}
         <div style={grid('1.4fr 1fr')}>
           <Panel title={`Inversión por marca · ${ULTIMO}`} icon={<Megaphone size={17} color={V} />}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>

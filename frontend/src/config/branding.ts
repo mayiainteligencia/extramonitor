@@ -1,8 +1,8 @@
 export const brandingConfig = {
   empresa: {
-    nombre: "Cerebro Electoral",
+    nombre: "AI Acceleration Lab México",
     eslogan: "",
-    logo: "/assets/logosNativos/cerebroElectoralLogo.png",
+    logo: "/assets/logosNativos/aiLabLogo.png",
   },
 
   colores: {

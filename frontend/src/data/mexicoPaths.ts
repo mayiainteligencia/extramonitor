@@ -1,5 +1,5 @@
 // Geometría SVG de los 32 estados de México · viewBox '0 0 959 593'
-// Extraído de MapaCalor.tsx para reuso (mapa epidemiológico y electoral).
+// Extraído del antiguo mapa de calor para reuso entre secciones.
 
 export const estadosPaths: { id: string; path: string; label: string }[] = [
   {

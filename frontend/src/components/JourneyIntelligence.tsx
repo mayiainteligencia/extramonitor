@@ -275,7 +275,7 @@ export const JourneyIntelligence: React.FC = () => {
           ))}
         </div>
 
-        {/* FILA 1: SoV candidatos + partidos + evolución */}
+        {/* FILA 1: etapas + canales + evolución */}
         <div style={{ display: 'grid', gridTemplateColumns: col(3), gap: 16, marginBottom: 16 }}>
           <Panel icon={Scale} titulo="Etapas del journey" sub="Volumen y drop-off por etapa">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
@@ -329,7 +329,7 @@ export const JourneyIntelligence: React.FC = () => {
           </Panel>
         </div>
 
-        {/* FILA 2: Sentimiento por candidato + Agenda temática */}
+        {/* FILA 2: Sentimiento por etapa + fricciones */}
         <div style={{ display: 'grid', gridTemplateColumns: col(2), gap: 16, marginBottom: 16 }}>
           <Panel icon={Smile} titulo="Sentimiento por etapa" sub="Positivo · Neutral · Negativo">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

@@ -19,13 +19,13 @@ type Ctx = { push: (t: Omit<Toast, 'id'>) => void };
 const ToastCtx = createContext<Ctx>({ push: () => {} });
 export const useToast = () => useContext(ToastCtx);
 
-// "Eventos en vivo": lo que iria llegando del monitoreo de radio (dummy, guionado).
+// "Eventos en vivo": lo que iria llegando del monitoreo de medios (dummy, guionado).
 const LIVE: Omit<Toast, 'id'>[] = [
-  { kind: 'info', title: 'Detección en radio · MVS 102.5', msg: 'Mención del PRI en Tlacolula. Revisa Alertas para el detalle.' },
-  { kind: 'suggestion', title: 'MAYIA sugiere', msg: '6 municipios se perdieron por ≤5 votos. Sugerimos activar movilización focalizada.' },
-  { kind: 'alert', title: 'Abstención alta', msg: 'Santo Domingo Ixcatlán registró 96.7% de abstención histórica. Foco de trabajo.' },
-  { kind: 'info', title: 'Detección en radio · Fórmula 104.1', msg: 'La 2ª fuerza (PRD) mencionada en franja matutina. Vigilar avance.' },
-  { kind: 'suggestion', title: 'MAYIA sugiere', msg: 'Plaza fuerte TOTAL 2010 (585,231 votos PRI). Núcleo a proteger de cara al 2027.' },
+  { kind: 'info', title: 'Detección on-air · MVS 102.5', msg: 'Spot de la marca al aire en el bloque matutino. Revisa Testigos IA.' },
+  { kind: 'suggestion', title: 'MAYIA sugiere', msg: '9 spots contratados no salieron al aire. Sugerimos generar el reclamo al medio.' },
+  { kind: 'alert', title: 'Cobertura baja', msg: 'Baja California Sur cerró el periodo con 55% de alcance. Foco de trabajo.' },
+  { kind: 'info', title: 'Detección on-air · Fórmula 104.1', msg: 'La 2ª marca aparece en franja matutina. Vigilar su avance.' },
+  { kind: 'suggestion', title: 'MAYIA sugiere', msg: 'Ciudad de México concentra la mayor inversión de la categoría. Núcleo a defender.' },
 ];
 
 export const ToastProvider: React.FC<{ children: React.ReactNode; live?: boolean }> = ({ children, live = true }) => {

@@ -1,5 +1,4 @@
 import { generarRespuestaIA } from '../services/geminiService.js';
-import { buscarContextoEnDB } from '../services/dbService.js';
 
 export async function enviarMensaje(req, res) {
   try {
@@ -12,16 +11,12 @@ export async function enviarMensaje(req, res) {
     console.log(`💬 Mensaje recibido: "${mensaje}"`);
     console.log(`📂 Departamento: ${departamento || 'general'}`);
 
-    // 1. Buscar contexto en la base de datos
-    const contexto = await buscarContextoEnDB(mensaje, departamento);
-
-    // 2. Generar respuesta con Gemini
-    const respuesta = await generarRespuestaIA(mensaje, contexto, departamento);
+    const respuesta = await generarRespuestaIA(mensaje, null, departamento);
 
     res.json({
       success: true,
       respuesta: respuesta,
-      contexto: contexto ? 'Información encontrada en la base de datos' : 'Respuesta general',
+      contexto: 'Respuesta general',
       timestamp: new Date()
     });
 
