@@ -42,8 +42,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange
         flexDirection: 'column',
         transition: 'width 0.22s ease',
         flexShrink: 0,
+        overflow: 'hidden',
       }}
     >
+      <style>{`
+        .sb-nav { scrollbar-width: thin; scrollbar-color: ${colores.borde} transparent; }
+        .sb-nav::-webkit-scrollbar { width: 6px; }
+        .sb-nav::-webkit-scrollbar-track { background: transparent; }
+        .sb-nav::-webkit-scrollbar-thumb { background: ${colores.borde}; border-radius: 999px; }
+        .sb-nav::-webkit-scrollbar-thumb:hover { background: ${colores.bordeHover}; }
+      `}</style>
+
       {/* Toggle colapsar */}
       <div style={{ display: 'flex', justifyContent: collapsed ? 'center' : 'flex-end', padding: collapsed ? '12px 0 0' : '12px 12px 0' }}>
         <button
@@ -125,8 +134,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange
         </span>
       </div>
 
-      {/* Menú Principal */}
-      <nav style={{ flex: '0 0 auto', padding: '0 12px', overflow: 'auto' }}>
+      {/* Menú Principal — cede altura y hace scroll si no cabe (p. ej. colapsado
+          en pantallas bajas), para que ninguna sección quede inalcanzable. */}
+      <nav className="sb-nav" style={{ flex: '1 1 auto', minHeight: 0, padding: '0 12px', overflowY: 'auto' }}>
         {menuItems.map((item) => {
           const Icon = item.icono;
           const isActive = activeSection === item.id;

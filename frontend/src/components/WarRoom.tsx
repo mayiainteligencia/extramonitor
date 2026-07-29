@@ -30,41 +30,42 @@ export const WarRoom: React.FC<WarRoomProps> = ({ onSectionChange }) => {
       <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
         <WelcomeHeader />
 
-          {/* ── Fila 1: [Hero + resumen] | [Mapa + Radios/Palabras/CSV] ── */}
-          {isMobile ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 16 }}>
-              <HeroCard onNavigate={onSectionChange} />
+        {/* ── Fila 1: cartera de cuentas ── */}
+        <div style={{ marginBottom: isMobile ? 16 : 24 }}>
+          <CarteraClientes />
+        </div>
+
+        {/* ── Fila 2: MAYIA, banda completa entre la cartera y el detalle ── */}
+        <div style={{ height: isMobile ? 300 : 260, marginBottom: isMobile ? 16 : 24 }}>
+          <HeroCard onNavigate={onSectionChange} />
+        </div>
+
+        {/* ── Fila 3: [resumen] | [Mapa + Radios/Palabras/CSV] ── */}
+        {isMobile ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 16 }}>
+            <ResumenMediosCards onSectionChange={onSectionChange} />
+            <MapaMexicoDashboard />
+            <RadiosEscuchadasCard />
+            <PalabrasBuscadasCard />
+            <CSVGeneradosCard />
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '0.62fr 1.38fr', gap: 24, marginBottom: 24, alignItems: 'start' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <ResumenMediosCards onSectionChange={onSectionChange} />
-              <MapaMexicoDashboard />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              <div style={{ height: 620 }}>
+                <MapaMexicoDashboard />
+              </div>
               <RadiosEscuchadasCard />
               <PalabrasBuscadasCard />
               <CSVGeneradosCard />
             </div>
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '0.62fr 1.38fr', gap: 24, marginBottom: 24, alignItems: 'start' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ height: 330 }}>
-                  <HeroCard onNavigate={onSectionChange} />
-                </div>
-                <ResumenMediosCards onSectionChange={onSectionChange} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ height: 620 }}>
-                  <MapaMexicoDashboard />
-                </div>
-                <RadiosEscuchadasCard />
-                <PalabrasBuscadasCard />
-                <CSVGeneradosCard />
-              </div>
-            </div>
-          )}
+          </div>
+        )}
 
-        {/* ── Fila 2: cartera de cuentas ── */}
-        <div style={{ marginBottom: 24 }}>
-          <CarteraClientes />
-        </div>
-
-        {/* ── Fila 3: ProductivityChart full width ── */}
+        {/* ── Fila 4: ProductivityChart full width ── */}
         <div style={{ marginBottom: 24 }}>
           <ProductivityChart />
         </div>

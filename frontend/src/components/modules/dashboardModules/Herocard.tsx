@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Send, Mic, MicOff, Sparkles } from 'lucide-react';
+import { X, Send, Mic, MicOff } from 'lucide-react';
 import { brandingConfig } from '../../../config/branding';
 import { BrainCanvas } from './BrainCanvas';
 import { responder } from '../../../data/asistente';
@@ -21,16 +21,15 @@ interface HeroCardProps {
 }
 
 export const HeroCard: React.FC<HeroCardProps> = ({ tema, onNavigate }) => {
-  const { colores, ia, empresa } = brandingConfig;
+  const { colores, ia } = brandingConfig;
   const acc = tema ? tema.acento : '#374151';
   const accDark = tema ? tema.acentoOscuro : '#1F2937';
-  const sobre = tema ? tema.sobreAcento : '#ffffff';
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Soy ${ia.nombre}. Pregúntame "¿cómo vamos en municipios ganados?", "¿qué dicen de mí?", "¿cómo me ve la gente?" o dime "ve a Alertas".`,
+      content: `Soy ${ia.nombre}. Pregúntame "¿cómo vamos en plazas?", "¿cuánto invertimos?", "¿qué dicen de la marca?" o dime "ve a Alertas".`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -255,6 +254,21 @@ export const HeroCard: React.FC<HeroCardProps> = ({ tema, onNavigate }) => {
     }
   };
 
+  // Con el asistente abierto: Escape cierra y el fondo no hace scroll.
+  useEffect(() => {
+    if (!showModal) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleCloseModal(); };
+    window.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [showModal]);
+
+  const estado = isListening ? 'Escuchando…' : loading ? 'Pensando…' : 'En línea';
+
   return (
     <>
       <div
@@ -383,313 +397,208 @@ export const HeroCard: React.FC<HeroCardProps> = ({ tema, onNavigate }) => {
         </style>
       </div>
 
-      {/* Modal de Chat */}
+      {/* ── Superficie del asistente: núcleo al centro, fondo desenfocado ── */}
       {showModal && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Asistente ${ia.nombre}`}
+          onClick={e => { if (e.target === e.currentTarget) handleCloseModal(); }}
           style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            animation: 'fadeIn 0.3s ease',
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              handleCloseModal();
-            }
+            position: 'fixed', inset: 0, zIndex: 2000,
+            background: 'rgba(10,10,10,0.55)',
+            backdropFilter: 'blur(22px) saturate(120%)',
+            WebkitBackdropFilter: 'blur(22px) saturate(120%)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            padding: '24px 20px 28px',
+            animation: 'mayia-in .35s ease both',
           }}
         >
-          <div
+          {/* Cerrar */}
+          <button
+            onClick={handleCloseModal}
+            aria-label="Cerrar asistente"
             style={{
-              width: '90%',
-              maxWidth: '600px',
-              height: '80vh',
-              maxHeight: '700px',
-              backgroundColor: colores.fondoSecundario,
-              borderRadius: '24px',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              animation: 'slideUp 0.3s ease',
+              position: 'absolute', top: 22, right: 24, width: 42, height: 42, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)',
+              color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              backdropFilter: 'blur(6px)',
             }}
           >
-            {/* Header */}
+            <X size={20} color="#fff" />
+          </button>
+
+          {/* Núcleo girando */}
+          <div style={{
+            position: 'relative', marginTop: 'auto',
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+          }}>
+            {/* Halo: late cuando escucha */}
             <div
-              style={{
-                padding: '24px',
-                background: `linear-gradient(135deg, ${acc} 0%, ${accDark} 100%)`,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Sparkles size={24} color={sobre} />
-                </div>
-                <div>
-                  <div style={{ fontWeight: '600', color: sobre, fontSize: '18px' }}>
-                    {ia.nombre}
-                  </div>
-                  <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.8)' }}>
-                    {isListening ? 'Escuchando...' : 'Asesor IA'}
-                  </div>
-                </div>
+              className={isListening ? 'mayia-halo mayia-halo-on' : 'mayia-halo'}
+              style={{ background: `radial-gradient(circle, ${acc}66 0%, transparent 70%)` }}
+            />
+            <div style={{ width: 260, height: 260, position: 'relative', zIndex: 1 }}>
+              <BrainCanvas accent={acc} height={260} nodes={300} />
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 4, zIndex: 1 }}>
+              <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>{ia.nombre}</div>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 7, marginTop: 6,
+                fontSize: 12.5, fontWeight: 600, color: 'rgba(255,255,255,0.72)',
+              }}>
+                <span
+                  className={isListening ? 'mayia-dot mayia-dot-on' : 'mayia-dot'}
+                  style={{ background: isListening ? colores.peligro : colores.exito }}
+                />
+                {estado}
               </div>
-
-              <button
-                onClick={handleCloseModal}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '8px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <X size={24} color={sobre} />
-              </button>
-            </div>
-
-            {/* Mensajes */}
-            <div
-              style={{
-                flex: 1,
-                overflowY: 'auto',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                backgroundColor: colores.fondoPrincipal,
-              }}
-            >
-              {messages.map((m, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    gap: '12px',
-                    alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                    maxWidth: '75%',
-                    animation: 'fadeIn 0.3s ease',
-                  }}
-                >
-                  {m.role === 'assistant' && (
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${acc} 0%, ${accDark} 100%)`,
-                        color: sobre,
-                        fontSize: '14px',
-                        fontWeight: 'bold',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      AI
-                    </div>
-                  )}
-
-                  <div>
-                    <div
-                      style={{
-                        backgroundColor: m.role === 'user' ? acc : colores.fondoTerciario,
-                        background: m.role === 'user' ? `linear-gradient(135deg, ${acc} 0%, ${accDark} 100%)` : colores.fondoTerciario,
-                        color: m.role === 'user' ? sobre : colores.textoClaro,
-                        padding: '14px 18px',
-                        borderRadius: m.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
-                      }}
-                    >
-                      <div style={{ fontSize: '15px', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
-                        {m.content}
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '11px',
-                        color: colores.textoMedio,
-                        marginTop: '6px',
-                        textAlign: m.role === 'user' ? 'right' : 'left',
-                      }}
-                    >
-                      {m.time}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {loading && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '50%',
-                      background: `linear-gradient(135deg, ${acc} 0%, ${accDark} 100%)`,
-                      color: sobre,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    AI
-                  </div>
-                  <div
-                    style={{
-                      backgroundColor: colores.fondoTerciario,
-                      padding: '14px 18px',
-                      borderRadius: '18px 18px 18px 4px',
-                      display: 'flex',
-                      gap: '6px',
-                    }}
-                  >
-                    <div className="typing-dot" />
-                    <div className="typing-dot" style={{ animationDelay: '0.2s' }} />
-                    <div className="typing-dot" style={{ animationDelay: '0.4s' }} />
-                  </div>
-                </div>
-              )}
-
-              <div ref={endRef} />
-            </div>
-
-            {/* Input */}
-            <div
-              style={{
-                padding: '20px 24px',
-                backgroundColor: colores.fondoSecundario,
-                borderTop: `1px solid ${colores.borde}`,
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-              }}
-            >
-              <button
-                onClick={toggleListening}
-                style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  background: isListening
-                    ? `linear-gradient(135deg, ${colores.peligro} 0%, ${colores.advertencia} 100%)`
-                    : `linear-gradient(135deg, ${acc} 0%, ${accDark} 100%)`,
-                  color: sobre,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s',
-                  animation: isListening ? 'pulse 1.5s infinite' : 'none',
-                }}
-              >
-                {isListening ? <MicOff size={24} /> : <Mic size={24} />}
-              </button>
-
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                placeholder={isListening ? 'Escuchando... (Di "MAYIA" para enviar)' : 'Escribe o habla...'}
-                disabled={loading}
-                style={{
-                  flex: 1,
-                  padding: '14px 18px',
-                  borderRadius: '14px',
-                  border: `1px solid ${colores.borde}`,
-                  backgroundColor: colores.fondoPrincipal,
-                  color: colores.textoClaro,
-                  outline: 'none',
-                  fontSize: '15px',
-                }}
-              />
-
-              <button
-                onClick={sendMessage}
-                disabled={loading || !input.trim()}
-                style={{
-                  padding: '14px 20px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: loading || !input.trim() ? colores.fondoTerciario : `linear-gradient(135deg, ${acc} 0%, ${accDark} 100%)`,
-                  color: loading || !input.trim() ? colores.textoMedio : sobre,
-                  cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s',
-                }}
-              >
-                <Send size={20} />
-              </button>
             </div>
           </div>
 
-          <style>
-            {`
-              @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-              }
+          {/* Conversación: texto flotante, sin burbujas ni tarjeta */}
+          <div
+            className="mayia-hilo"
+            style={{
+              width: '100%', maxWidth: 680, marginTop: 26, marginBottom: 'auto',
+              maxHeight: '34vh', overflowY: 'auto',
+              display: 'flex', flexDirection: 'column', gap: 16,
+              padding: '4px 6px', zIndex: 1,
+            }}
+          >
+            {messages.map((m, i) => {
+              const esUltimo = i === messages.length - 1;
+              const mio = m.role === 'user';
+              return (
+                <div key={i} style={{ textAlign: 'center', animation: 'mayia-msg .4s ease both' }}>
+                  {mio && (
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 5 }}>
+                      Tú
+                    </div>
+                  )}
+                  <p style={{
+                    margin: 0,
+                    fontSize: mio ? 15 : esUltimo ? 20 : 16,
+                    lineHeight: 1.55,
+                    fontWeight: mio ? 500 : esUltimo ? 600 : 500,
+                    color: mio ? 'rgba(255,255,255,0.62)' : esUltimo ? '#fff' : 'rgba(255,255,255,0.55)',
+                    fontStyle: mio ? 'italic' : 'normal',
+                    transition: 'font-size .3s ease, color .3s ease',
+                  }}>
+                    {m.content}
+                  </p>
+                </div>
+              );
+            })}
 
-              @keyframes slideUp {
-                from {
-                  opacity: 0;
-                  transform: translateY(30px);
-                }
-                to {
-                  opacity: 1;
-                  transform: translateY(0);
-                }
-              }
+            {loading && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 7 }}>
+                <span className="mayia-typing" />
+                <span className="mayia-typing" style={{ animationDelay: '.2s' }} />
+                <span className="mayia-typing" style={{ animationDelay: '.4s' }} />
+              </div>
+            )}
+            <div ref={endRef} />
+          </div>
 
-              @keyframes pulse {
-                0%, 100% { box-shadow: 0 0 0 0 ${colores.peligro}40; }
-                50% { box-shadow: 0 0 0 20px ${colores.peligro}00; }
-              }
+          {/* Barra de entrada flotante */}
+          <div style={{
+            width: '100%', maxWidth: 680, display: 'flex', alignItems: 'center', gap: 10,
+            background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.18)',
+            borderRadius: 999, padding: 8, backdropFilter: 'blur(10px)', zIndex: 1,
+          }}>
+            <button
+              onClick={toggleListening}
+              aria-label={isListening ? 'Detener dictado' : 'Hablar'}
+              className={isListening ? 'mayia-mic mayia-mic-on' : 'mayia-mic'}
+              style={{
+                width: 46, height: 46, borderRadius: '50%', border: 'none', flexShrink: 0,
+                background: isListening ? colores.peligro : acc,
+                color: '#fff', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+            </button>
 
-              .typing-dot {
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background-color: ${colores.textoMedio};
-                animation: typing 1.4s infinite;
-              }
+            <input
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && sendMessage()}
+              placeholder={isListening ? 'Escuchando… di "MAYIA" para enviar' : 'Escribe o habla…'}
+              disabled={loading}
+              autoFocus
+              style={{
+                flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent',
+                color: '#fff', fontSize: 15, padding: '0 6px',
+              }}
+            />
 
-              @keyframes typing {
-                0%, 60%, 100% { transform: translateY(0); }
-                30% { transform: translateY(-10px); }
-              }
-            `}
-          </style>
+            <button
+              onClick={sendMessage}
+              disabled={loading || !input.trim()}
+              aria-label="Enviar"
+              style={{
+                width: 46, height: 46, borderRadius: '50%', border: 'none', flexShrink: 0,
+                background: loading || !input.trim() ? 'rgba(255,255,255,0.12)' : acc,
+                color: loading || !input.trim() ? 'rgba(255,255,255,0.35)' : '#fff',
+                cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s',
+              }}
+            >
+              <Send size={19} />
+            </button>
+          </div>
+
+          <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.42)', margin: '12px 0 0', zIndex: 1 }}>
+            Esc para cerrar
+          </p>
+
+          <style>{`
+            @keyframes mayia-in { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes mayia-msg { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+            @keyframes mayia-breathe { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity: .5; } 50% { transform: translate(-50%,-50%) scale(1.18); opacity: .85; } }
+            @keyframes mayia-ping { 0% { box-shadow: 0 0 0 0 ${colores.peligro}66; } 70% { box-shadow: 0 0 0 18px ${colores.peligro}00; } 100% { box-shadow: 0 0 0 0 ${colores.peligro}00; } }
+            @keyframes mayia-blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+            @keyframes mayia-type { 0%,60%,100% { transform: translateY(0); opacity: .5; } 30% { transform: translateY(-7px); opacity: 1; } }
+
+            .mayia-halo {
+              position: absolute; left: 50%; top: 45%;
+              width: 460px; height: 460px; border-radius: 50%;
+              transform: translate(-50%,-50%);
+              filter: blur(40px); opacity: .5; pointer-events: none; z-index: 0;
+              animation: mayia-breathe 6s ease-in-out infinite;
+            }
+            .mayia-halo-on { animation-duration: 2.2s; }
+
+            .mayia-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+            .mayia-dot-on { animation: mayia-blink 1s ease-in-out infinite; }
+
+            .mayia-mic-on { animation: mayia-ping 1.5s infinite; }
+
+            .mayia-typing {
+              width: 8px; height: 8px; border-radius: 50%;
+              background: rgba(255,255,255,.8); display: inline-block;
+              animation: mayia-type 1.4s infinite;
+            }
+
+            .mayia-hilo { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.25) transparent; }
+            .mayia-hilo::-webkit-scrollbar { width: 5px; }
+            .mayia-hilo::-webkit-scrollbar-thumb { background: rgba(255,255,255,.25); border-radius: 999px; }
+
+            .mayia-hilo input::placeholder { color: rgba(255,255,255,.45); }
+
+            @media (max-width: 640px) {
+              .mayia-halo { width: 300px; height: 300px; }
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .mayia-halo, .mayia-dot-on, .mayia-mic-on, .mayia-typing { animation: none !important; }
+            }
+          `}</style>
         </div>
       )}
+
     </>
   );
 };
