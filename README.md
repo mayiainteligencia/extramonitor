@@ -109,3 +109,4 @@ color primario morado `#8B5CF6`.
 React 19 · Vite 7 · TypeScript · recharts · lucide-react · estilos inline con
 tokens de `branding.ts`. Backend Node/Express (`:3001`) + monitor Python
 FastAPI (`:8001`).
+# extramonitor
