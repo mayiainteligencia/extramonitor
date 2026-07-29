@@ -204,16 +204,16 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           <Menu size={20} color={colores.textoClaro} />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          background: colores.secundario, borderRadius: 10, padding: '7px 12px',
+        }}>
           <img
             src={empresa.logo}
             alt={empresa.nombre}
-            style={{ height: '28px', objectFit: 'contain' }}
+            style={{ height: '18px', objectFit: 'contain' }}
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
-          <span style={{ fontSize: '15px', fontWeight: '700', color: colores.textoClaro }}>
-            {empresa.nombre}
-          </span>
         </div>
 
         <div className="rl-pill">

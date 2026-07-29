@@ -221,14 +221,14 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
 
         {/* ── CENTRO: Logo ── */}
         <div style={{
-          backgroundColor: '#FFFFFF', borderRadius: '14px',
-          padding: '4px 16px', display: 'flex', alignItems: 'center',
-          flexShrink: 0, height: '64px', overflow: 'hidden',
+          backgroundColor: colores.secundario, borderRadius: '14px',
+          padding: '10px 20px', display: 'flex', alignItems: 'center',
+          flexShrink: 0, height: '52px', overflow: 'hidden',
         }}>
           <img
             src={empresa.logo}
             alt={`${empresa.nombre} logo`}
-            style={{ height: '60px', width: 'auto', objectFit: 'contain' }}
+            style={{ height: '26px', width: 'auto', objectFit: 'contain' }}
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         </div>
@@ -384,9 +384,9 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
           <button
             style={{
               width: '52px', height: '52px', borderRadius: '50%',
-              backgroundColor: '#FFFFFF', border: `2px solid ${colores.borde}`,
+              backgroundColor: colores.secundario, border: `2px solid ${colores.borde}`,
               cursor: 'pointer', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', overflow: 'hidden', padding: '4px',
+              justifyContent: 'center', overflow: 'hidden', padding: '9px',
               transition: 'transform 0.2s',
             }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)'; }}

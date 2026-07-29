@@ -66,11 +66,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange
           <div
             style={{
               width: '100%',
-              height: collapsed ? '48px' : '120px',
+              height: collapsed ? '48px' : '72px',
               transition: 'height 0.22s ease',
               borderRadius: '12px',
-              backgroundColor: '#FFFFFF',
-              padding: '6px',
+              backgroundColor: colores.secundario,  // el logo es blanco: necesita fondo oscuro
+              padding: collapsed ? '8px' : '14px 18px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

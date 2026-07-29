@@ -2,7 +2,7 @@ export const brandingConfig = {
   empresa: {
     nombre: "AI Acceleration Lab México",
     eslogan: "",
-    logo: "/assets/logosNativos/aiLabLogo.png",
+    logo: "/assets/logosNativos/logohavas.png",
   },
 
   colores: {
