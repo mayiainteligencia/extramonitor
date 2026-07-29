@@ -35,14 +35,39 @@ export interface AlertaMarca {
 
 /* ─────────────────────────── Marcas ─────────────────────────── */
 
+// Cuenta activa del tablero: Liverpool, y su set competitivo real de retail
+// departamental. Suburbia no entra como competidor: es del mismo grupo.
 export const MARCAS: Marca[] = [
-  { id: 'VANTIA', nombre: 'Vantia',  color: '#8B5CF6', esCliente: true },
-  { id: 'NORVEL', nombre: 'Norvel',  color: '#0047AB', esCliente: false },
-  { id: 'KALEO',  nombre: 'Kaleo',   color: '#F58025', esCliente: false },
-  { id: 'BRIXA',  nombre: 'Brixa',   color: '#9B2247', esCliente: false },
+  { id: 'LIVERPOOL', nombre: 'Liverpool',            color: '#8B5CF6', esCliente: true },
+  { id: 'PALACIO',   nombre: 'El Palacio de Hierro', color: '#0047AB', esCliente: false },
+  { id: 'SEARS',     nombre: 'Sears',                color: '#F58025', esCliente: false },
+  { id: 'COPPEL',    nombre: 'Coppel',               color: '#9B2247', esCliente: false },
 ];
 
 export const CLIENTE = MARCAS[0];
+
+/** Cartera de cuentas de Havas Media México. `activa` es la que alimenta el tablero. */
+export interface CuentaCartera {
+  nombre: string;
+  categoria: string;
+  sharePresupuesto: number;   // % de la inversión gestionada por la agencia
+  activa?: boolean;
+}
+
+export const CARTERA: CuentaCartera[] = [
+  { nombre: 'Liverpool',     categoria: 'Retail departamental', sharePresupuesto: 17.4, activa: true },
+  { nombre: 'Suburbia',      categoria: 'Retail moda',          sharePresupuesto: 11.2 },
+  { nombre: 'Banorte',       categoria: 'Servicios financieros', sharePresupuesto: 10.8 },
+  { nombre: 'Cinépolis',     categoria: 'Entretenimiento',      sharePresupuesto: 9.6 },
+  { nombre: 'Aeroméxico',    categoria: 'Aviación',             sharePresupuesto: 8.9 },
+  { nombre: 'Hyundai',       categoria: 'Automotriz',           sharePresupuesto: 8.1 },
+  { nombre: 'KIA',           categoria: 'Automotriz',           sharePresupuesto: 7.3 },
+  { nombre: 'LVMH',          categoria: 'Lujo',                 sharePresupuesto: 6.5 },
+  { nombre: 'Posadas',       categoria: 'Hotelería',            sharePresupuesto: 5.4 },
+  { nombre: 'Sephora',       categoria: 'Belleza',              sharePresupuesto: 5.1 },
+  { nombre: 'Little Caesars', categoria: 'QSR',                 sharePresupuesto: 4.9 },
+  { nombre: 'Atún Dolores',  categoria: 'Consumo',              sharePresupuesto: 4.8 },
+];
 
 export const MARCA_COLOR: Record<string, string> = Object.fromEntries(
   MARCAS.map(m => [m.id, m.color]),
@@ -107,7 +132,7 @@ function sovDe(id: string, sesgoCliente: number): Record<string, number> {
   const a = Math.round(resto * (0.30 + ((h >> 4) % 15) / 100));
   const b = Math.round(resto * (0.28 + ((h >> 8) % 14) / 100));
   const c = resto - a - b;
-  return { VANTIA: cliente, NORVEL: a, KALEO: b, BRIXA: c };
+  return { LIVERPOOL: cliente, PALACIO: a, SEARS: b, COPPEL: c };
 }
 
 function construirPlazas(factorInversion: number, sesgoCliente: number): Plaza[] {
@@ -243,11 +268,11 @@ export const COBERTURA = {
 
 export const ALERTAS: AlertaMarca[] = [
   { id: 'AL-01', tipo: 'discrepancia-pauta', severidad: 'alta',  plaza: 'Ciudad de México', medio: 'MVS 102.5',        timestamp: 'hace 12 min', descripcion: '9 spots contratados no salieron al aire en el bloque de las 08:00' },
-  { id: 'AL-02', tipo: 'spike-competencia',  severidad: 'alta',  plaza: 'Nuevo León',       medio: 'Multimedios 106.1', timestamp: 'hace 34 min', descripcion: 'Norvel subió 11 pts de SOV en 48 h con pauta nueva en drive time' },
+  { id: 'AL-02', tipo: 'spike-competencia',  severidad: 'alta',  plaza: 'Nuevo León',       medio: 'Multimedios 106.1', timestamp: 'hace 34 min', descripcion: 'El Palacio de Hierro subió 11 pts de SOV en 48 h con pauta nueva en drive time' },
   { id: 'AL-03', tipo: 'ad-fraud',           severidad: 'alta',  plaza: 'Jalisco',          medio: 'Programática',      timestamp: 'hace 1 h',    descripcion: '18.4% de tráfico inválido detectado en el line item de video' },
   { id: 'AL-04', tipo: 'mencion-negativa',   severidad: 'media', plaza: 'Estado de México', medio: 'W Radio 96.9',      timestamp: 'hace 2 h',    descripcion: 'Mención negativa sobre tiempos de entrega en segmento de opinión' },
   { id: 'AL-05', tipo: 'discrepancia-pauta', severidad: 'media', plaza: 'Puebla',           medio: 'Exa FM 104.9',      timestamp: 'hace 3 h',    descripcion: 'Spot emitido fuera de la franja contratada (22:40 vs 20:00-21:00)' },
-  { id: 'AL-06', tipo: 'spike-competencia',  severidad: 'media', plaza: 'Guanajuato',       medio: 'Los 40 101.7',      timestamp: 'hace 5 h',    descripcion: 'Kaleo duplicó su frecuencia semanal en la plaza' },
+  { id: 'AL-06', tipo: 'spike-competencia',  severidad: 'media', plaza: 'Guanajuato',       medio: 'Los 40 101.7',      timestamp: 'hace 5 h',    descripcion: 'Sears duplicó su frecuencia semanal en la plaza' },
   { id: 'AL-07', tipo: 'mencion-negativa',   severidad: 'baja',  plaza: 'Veracruz',         medio: 'Radio Fórmula',     timestamp: 'ayer',        descripcion: 'Comentario aislado sobre precio en programa matutino' },
   { id: 'AL-08', tipo: 'ad-fraud',           severidad: 'baja',  plaza: 'Chihuahua',        medio: 'Display',           timestamp: 'ayer',        descripcion: 'Viewability por debajo del piso contratado (58% vs 70%)' },
 ];

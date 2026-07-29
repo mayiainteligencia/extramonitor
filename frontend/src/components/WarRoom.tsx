@@ -8,6 +8,7 @@ import { MapaMexicoDashboard } from './modules/dashboardModules/MapaMexicoDashbo
 import { RadiosEscuchadasCard } from './modules/dashboardModules/RadiosEscuchadasCard';
 import { PalabrasBuscadasCard } from './modules/dashboardModules/PalabrasBuscadasCard';
 import { CSVGeneradosCard } from './modules/dashboardModules/CSVGeneradosCard';
+import { CarteraClientes } from './modules/dashboardModules/CarteraClientes';
 
 interface WarRoomProps {
   onSectionChange?: (section: string) => void;
@@ -57,6 +58,11 @@ export const WarRoom: React.FC<WarRoomProps> = ({ onSectionChange }) => {
               </div>
             </div>
           )}
+
+        {/* ── Fila 2: cartera de cuentas ── */}
+        <div style={{ marginBottom: 24 }}>
+          <CarteraClientes />
+        </div>
 
         {/* ── Fila 3: ProductivityChart full width ── */}
         <div style={{ marginBottom: 24 }}>

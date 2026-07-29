@@ -18,17 +18,17 @@ const FORMATOS = [
 ];
 
 const VARIANTES = [
-  { id: 'A', titulo: 'Beneficio funcional', copy: 'Rinde el doble. Cuesta lo mismo.', ctr: 2.9, conv: 1.4, ganadora: false },
-  { id: 'B', titulo: 'Beneficio emocional', copy: 'Lo que tu familia estaba esperando.', ctr: 3.7, conv: 2.1, ganadora: true },
-  { id: 'C', titulo: 'Prueba social', copy: '4 de cada 5 hogares ya lo prefieren.', ctr: 3.1, conv: 1.8, ganadora: false },
-  { id: 'D', titulo: 'Urgencia', copy: 'Solo esta semana en tu tienda.', ctr: 2.4, conv: 1.6, ganadora: false },
+  { id: 'A', titulo: 'Beneficio funcional', copy: 'Meses sin intereses en toda la tienda.', ctr: 2.9, conv: 1.4, ganadora: false },
+  { id: 'B', titulo: 'Beneficio emocional', copy: 'La temporada que estabas esperando.', ctr: 3.7, conv: 2.1, ganadora: true },
+  { id: 'C', titulo: 'Prueba social', copy: 'Las marcas que ya están en tu lista.', ctr: 3.1, conv: 1.8, ganadora: false },
+  { id: 'D', titulo: 'Urgencia', copy: 'Solo durante la Venta Nocturna.', ctr: 2.4, conv: 1.6, ganadora: false },
 ];
 
 export const StudioCreativo: React.FC = () => {
   const isMobile = useIsMobile();
   const { push } = useToast();
   const [formatos, setFormatos] = useState<string[]>(['radio20', 'video15', 'social']);
-  const [brief, setBrief] = useState(`Campaña de temporada para ${CLIENTE.nombre}: destacar disponibilidad en tienda y precio estable.`);
+  const [brief, setBrief] = useState(`Campaña de temporada para ${CLIENTE.nombre}: destacar la Venta Nocturna y los meses sin intereses.`);
   const [generando, setGenerando] = useState(false);
 
   const grid = (cols: string): React.CSSProperties => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : cols, gap: 16 });

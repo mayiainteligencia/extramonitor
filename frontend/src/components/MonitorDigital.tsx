@@ -48,9 +48,9 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 68, neu: 24, neg: 8 },
       serie: [30, 45, 40, 62, 55, 80, 74, 96, 88, 120],
       topPosts: [
-        { titulo: 'Unboxing del producto — formato vertical', alcance: '412K', interacciones: '38.2K' },
-        { titulo: 'Reto viral #RetoVantia', alcance: '287K', interacciones: '24.1K' },
-        { titulo: 'Demo de producto (clip)', alcance: '155K', interacciones: '11.8K' },
+        { titulo: 'Haul de temporada — formato vertical', alcance: '412K', interacciones: '38.2K' },
+        { titulo: 'Reto viral #EstiloLiverpool', alcance: '287K', interacciones: '24.1K' },
+        { titulo: 'Probador virtual (clip)', alcance: '155K', interacciones: '11.8K' },
       ],
     },
   },
@@ -64,8 +64,8 @@ const PLATAFORMAS: Plataforma[] = [
       serie: [50, 48, 60, 58, 72, 68, 85, 80, 92, 100],
       topPosts: [
         { titulo: 'Reel — lanzamiento de temporada', alcance: '210K', interacciones: '17.4K' },
-        { titulo: 'Carrusel: los 5 usos del producto', alcance: '134K', interacciones: '9.2K' },
-        { titulo: 'Historia con encuesta de sabor', alcance: '88K', interacciones: '6.1K' },
+        { titulo: 'Carrusel: 5 looks de la colección', alcance: '134K', interacciones: '9.2K' },
+        { titulo: 'Historia con encuesta de estilo', alcance: '88K', interacciones: '6.1K' },
       ],
     },
   },
@@ -95,7 +95,7 @@ const PLATAFORMAS: Plataforma[] = [
       topPosts: [
         { titulo: 'Spot extendido — campaña anual', alcance: '180K', interacciones: '12.1K' },
         { titulo: 'Reseñas de clientes reales', alcance: '95K', interacciones: '6.8K' },
-        { titulo: 'Cómo se hace — planta y proceso', alcance: '61K', interacciones: '3.9K' },
+        { titulo: 'Detrás de la campaña de temporada', alcance: '61K', interacciones: '3.9K' },
       ],
     },
   },
@@ -123,7 +123,7 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 64, neu: 29, neg: 7 },
       serie: [15, 22, 20, 30, 34, 42, 48, 55, 60, 68],
       topPosts: [
-        { titulo: 'Nota: guía de compra del producto', alcance: '86K', interacciones: '4.1K' },
+        { titulo: 'Nota: guía de regalos de temporada', alcance: '86K', interacciones: '4.1K' },
         { titulo: 'Comparativa contra la categoría', alcance: '52K', interacciones: '2.7K' },
         { titulo: 'Ficha técnica y disponibilidad', alcance: '38K', interacciones: '1.9K' },
       ],
@@ -138,7 +138,7 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 58, neu: 35, neg: 7 },
       serie: [90, 110, 100, 140, 130, 170, 160, 200, 190, 230],
       topPosts: [
-        { titulo: 'Campaña "Vuelta a clases"', alcance: '1.2M', interacciones: '48K clics' },
+        { titulo: 'Campaña "Venta Nocturna"', alcance: '1.2M', interacciones: '48K clics' },
         { titulo: 'Display remarketing', alcance: '780K', interacciones: '22K clics' },
         { titulo: 'Búsqueda — marca', alcance: '410K', interacciones: '31K clics' },
       ],
@@ -157,7 +157,7 @@ const EMBUDO = [
 const MARKETPLACES = [
   { nombre: 'Amazon MX', skus: 412, stock: 94, buyBox: 71, rating: 4.5 },
   { nombre: 'Mercado Libre', skus: 508, stock: 88, buyBox: 63, rating: 4.7 },
-  { nombre: 'Walmart MX', skus: 288, stock: 79, buyBox: 48, rating: 4.2 },
+  { nombre: 'liverpool.com.mx (propio)', skus: 1208, stock: 91, buyBox: 100, rating: 4.4 },
 ];
 
 const VISIBILIDAD = [
