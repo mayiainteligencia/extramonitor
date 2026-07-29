@@ -48,9 +48,9 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 68, neu: 24, neg: 8 },
       serie: [30, 45, 40, 62, 55, 80, 74, 96, 88, 120],
       topPosts: [
-        { titulo: 'Detrás de cámaras — transmisión en vivo', alcance: '412K', interacciones: '38.2K' },
-        { titulo: 'Reto viral #EnLaRadio', alcance: '287K', interacciones: '24.1K' },
-        { titulo: 'Entrevista exclusiva (clip)', alcance: '155K', interacciones: '11.8K' },
+        { titulo: 'Unboxing del producto — formato vertical', alcance: '412K', interacciones: '38.2K' },
+        { titulo: 'Reto viral #RetoVantia', alcance: '287K', interacciones: '24.1K' },
+        { titulo: 'Demo de producto (clip)', alcance: '155K', interacciones: '11.8K' },
       ],
     },
   },
@@ -63,9 +63,9 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 61, neu: 30, neg: 9 },
       serie: [50, 48, 60, 58, 72, 68, 85, 80, 92, 100],
       topPosts: [
-        { titulo: 'Reel — momento del programa', alcance: '210K', interacciones: '17.4K' },
-        { titulo: 'Carrusel: los 5 mejores momentos', alcance: '134K', interacciones: '9.2K' },
-        { titulo: 'Historia con encuesta', alcance: '88K', interacciones: '6.1K' },
+        { titulo: 'Reel — lanzamiento de temporada', alcance: '210K', interacciones: '17.4K' },
+        { titulo: 'Carrusel: los 5 usos del producto', alcance: '134K', interacciones: '9.2K' },
+        { titulo: 'Historia con encuesta de sabor', alcance: '88K', interacciones: '6.1K' },
       ],
     },
   },
@@ -78,9 +78,9 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 54, neu: 34, neg: 12 },
       serie: [70, 65, 72, 68, 74, 70, 78, 75, 82, 86],
       topPosts: [
-        { titulo: 'Transmisión en vivo — noticiero', alcance: '320K', interacciones: '14.6K' },
-        { titulo: 'Publicación patrocinada', alcance: '198K', interacciones: '8.9K' },
-        { titulo: 'Álbum del evento', alcance: '96K', interacciones: '4.2K' },
+        { titulo: 'Live de compras — catálogo nuevo', alcance: '320K', interacciones: '14.6K' },
+        { titulo: 'Publicación patrocinada — promo 3x2', alcance: '198K', interacciones: '8.9K' },
+        { titulo: 'Álbum de la activación en tienda', alcance: '96K', interacciones: '4.2K' },
       ],
     },
   },
@@ -93,9 +93,9 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 72, neu: 21, neg: 7 },
       serie: [20, 28, 25, 40, 38, 52, 60, 72, 80, 95],
       topPosts: [
-        { titulo: 'Programa completo — episodio 42', alcance: '180K', interacciones: '12.1K' },
-        { titulo: 'Highlights de la semana', alcance: '95K', interacciones: '6.8K' },
-        { titulo: 'Entrevista sin cortes', alcance: '61K', interacciones: '3.9K' },
+        { titulo: 'Spot extendido — campaña anual', alcance: '180K', interacciones: '12.1K' },
+        { titulo: 'Reseñas de clientes reales', alcance: '95K', interacciones: '6.8K' },
+        { titulo: 'Cómo se hace — planta y proceso', alcance: '61K', interacciones: '3.9K' },
       ],
     },
   },
@@ -108,14 +108,14 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 47, neu: 33, neg: 20 },
       serie: [60, 80, 70, 110, 95, 130, 120, 150, 140, 170],
       topPosts: [
-        { titulo: 'Hilo: cobertura en vivo', alcance: '540K', interacciones: '28.7K' },
-        { titulo: 'Encuesta de la audiencia', alcance: '210K', interacciones: '15.3K' },
-        { titulo: 'Cita del invitado', alcance: '132K', interacciones: '7.6K' },
+        { titulo: 'Hilo: respuesta a la competencia', alcance: '540K', interacciones: '28.7K' },
+        { titulo: 'Encuesta de preferencia de marca', alcance: '210K', interacciones: '15.3K' },
+        { titulo: 'Cita del vocero de marca', alcance: '132K', interacciones: '7.6K' },
       ],
     },
   },
   {
-    id: 'blog', nombre: 'Blog / Sitio web', icon: FileText, color: '#8B5CF6', ambito: 'open-web',
+    id: 'blog', nombre: 'Sitio propio / e-commerce', icon: FileText, color: '#8B5CF6', ambito: 'open-web',
     placeholder: 'https://tublog.com',
     feedback: {
       seguidores: '18.4K', alcanceMes: '410K', engagement: '5.5%', impresionesInApp: '520K',
@@ -123,9 +123,9 @@ const PLATAFORMAS: Plataforma[] = [
       sentimiento: { pos: 64, neu: 29, neg: 7 },
       serie: [15, 22, 20, 30, 34, 42, 48, 55, 60, 68],
       topPosts: [
-        { titulo: 'Nota: análisis de la jornada', alcance: '86K', interacciones: '4.1K' },
-        { titulo: 'Reportaje especial', alcance: '52K', interacciones: '2.7K' },
-        { titulo: 'Editorial de la semana', alcance: '38K', interacciones: '1.9K' },
+        { titulo: 'Nota: guía de compra del producto', alcance: '86K', interacciones: '4.1K' },
+        { titulo: 'Comparativa contra la categoría', alcance: '52K', interacciones: '2.7K' },
+        { titulo: 'Ficha técnica y disponibilidad', alcance: '38K', interacciones: '1.9K' },
       ],
     },
   },
@@ -146,7 +146,36 @@ const PLATAFORMAS: Plataforma[] = [
   },
 ];
 
+const EMBUDO = [
+  { etapa: 'Visitas', valor: '1.24M', pct: 100 },
+  { etapa: 'Ficha de producto', valor: '486K', pct: 39 },
+  { etapa: 'Carrito', valor: '142K', pct: 11 },
+  { etapa: 'Pago iniciado', valor: '75K', pct: 6 },
+  { etapa: 'Compra', valor: '38.4K', pct: 3.1 },
+];
+
+const MARKETPLACES = [
+  { nombre: 'Amazon MX', skus: 412, stock: 94, buyBox: 71, rating: 4.5 },
+  { nombre: 'Mercado Libre', skus: 508, stock: 88, buyBox: 63, rating: 4.7 },
+  { nombre: 'Walmart MX', skus: 288, stock: 79, buyBox: 48, rating: 4.2 },
+];
+
+const VISIBILIDAD = [
+  { motor: 'Google — orgánico', tipo: 'SEO', share: 62, nota: 'Top 3 en 148 términos de categoría' },
+  { motor: 'Google — AI Overviews', tipo: 'IA', share: 34, nota: 'Citada en 1 de cada 3 respuestas' },
+  { motor: 'Asistentes de IA', tipo: 'IA', share: 27, nota: 'Recomendada al preguntar por la categoría' },
+  { motor: 'Bing / otros', tipo: 'SEO', share: 18, nota: 'Cobertura secundaria' },
+];
+
 // ───────────────────────── UI HELPERS ─────────────────────────
+
+const Bloque: React.FC<{ titulo: string; sub: string; children: React.ReactNode }> = ({ titulo, sub, children }) => (
+  <div style={{ background: colores.fondoClaro, borderRadius: 20, padding: 20, border: `1px solid ${colores.borde}`, boxShadow: colores.sombra }}>
+    <div style={{ fontSize: 15, fontWeight: 700, color: colores.textoClaro, marginBottom: 4 }}>{titulo}</div>
+    <div style={{ fontSize: 12, color: colores.textoOscuro, marginBottom: 14 }}>{sub}</div>
+    {children}
+  </div>
+);
 
 const Delta: React.FC<{ v: number }> = ({ v }) => {
   if (v === 0) return null;
@@ -534,11 +563,11 @@ export const MonitorDigital: React.FC = () => {
             <span className="md-pulse" style={{ width: 7, height: 7, borderRadius: 999, background: colores.primario }} /> Monitoreo digital
           </span>
           <h1 style={{ fontSize: isMobile ? 26 : 38, fontWeight: 300, color: '#fff', margin: '14px 0 6px', letterSpacing: '-0.5px' }}>
-            Monitor <span style={{ fontWeight: 800, color: colores.primario }}>Digital</span> · In-App / Open Web
+            Monitor <span style={{ fontWeight: 800, color: colores.primario }}>Digital</span> & E-Commerce
           </h1>
           <p style={{ fontSize: isMobile ? 14 : 16, color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: 640, lineHeight: 1.5 }}>
-            Conecta tus cuentas (TikTok, Instagram, blog, sitio web…) y lee su feedback en un solo tablero.
-            Con tus accesos cubrimos lo propio de forma completa, incluido el inventario in-app.
+            Tráfico, conversión y marketplaces en un solo tablero. Conecta las cuentas de la marca
+            y suma la visibilidad en buscadores y en respuestas de IA (GEO/AEO).
           </p>
 
           {/* explicación in-app vs open web */}
@@ -616,10 +645,70 @@ export const MonitorDigital: React.FC = () => {
           </div>
         </div>
 
+        {/* EMBUDO + MARKETPLACES + GEO/AEO */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr 1fr', gap: 20, marginBottom: 28 }}>
+          <Bloque titulo="Embudo de conversión" sub="Del clic a la compra, últimos 30 días">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {EMBUDO.map((e, i) => (
+                <div key={e.etapa}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
+                    <span style={{ color: colores.textoMedio, fontWeight: 600 }}>{e.etapa}</span>
+                    <span style={{ color: colores.textoOscuro, fontVariantNumeric: 'tabular-nums' }}>{e.valor} · {e.pct}%</span>
+                  </div>
+                  <div style={{ height: 10, borderRadius: 999, background: colores.fondoTerciario, overflow: 'hidden' }}>
+                    <div className="md-grow" style={{ width: `${e.pct}%`, height: '100%', borderRadius: 999, background: i === EMBUDO.length - 1 ? colores.exito : colores.primario }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: colores.textoOscuro, margin: '12px 0 0', lineHeight: 1.4 }}>
+              Mayor fuga entre carrito y pago: 47% de abandono. Foco de trabajo del Operador de E-Commerce.
+            </p>
+          </Bloque>
+
+          <Bloque titulo="Marketplaces" sub="Disponibilidad y buy box por canal">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {MARKETPLACES.map(m => (
+                <div key={m.nombre} style={{ background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, padding: '11px 13px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: colores.textoClaro }}>{m.nombre}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: m.buyBox >= 60 ? colores.exito : colores.advertencia }}>buy box {m.buyBox}%</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 14, fontSize: 11, color: colores.textoOscuro }}>
+                    <span>{m.skus} SKUs</span>
+                    <span>{m.stock}% en stock</span>
+                    <span>★ {m.rating}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Bloque>
+
+          <Bloque titulo="Visibilidad en buscadores e IA" sub="SEO tradicional + GEO/AEO">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {VISIBILIDAD.map(v => (
+                <div key={v.motor}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
+                    <span style={{ color: colores.textoMedio, fontWeight: 600 }}>{v.motor}</span>
+                    <span style={{ color: colores.textoOscuro, fontVariantNumeric: 'tabular-nums' }}>{v.share}%</span>
+                  </div>
+                  <div style={{ height: 8, borderRadius: 999, background: colores.fondoTerciario, overflow: 'hidden' }}>
+                    <div style={{ width: `${v.share}%`, height: '100%', borderRadius: 999, background: v.tipo === 'IA' ? '#8B5CF6' : colores.primario }} />
+                  </div>
+                  <div style={{ fontSize: 10.5, color: colores.textoOscuro, marginTop: 3 }}>{v.nota}</div>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 11, color: colores.textoOscuro, margin: '12px 0 0', lineHeight: 1.4 }}>
+              GEO/AEO: con qué frecuencia la marca aparece citada dentro de respuestas generadas por IA.
+            </p>
+          </Bloque>
+        </div>
+
         {/* GRID DE CONEXIÓN */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 16px' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Conecta tus cuentas</h2>
-          <span style={{ fontSize: 12, color: colores.textoOscuro }}>Agrega usuario y contraseña para leer su feedback</span>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Conecta las cuentas de la marca</h2>
+          <span style={{ fontSize: 12, color: colores.textoOscuro }}>Agrega los accesos para leer su feedback</span>
         </div>
         <div style={{
           display: 'grid',

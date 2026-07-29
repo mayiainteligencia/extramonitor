@@ -6,7 +6,7 @@ export const brandingConfig = {
   },
 
   colores: {
-    primario: "#8B5CF6",           // Morado claro — elemento primario activo (sidebar activo)
+    primario: "#B22222",           // rojo claro — elemento primario activo (sidebar activo)
     primarioOscuro: "#2D2D2D",     // Negro suave — hover
     primarioClaro: "#FFFFFF",      // Blanco — superficies claras
 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Vote, Scale, Activity, TrendingUp, Radio, MessageSquare, Flame,
-  ArrowUpRight, ArrowDownRight, Smile, Meh, Frown, Share2, Trophy, Landmark,
-  FileText, Network, Mic2, MapPin,
+  Route, Scale, Activity, TrendingUp, Radio, MessageSquare, Flame,
+  ArrowUpRight, ArrowDownRight, Smile, Meh, Frown, Share2, Trophy, Layers,
+  FileText, Network, MousePointerClick, MapPin, Users,
 } from 'lucide-react';
 import {
   ResponsiveContainer, AreaChart, Area, LineChart, Line, BarChart, Bar,
@@ -12,91 +12,90 @@ import { brandingConfig } from '../config/branding';
 import { estadosPaths } from '../data/mexicoPaths';
 
 const { colores } = brandingConfig;
-const V = colores.primario; // verde MAYIA
+const V = colores.primario;
 const TXT = colores.textoClaro;
 const MUT = colores.textoOscuro;
 const TRACK = `${colores.secundario}12`;
 
 // ───────────────────────── DATA DUMMY (la lógica/datos reales van después) ─────────────────────────
 
-const CANDIDATOS = [
-  { nombre: 'M. E. Cruz', partido: 'Morena', color: '#9B2247', menciones: 450, sov: 42, sent: { pos: 46, neu: 34, neg: 20 } },
-  { nombre: 'R. Salazar', partido: 'PAN', color: '#0047AB', menciones: 320, sov: 30, sent: { pos: 38, neu: 40, neg: 22 } },
-  { nombre: 'A. Gutiérrez', partido: 'PRI', color: '#006847', menciones: 210, sov: 19, sent: { pos: 41, neu: 37, neg: 22 } },
-  { nombre: 'Otros', partido: 'MC / Indep.', color: '#F58025', menciones: 98, sov: 9, sent: { pos: 33, neu: 45, neg: 22 } },
+const ETAPAS = [
+  { nombre: 'Awareness', detalle: 'Descubre la marca', color: '#8B5CF6', usuarios: 1240000, share: 100, sent: { pos: 52, neu: 38, neg: 10 } },
+  { nombre: 'Consideración', detalle: 'Compara y evalúa', color: '#0047AB', usuarios: 486000, share: 39, sent: { pos: 44, neu: 39, neg: 17 } },
+  { nombre: 'Conversión', detalle: 'Compra', color: '#F58025', usuarios: 38400, share: 3.1, sent: { pos: 61, neu: 28, neg: 11 } },
+  { nombre: 'Lealtad', detalle: 'Recompra y recomienda', color: '#10B981', usuarios: 14200, share: 1.1, sent: { pos: 74, neu: 20, neg: 6 } },
 ];
 
-const PARTIDOS = [
-  { label: 'Morena', value: 44, color: '#9B2247' },
-  { label: 'PAN', value: 26, color: '#0047AB' },
-  { label: 'PRI', value: 18, color: '#006847' },
-  { label: 'MC', value: 8, color: '#F58025' },
-  { label: 'Otros', value: 4, color: '#6B7280' },
+const CANALES = [
+  { label: 'Radio', value: 31, color: '#8B5CF6' },
+  { label: 'Digital', value: 27, color: '#0047AB' },
+  { label: 'Retail físico', value: 19, color: '#F58025' },
+  { label: 'Marketplace', value: 15, color: '#10B981' },
+  { label: 'Atención a clientes', value: 8, color: '#6B7280' },
 ];
 
 const EVOLUCION = [
-  { sem: 'S1', Cruz: 180, Salazar: 150, Gutierrez: 120 },
-  { sem: 'S2', Cruz: 240, Salazar: 170, Gutierrez: 140 },
-  { sem: 'S3', Cruz: 210, Salazar: 200, Gutierrez: 130 },
-  { sem: 'S4', Cruz: 320, Salazar: 230, Gutierrez: 160 },
-  { sem: 'S5', Cruz: 360, Salazar: 250, Gutierrez: 190 },
-  { sem: 'S6', Cruz: 410, Salazar: 290, Gutierrez: 200 },
-  { sem: 'S7', Cruz: 440, Salazar: 300, Gutierrez: 210 },
-  { sem: 'S8', Cruz: 480, Salazar: 320, Gutierrez: 230 },
+  { sem: 'S1', Awareness: 180, Consideracion: 150, Conversion: 120 },
+  { sem: 'S2', Awareness: 240, Consideracion: 170, Conversion: 140 },
+  { sem: 'S3', Awareness: 210, Consideracion: 200, Conversion: 130 },
+  { sem: 'S4', Awareness: 320, Consideracion: 230, Conversion: 160 },
+  { sem: 'S5', Awareness: 360, Consideracion: 250, Conversion: 190 },
+  { sem: 'S6', Awareness: 410, Consideracion: 290, Conversion: 200 },
+  { sem: 'S7', Awareness: 440, Consideracion: 300, Conversion: 210 },
+  { sem: 'S8', Awareness: 480, Consideracion: 320, Conversion: 230 },
 ];
 
-const TEMAS = [
-  { tema: 'Seguridad', v: 88 }, { tema: 'Economía', v: 74 },
-  { tema: 'Corrupción', v: 61 }, { tema: 'Bienestar', v: 55 },
-  { tema: 'Energía', v: 48 }, { tema: 'Educación', v: 42 },
-  { tema: 'Migración', v: 35 },
+// Fricciones más citadas, por peso en el journey
+const FRICCIONES = [
+  { tema: 'Costo de envío', v: 88 }, { tema: 'Tiempo de entrega', v: 74 },
+  { tema: 'Falta de stock', v: 61 }, { tema: 'Precio vs categoría', v: 55 },
+  { tema: 'Pago rechazado', v: 48 }, { tema: 'Devoluciones', v: 42 },
+  { tema: 'Atención posventa', v: 35 },
 ];
 
-const NARRATIVAS = [
-  { texto: 'Reforma judicial', delta: 38, vol: '12.4K' },
-  { texto: 'Crisis energética', delta: 24, vol: '8.1K' },
-  { texto: 'Seguridad fronteriza', delta: 19, vol: '6.7K' },
-  { texto: 'Corrupción estatal', delta: -7, vol: '5.2K' },
-  { texto: 'Salario mínimo', delta: 12, vol: '4.0K' },
+const FRICCIONES_EMERGENTES = [
+  { texto: 'Abandono en pantalla de pago', delta: 38, vol: '12.4K' },
+  { texto: 'Dudas sobre disponibilidad', delta: 24, vol: '8.1K' },
+  { texto: 'Comparativa con competidor', delta: 19, vol: '6.7K' },
+  { texto: 'Quejas de posventa', delta: -7, vol: '5.2K' },
+  { texto: 'Búsqueda de cupón', delta: 12, vol: '4.0K' },
 ];
 
-// Partidos predefinidos para filtrar el monitoreo ("quiero escuchar sobre…")
-const PARTIDOS_FILTRO = [
-  { id: 'Morena', color: '#9B2247' },
-  { id: 'PAN', color: '#0047AB' },
-  { id: 'PRI', color: '#006847' },
-  { id: 'MC', color: '#F58025' },
-  { id: 'PVEM', color: '#4CA22F' },
-  { id: 'PT', color: '#D52B1E' },
+// Etapas predefinidas para filtrar el feed de señales ("quiero ver la etapa…")
+const ETAPAS_FILTRO = [
+  { id: 'Awareness', color: '#8B5CF6' },
+  { id: 'Consideración', color: '#0047AB' },
+  { id: 'Conversión', color: '#F58025' },
+  { id: 'Lealtad', color: '#10B981' },
 ];
-const PARTIDO_COLOR: Record<string, string> = Object.fromEntries(PARTIDOS_FILTRO.map(p => [p.id, p.color]));
+const ETAPA_COLOR: Record<string, string> = Object.fromEntries(ETAPAS_FILTRO.map(e => [e.id, e.color]));
 
 const FEED = [
-  { hora: '14:32', estacion: 'MVS Radio 102.5', texto: 'La candidata de Morena presentó hoy su propuesta de seguridad para reducir la incidencia delictiva…', candidato: 'M. E. Cruz', partido: 'Morena', tema: 'Seguridad', sent: 'pos' },
-  { hora: '14:18', estacion: 'La Octava 89.9', texto: 'El PAN cuestionó el manejo del presupuesto energético del gobierno actual…', candidato: 'R. Salazar', partido: 'PAN', tema: 'Energía', sent: 'neg' },
-  { hora: '14:05', estacion: 'Radio Fórmula 104.1', texto: 'Movimiento Ciudadano propone una reforma al sistema de pensiones para jóvenes…', candidato: 'L. Fernández', partido: 'MC', tema: 'Bienestar', sent: 'pos' },
-  { hora: '13:55', estacion: 'Imagen 90.5', texto: 'Se debatió la reforma judicial en el panel matutino con representantes del PRI…', candidato: 'A. Gutiérrez', partido: 'PRI', tema: 'Corrupción', sent: 'neu' },
-  { hora: '13:40', estacion: 'MVS Radio 102.5', texto: 'El PVEM destacó avances en materia ambiental y energías limpias en la región…', candidato: 'D. Ramírez', partido: 'PVEM', tema: 'Energía', sent: 'pos' },
-  { hora: '13:28', estacion: 'ABC Radio 760', texto: 'Morena defendió su propuesta de bienestar social frente a las críticas de la oposición…', candidato: 'M. E. Cruz', partido: 'Morena', tema: 'Bienestar', sent: 'pos' },
-  { hora: '13:14', estacion: 'Radio Fórmula 104.1', texto: 'El PT llamó a fortalecer el salario mínimo en el próximo periodo legislativo…', candidato: 'S. Domínguez', partido: 'PT', tema: 'Economía', sent: 'neu' },
-  { hora: '13:02', estacion: 'La Octava 89.9', texto: 'El PAN insistió en la necesidad de mayor seguridad fronteriza ante el fenómeno migratorio…', candidato: 'R. Salazar', partido: 'PAN', tema: 'Migración', sent: 'neg' },
-  { hora: '12:48', estacion: 'Imagen 90.5', texto: 'El PRI cuestionó los índices de corrupción estatal en su intervención…', candidato: 'A. Gutiérrez', partido: 'PRI', tema: 'Corrupción', sent: 'neg' },
-  { hora: '12:35', estacion: 'MVS Radio 102.5', texto: 'Movimiento Ciudadano abordó la agenda educativa rumbo al proceso electoral…', candidato: 'L. Fernández', partido: 'MC', tema: 'Educación', sent: 'neu' },
+  { hora: '14:32', canal: 'Radio · MVS 102.5', texto: 'Pico de búsquedas de marca 4 minutos después del spot de las 14:28…', touchpoint: 'Spot 20s', etapa: 'Awareness', sent: 'pos' },
+  { hora: '14:18', canal: 'Sitio propio', texto: 'La ficha de producto concentra 39% de las visitas pero solo 11% llega al carrito…', touchpoint: 'Ficha de producto', etapa: 'Consideración', sent: 'neu' },
+  { hora: '14:05', canal: 'Marketplace', texto: 'Reseñas nuevas mencionan el tiempo de entrega como principal fricción…', touchpoint: 'Reseñas', etapa: 'Lealtad', sent: 'neg' },
+  { hora: '13:55', canal: 'Checkout', texto: '47% de abandono en la pantalla de pago; el método más rechazado es débito…', touchpoint: 'Pago', etapa: 'Conversión', sent: 'neg' },
+  { hora: '13:40', canal: 'Redes', texto: 'La creatividad vertical duplica el CTR frente al formato cuadrado…', touchpoint: 'Social ads', etapa: 'Awareness', sent: 'pos' },
+  { hora: '13:28', canal: 'Retail físico', texto: 'La activación en tienda genera 2.3K escaneos de QR hacia el catálogo…', touchpoint: 'Activación', etapa: 'Consideración', sent: 'pos' },
+  { hora: '13:14', canal: 'Atención a clientes', texto: 'Los tickets por devolución bajan 12% tras el cambio de política…', touchpoint: 'Soporte', etapa: 'Lealtad', sent: 'pos' },
+  { hora: '13:02', canal: 'Buscadores', texto: 'La marca aparece citada en 1 de cada 3 respuestas de IA de la categoría…', touchpoint: 'GEO/AEO', etapa: 'Consideración', sent: 'pos' },
+  { hora: '12:48', canal: 'Marketplace', texto: 'Se perdió la buy box en 3 SKUs por diferencia de precio…', touchpoint: 'Buy box', etapa: 'Conversión', sent: 'neg' },
+  { hora: '12:35', canal: 'Email', texto: 'El flujo de carrito abandonado recupera 6.4% de las sesiones…', touchpoint: 'CRM', etapa: 'Conversión', sent: 'neu' },
 ];
 
 const CORRELACION = [
-  { d: 'Lun', radio: 120, redes: 200 }, { d: 'Mar', radio: 180, redes: 260 },
-  { d: 'Mié', radio: 150, redes: 240 }, { d: 'Jue', radio: 320, redes: 480 },
-  { d: 'Vie', radio: 280, redes: 520 }, { d: 'Sáb', radio: 210, redes: 410 },
-  { d: 'Dom', radio: 260, redes: 460 },
+  { d: 'Lun', visitas: 120, conversiones: 200 }, { d: 'Mar', visitas: 180, conversiones: 260 },
+  { d: 'Mié', visitas: 150, conversiones: 240 }, { d: 'Jue', visitas: 320, conversiones: 480 },
+  { d: 'Vie', visitas: 280, conversiones: 520 }, { d: 'Sáb', visitas: 210, conversiones: 410 },
+  { d: 'Dom', visitas: 260, conversiones: 460 },
 ];
 
 const RANKING = [
-  { estacion: 'MVS Radio 102.5', impacto: 94 },
-  { estacion: 'Radio Fórmula 104.1', impacto: 81 },
-  { estacion: 'La Octava 89.9', impacto: 68 },
-  { estacion: 'Imagen 90.5', impacto: 57 },
-  { estacion: 'ABC Radio 760', impacto: 43 },
+  { touchpoint: 'Spot de radio 20s', impacto: 94 },
+  { touchpoint: 'Ficha de producto', impacto: 81 },
+  { touchpoint: 'Social ads vertical', impacto: 68 },
+  { touchpoint: 'Reseñas marketplace', impacto: 57 },
+  { touchpoint: 'Email de carrito', impacto: 43 },
 ];
 
 const SENT_META = {
@@ -105,38 +104,38 @@ const SENT_META = {
   neg: { label: 'Negativo', color: colores.peligro, Icon: Frown },
 } as const;
 
-// Sentimiento por estación y por programa de radio
-const SENT_ESTACION = [
-  { nombre: 'MVS Radio 102.5', pos: 44, neu: 38, neg: 18 },
-  { nombre: 'Radio Fórmula 104.1', pos: 36, neu: 40, neg: 24 },
-  { nombre: 'La Octava 89.9', pos: 30, neu: 39, neg: 31 },
-  { nombre: 'Imagen 90.5', pos: 41, neu: 36, neg: 23 },
+// Sentimiento por canal y por touchpoint
+const SENT_CANAL = [
+  { nombre: 'Radio', pos: 44, neu: 38, neg: 18 },
+  { nombre: 'Digital', pos: 36, neu: 40, neg: 24 },
+  { nombre: 'Marketplace', pos: 30, neu: 39, neg: 31 },
+  { nombre: 'Retail físico', pos: 41, neu: 36, neg: 23 },
 ];
-const SENT_PROGRAMA = [
-  { nombre: 'Primera Emisión', pos: 47, neu: 33, neg: 20 },
-  { nombre: 'Panel Político', pos: 29, neu: 38, neg: 33 },
-  { nombre: 'Mesa de Análisis', pos: 38, neu: 42, neg: 20 },
-  { nombre: 'Noticiero Nocturno', pos: 34, neu: 40, neg: 26 },
+const SENT_TOUCHPOINT = [
+  { nombre: 'Ficha de producto', pos: 47, neu: 33, neg: 20 },
+  { nombre: 'Pantalla de pago', pos: 29, neu: 38, neg: 33 },
+  { nombre: 'Entrega', pos: 38, neu: 42, neg: 20 },
+  { nombre: 'Posventa', pos: 34, neu: 40, neg: 26 },
 ];
 
-// Mapa de narrativa (red temas ↔ actores)
+// Mapa del journey (red etapas ↔ canales)
 const NARR_NODOS = [
-  { id: 'Seguridad', x: 200, y: 55, tipo: 'tema' },
-  { id: 'Reforma judicial', x: 200, y: 120, tipo: 'tema' },
-  { id: 'Economía', x: 200, y: 185, tipo: 'tema' },
-  { id: 'Morena', x: 60, y: 50, tipo: 'actor', color: '#9B2247' },
-  { id: 'PAN', x: 340, y: 50, tipo: 'actor', color: '#0047AB' },
-  { id: 'PRI', x: 60, y: 190, tipo: 'actor', color: '#006847' },
-  { id: 'MC', x: 340, y: 190, tipo: 'actor', color: '#F58025' },
+  { id: 'Awareness', x: 200, y: 55, tipo: 'tema' },
+  { id: 'Consideración', x: 200, y: 120, tipo: 'tema' },
+  { id: 'Conversión', x: 200, y: 185, tipo: 'tema' },
+  { id: 'Radio', x: 60, y: 50, tipo: 'actor', color: '#8B5CF6' },
+  { id: 'Digital', x: 340, y: 50, tipo: 'actor', color: '#0047AB' },
+  { id: 'Retail', x: 60, y: 190, tipo: 'actor', color: '#F58025' },
+  { id: 'Marketplace', x: 340, y: 190, tipo: 'actor', color: '#10B981' },
 ];
 const NARR_LINKS: [string, string][] = [
-  ['Morena', 'Seguridad'], ['Morena', 'Economía'], ['PAN', 'Seguridad'],
-  ['PAN', 'Reforma judicial'], ['PRI', 'Reforma judicial'], ['PRI', 'Economía'],
-  ['MC', 'Economía'], ['MC', 'Seguridad'],
+  ['Radio', 'Awareness'], ['Radio', 'Consideración'], ['Digital', 'Awareness'],
+  ['Digital', 'Consideración'], ['Retail', 'Conversión'], ['Retail', 'Consideración'],
+  ['Marketplace', 'Conversión'], ['Marketplace', 'Awareness'],
 ];
 
-// Mapa de México · intensidad de menciones políticas por estado (0-100), por id de estadosPaths
-const MENCIONES_ESTADO: Record<string, number> = {
+// Mapa de México · intensidad de touchpoints por plaza (0-100), por id de estadosPaths
+const TOUCHPOINTS_PLAZA: Record<string, number> = {
   MX_AG: 33, MX_BC: 38, MX_BS: 22, MX_CM: 24, MX_CS: 58, MX_CH: 52, MX_CO: 41, MX_CL: 21,
   MX_DF: 100, MX_DG: 31, MX_GT: 61, MX_GR: 51, MX_HG: 39, MX_JA: 79, MX_EM: 92, MX_MI: 54,
   MX_MO: 35, MX_NA: 26, MX_NL: 88, MX_OA: 57, MX_PU: 63, MX_QT: 48, MX_QR: 37, MX_SL: 44,
@@ -206,18 +205,18 @@ export const JourneyIntelligence: React.FC = () => {
   }, []);
 
   const col = (n: number) => (isMobile ? '1fr' : `repeat(${n}, 1fr)`);
-  const maxSov = Math.max(...CANDIDATOS.map(c => c.sov));
+  const maxShare = Math.max(...ETAPAS.map(e => e.share));
 
   const kpis = [
-    { Icon: MessageSquare, label: 'Menciones políticas hoy', value: '3,842', delta: 21 },
-    { Icon: Vote, label: 'Candidatos monitoreados', value: '18', delta: 0 },
-    { Icon: Landmark, label: 'Partidos / coaliciones', value: '7' },
-    { Icon: Radio, label: 'Estaciones en cobertura', value: '42', delta: 4 },
+    { Icon: Users, label: 'Usuarios en el journey', value: '1.24M', delta: 21 },
+    { Icon: MousePointerClick, label: 'Touchpoints activos', value: '34', delta: 6 },
+    { Icon: Layers, label: 'Etapas monitoreadas', value: '4' },
+    { Icon: MessageSquare, label: 'Señales analizadas hoy', value: '3,842', delta: 4 },
   ];
 
   const generarReporte = () => {
     const el = document.createElement('div');
-    el.textContent = '📄 Generando reporte semanal electoral… ✓';
+    el.textContent = '📄 Generando reporte semanal del journey… ✓';
     el.style.cssText = `position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;background:${colores.textoClaro};color:${colores.textoEnOscuro};padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:${colores.sombraGrande}`;
     document.body.appendChild(el);
     setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .4s'; }, 1800);
@@ -240,17 +239,17 @@ export const JourneyIntelligence: React.FC = () => {
         {/* HERO */}
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, flexWrap: 'wrap', marginBottom: 22 }}>
           <div style={{ width: 54, height: 54, borderRadius: 15, background: V, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Vote size={26} color="#0A0A0A" />
+            <Route size={26} color="#0A0A0A" />
           </div>
           <div style={{ flex: 1, minWidth: 240 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <h1 style={{ fontSize: isMobile ? 24 : 34, fontWeight: 800, color: TXT, margin: 0, letterSpacing: '-0.5px' }}>
-                Inteligencia Electoral <span style={{ color: V }}>2027</span>
+                Journey <span style={{ color: V }}>Intelligence</span>
               </h1>
               <Badge texto="EN VIVO" color={V} pulse />
             </div>
             <p style={{ fontSize: isMobile ? 13 : 15, color: colores.textoMedio, margin: '6px 0 0', maxWidth: 720, lineHeight: 1.5 }}>
-              Análisis en tiempo real del discurso electoral en radio y su correlación con la conversación digital rumbo a las elecciones de México 2027.
+              Recorrido del consumidor de punta a punta: por dónde entra, dónde se atora y qué lo hace volver — con el drop-off medido en cada etapa.
             </p>
           </div>
           <button onClick={generarReporte} style={{
@@ -278,33 +277,33 @@ export const JourneyIntelligence: React.FC = () => {
 
         {/* FILA 1: SoV candidatos + partidos + evolución */}
         <div style={{ display: 'grid', gridTemplateColumns: col(3), gap: 16, marginBottom: 16 }}>
-          <Panel icon={Scale} titulo="Share of Voice" sub="Participación mediática por candidato">
+          <Panel icon={Scale} titulo="Etapas del journey" sub="Volumen y drop-off por etapa">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 13 }}>
-              {CANDIDATOS.map((c, i) => (
+              {ETAPAS.map((e, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 8, height: 8, borderRadius: 999, background: c.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: colores.textoMedio, width: 78, flexShrink: 0 }}>{c.nombre}</span>
+                  <span style={{ width: 8, height: 8, borderRadius: 999, background: e.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: colores.textoMedio, width: 88, flexShrink: 0 }}>{e.nombre}</span>
                   <div style={{ flex: 1, height: 10, background: TRACK, borderRadius: 999, overflow: 'hidden' }}>
-                    <div className="iel-grow" style={{ width: `${(c.sov / maxSov) * 100}%`, height: '100%', background: c.color, borderRadius: 999 }} />
+                    <div className="iel-grow" style={{ width: `${(e.share / maxShare) * 100}%`, height: '100%', background: e.color, borderRadius: 999 }} />
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: TXT, width: 34, textAlign: 'right' }}>{c.sov}%</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: TXT, width: 40, textAlign: 'right' }}>{e.share}%</span>
                 </div>
               ))}
             </div>
           </Panel>
 
-          <Panel icon={Landmark} titulo="Presencia por partido" sub="Distribución de menciones">
+          <Panel icon={Share2} titulo="Touchpoints por canal" sub="Distribución de interacciones">
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <ResponsiveContainer width="55%" height={150}>
                 <PieChart>
-                  <Pie data={PARTIDOS} dataKey="value" innerRadius={38} outerRadius={62} paddingAngle={3} stroke="none">
-                    {PARTIDOS.map((p, i) => <Cell key={i} fill={p.color} />)}
+                  <Pie data={CANALES} dataKey="value" innerRadius={38} outerRadius={62} paddingAngle={3} stroke="none">
+                    {CANALES.map((p, i) => <Cell key={i} fill={p.color} />)}
                   </Pie>
                   <Tooltip contentStyle={tooltipStyle} />
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 7 }}>
-                {PARTIDOS.map((p, i) => (
+                {CANALES.map((p, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12 }}>
                     <span style={{ width: 9, height: 9, borderRadius: 2, background: p.color }} />
                     <span style={{ color: colores.textoMedio, flex: 1 }}>{p.label}</span>
@@ -315,16 +314,16 @@ export const JourneyIntelligence: React.FC = () => {
             </div>
           </Panel>
 
-          <Panel icon={TrendingUp} titulo="Evolución semanal" sub="Menciones por candidato (8 sem)">
+          <Panel icon={TrendingUp} titulo="Evolución semanal" sub="Usuarios por etapa (8 sem)">
             <ResponsiveContainer width="100%" height={150}>
               <LineChart data={EVOLUCION} margin={{ top: 6, right: 6, left: -22, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={colores.borde} />
                 <XAxis dataKey="sem" tick={{ fill: MUT, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: MUT, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Line type="monotone" dataKey="Cruz" stroke="#9B2247" strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="Salazar" stroke="#0047AB" strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="Gutierrez" stroke="#006847" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="Awareness" stroke="#8B5CF6" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="Consideracion" stroke="#0047AB" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="Conversion" stroke="#F58025" strokeWidth={2.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </Panel>
@@ -332,13 +331,13 @@ export const JourneyIntelligence: React.FC = () => {
 
         {/* FILA 2: Sentimiento por candidato + Agenda temática */}
         <div style={{ display: 'grid', gridTemplateColumns: col(2), gap: 16, marginBottom: 16 }}>
-          <Panel icon={Smile} titulo="Sentimiento por candidato" sub="Positivo · Neutral · Negativo">
+          <Panel icon={Smile} titulo="Sentimiento por etapa" sub="Positivo · Neutral · Negativo">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {CANDIDATOS.map((c, i) => (
+              {ETAPAS.map((c, i) => (
                 <div key={i}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
                     <span style={{ fontSize: 12, color: TXT, fontWeight: 600 }}>{c.nombre}</span>
-                    <span style={{ fontSize: 11, color: MUT }}>{c.partido}</span>
+                    <span style={{ fontSize: 11, color: MUT }}>{c.detalle}</span>
                   </div>
                   <div style={{ display: 'flex', height: 12, borderRadius: 999, overflow: 'hidden' }}>
                     <div style={{ width: `${c.sent.pos}%`, background: colores.exito }} title={`Positivo ${c.sent.pos}%`} />
@@ -360,9 +359,9 @@ export const JourneyIntelligence: React.FC = () => {
             </div>
           </Panel>
 
-          <Panel icon={Flame} titulo="Agenda temática" sub="Temas que dominan el discurso">
+          <Panel icon={Flame} titulo="Puntos de fricción" sub="Lo que más frena el avance">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {TEMAS.map((t, i) => (
+              {FRICCIONES.map((t, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{ fontSize: 12, color: colores.textoMedio, width: 86, flexShrink: 0 }}>{t.tema}</span>
                   <div style={{ flex: 1, height: 9, background: TRACK, borderRadius: 999, overflow: 'hidden' }}>
@@ -377,19 +376,19 @@ export const JourneyIntelligence: React.FC = () => {
 
         {/* FILA 2b: Sentimiento por estación y por programa */}
         <div style={{ display: 'grid', gridTemplateColumns: col(2), gap: 16, marginBottom: 16 }}>
-          <Panel icon={Radio} titulo="Sentimiento por estación" sub="Tono del discurso por emisora">
-            <SentList items={SENT_ESTACION} />
+          <Panel icon={Radio} titulo="Sentimiento por canal" sub="Tono de la conversación por canal">
+            <SentList items={SENT_CANAL} />
           </Panel>
-          <Panel icon={Mic2} titulo="Sentimiento por programa" sub="Tono del discurso por programa">
-            <SentList items={SENT_PROGRAMA} />
+          <Panel icon={MousePointerClick} titulo="Sentimiento por touchpoint" sub="Tono en cada punto de contacto">
+            <SentList items={SENT_TOUCHPOINT} />
           </Panel>
         </div>
 
         {/* FILA 3: Narrativas emergentes + Correlación radio/redes */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.3fr', gap: 16, marginBottom: 16 }}>
-          <Panel icon={Flame} titulo="Narrativas emergentes" sub="NLP · cambios en la agenda">
+          <Panel icon={Flame} titulo="Fricciones emergentes" sub="NLP · lo que crece esta semana">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {NARRATIVAS.map((n, i) => (
+              {FRICCIONES_EMERGENTES.map((n, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, padding: '11px 13px' }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: TXT }}>{n.texto}</div>
@@ -401,14 +400,14 @@ export const JourneyIntelligence: React.FC = () => {
             </div>
           </Panel>
 
-          <Panel icon={Share2} titulo="Correlación radio + redes" sub="Pico mediático: radio vs X / TikTok / Facebook">
+          <Panel icon={Share2} titulo="Visitas vs conversiones" sub="Correlación diaria del embudo">
             <ResponsiveContainer width="100%" height={210}>
               <AreaChart data={CORRELACION} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="iel-radio" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="iel-visitas" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={V} stopOpacity={0.5} /><stop offset="100%" stopColor={V} stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="iel-redes" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="iel-conv" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.45} /><stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -417,8 +416,8 @@ export const JourneyIntelligence: React.FC = () => {
                 <YAxis tick={{ fill: MUT, fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 12, color: TXT }} />
-                <Area type="monotone" name="Radio" dataKey="radio" stroke={V} strokeWidth={2.5} fill="url(#iel-radio)" />
-                <Area type="monotone" name="Redes" dataKey="redes" stroke="#3B82F6" strokeWidth={2.5} fill="url(#iel-redes)" />
+                <Area type="monotone" name="Visitas" dataKey="visitas" stroke={V} strokeWidth={2.5} fill="url(#iel-visitas)" />
+                <Area type="monotone" name="Conversiones" dataKey="conversiones" stroke="#3B82F6" strokeWidth={2.5} fill="url(#iel-conv)" />
               </AreaChart>
             </ResponsiveContainer>
           </Panel>
@@ -428,11 +427,11 @@ export const JourneyIntelligence: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.4fr 1fr', gap: 16 }}>
           <MonitoreoDiscurso />
 
-          <Panel icon={Trophy} titulo="Ranking de presencia mediática" sub="Impacto por estación">
+          <Panel icon={Trophy} titulo="Ranking de touchpoints" sub="Impacto en el avance del journey">
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={RANKING} layout="vertical" margin={{ top: 4, right: 16, left: 4, bottom: 0 }}>
                 <XAxis type="number" hide />
-                <YAxis type="category" dataKey="estacion" width={120} tick={{ fill: colores.textoMedio, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="touchpoint" width={120} tick={{ fill: colores.textoMedio, fontSize: 11 }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={tooltipStyle} cursor={{ fill: TRACK }} />
                 <Bar dataKey="impacto" radius={[0, 6, 6, 0]} barSize={18}>
                   {RANKING.map((_, i) => <Cell key={i} fill={i === 0 ? V : `${V}${(80 - i * 12).toString(16)}`} />)}
@@ -444,10 +443,10 @@ export const JourneyIntelligence: React.FC = () => {
 
         {/* FILA 5: Mapa de narrativa + Mapa geográfico */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16, marginTop: 16 }}>
-          <Panel icon={Network} titulo="Mapa de narrativa" sub="Red de actores ↔ temas del discurso">
+          <Panel icon={Network} titulo="Mapa del journey" sub="Red de canales ↔ etapas">
             <MapaNarrativa />
           </Panel>
-          <Panel icon={MapPin} titulo="Mapa de México" sub="Intensidad de menciones por estado">
+          <Panel icon={MapPin} titulo="Mapa de México" sub="Intensidad de touchpoints por plaza">
             <MapaMexico isMobile={isMobile} />
           </Panel>
         </div>
@@ -515,13 +514,13 @@ const MapaMexico: React.FC<{ isMobile: boolean }> = () => {
           background: colores.textoClaro, color: colores.textoEnOscuro, padding: '5px 10px',
           borderRadius: 8, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', boxShadow: colores.sombraMedia,
         }}>
-          {nombre(hover.id)} · {MENCIONES_ESTADO[hover.id] ?? 0} menciones
+          {nombre(hover.id)} · {TOUCHPOINTS_PLAZA[hover.id] ?? 0} touchpoints
         </div>
       )}
       <svg viewBox="0 0 959 593" style={{ width: '100%', height: 'auto' }}
         onMouseLeave={() => setHover(null)}>
         {estadosPaths.map(e => {
-          const v = MENCIONES_ESTADO[e.id] ?? 0;
+          const v = TOUCHPOINTS_PLAZA[e.id] ?? 0;
           const activo = hover?.id === e.id;
           return (
             <path
@@ -542,7 +541,7 @@ const MapaMexico: React.FC<{ isMobile: boolean }> = () => {
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
         <span style={{ fontSize: 10, color: MUT }}>Menos</span>
         <div style={{ flex: 1, height: 8, borderRadius: 999, background: `linear-gradient(90deg, ${tonoVerde(5)}, ${tonoVerde(100)})` }} />
-        <span style={{ fontSize: 10, color: MUT }}>Más menciones</span>
+        <span style={{ fontSize: 10, color: MUT }}>Más touchpoints</span>
       </div>
     </div>
   );
@@ -555,28 +554,28 @@ const Chip: React.FC<{ texto: string; color: string }> = ({ texto, color }) => (
   }}>{texto}</span>
 );
 
-// ── Monitoreo de discurso político — estilo Monitor de Medios con filtros de partido ──
+// ── Señales del journey — feed filtrable por etapa ──
 const MonitoreoDiscurso: React.FC = () => {
-  // Por defecto escucha TODOS los partidos predefinidos
-  const [activos, setActivos] = useState<string[]>(PARTIDOS_FILTRO.map(p => p.id));
+  // Por defecto se muestran todas las etapas
+  const [activos, setActivos] = useState<string[]>(ETAPAS_FILTRO.map(e => e.id));
 
   const toggle = (id: string) =>
     setActivos(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
 
-  const feed = FEED.filter(f => activos.includes(f.partido));
+  const feed = FEED.filter(f => activos.includes(f.etapa));
 
   return (
-    <Panel icon={Activity} titulo="Monitoreo de discurso político" sub="Detección automática de entidades en transmisión">
+    <Panel icon={Activity} titulo="Señales del journey" sub="Detección automática por etapa y touchpoint">
       {/* Filtros de partido — "quiero escuchar sobre…" */}
       <div style={{ marginBottom: 14 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: MUT, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Escuchando partidos
+            Etapas visibles
           </span>
           <span style={{ fontSize: 11, color: MUT }}>{feed.length} detecciones</span>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {PARTIDOS_FILTRO.map(p => {
+          {ETAPAS_FILTRO.map(p => {
             const on = activos.includes(p.id);
             return (
               <button
@@ -606,13 +605,13 @@ const MonitoreoDiscurso: React.FC = () => {
       {feed.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '40px 0' }}>
           <Radio size={36} color={MUT} strokeWidth={1} />
-          <p style={{ fontSize: 13, color: colores.textoMedio, margin: 0 }}>Selecciona al menos un partido para escuchar</p>
+          <p style={{ fontSize: 13, color: colores.textoMedio, margin: 0 }}>Selecciona al menos una etapa para ver señales</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 460, overflowY: 'auto', paddingRight: 4 }}>
           {feed.map((f, i) => {
             const sm = SENT_META[f.sent as keyof typeof SENT_META];
-            const pc = PARTIDO_COLOR[f.partido] ?? colores.secundario;
+            const pc = ETAPA_COLOR[f.etapa] ?? colores.secundario;
             return (
               <div key={i} className="iel-feed" style={{
                 display: 'flex', gap: 12, padding: '12px 13px', borderRadius: 12,
@@ -627,14 +626,13 @@ const MonitoreoDiscurso: React.FC = () => {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
                     <span style={{ background: pc, color: '#fff', fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 999 }}>
-                      {f.partido}
+                      {f.etapa}
                     </span>
-                    <span style={{ fontSize: 11, color: MUT }}>{f.estacion}</span>
+                    <span style={{ fontSize: 11, color: MUT }}>{f.canal}</span>
                   </div>
                   <div style={{ fontSize: 13, color: colores.textoMedio, fontStyle: 'italic', lineHeight: 1.4 }}>“{f.texto}”</div>
                   <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-                    <Chip texto={f.candidato} color={colores.secundario} />
-                    <Chip texto={f.tema} color={colores.advertencia} />
+                    <Chip texto={f.touchpoint} color={colores.secundario} />
                   </div>
                 </div>
               </div>

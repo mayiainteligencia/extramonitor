@@ -1,87 +1,173 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Palette, Wand2, Layers, FlaskConical, Check, Play } from 'lucide-react';
+import { Panel, Kpi, keyframes, wrap, inner, useIsMobile } from '../shared/ui';
+import { useToast } from '../shared/toast';
 import { brandingConfig } from '../../config/branding';
+import { CLIENTE } from '../../data/media';
+
+const { colores } = brandingConfig;
+const V = colores.primario;
+
+const FORMATOS = [
+  { id: 'radio20', nombre: 'Radio 20s', ratio: '—', nota: 'Guion + locución sintética' },
+  { id: 'video15', nombre: 'Video 15s', ratio: '9:16', nota: 'Vertical para social' },
+  { id: 'video30', nombre: 'Video 30s', ratio: '16:9', nota: 'In-stream y TV conectada' },
+  { id: 'display', nombre: 'Display', ratio: '300x250', nota: 'Banner estándar' },
+  { id: 'social', nombre: 'Social', ratio: '1:1', nota: 'Feed y carrusel' },
+  { id: 'ooh', nombre: 'OOH', ratio: '3:1', nota: 'Espectacular y mobiliario' },
+];
+
+const VARIANTES = [
+  { id: 'A', titulo: 'Beneficio funcional', copy: 'Rinde el doble. Cuesta lo mismo.', ctr: 2.9, conv: 1.4, ganadora: false },
+  { id: 'B', titulo: 'Beneficio emocional', copy: 'Lo que tu familia estaba esperando.', ctr: 3.7, conv: 2.1, ganadora: true },
+  { id: 'C', titulo: 'Prueba social', copy: '4 de cada 5 hogares ya lo prefieren.', ctr: 3.1, conv: 1.8, ganadora: false },
+  { id: 'D', titulo: 'Urgencia', copy: 'Solo esta semana en tu tienda.', ctr: 2.4, conv: 1.6, ganadora: false },
+];
 
 export const StudioCreativo: React.FC = () => {
-  const { colores } = brandingConfig;
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
+  const { push } = useToast();
+  const [formatos, setFormatos] = useState<string[]>(['radio20', 'video15', 'social']);
+  const [brief, setBrief] = useState(`Campaña de temporada para ${CLIENTE.nombre}: destacar disponibilidad en tienda y precio estable.`);
+  const [generando, setGenerando] = useState(false);
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
+  const grid = (cols: string): React.CSSProperties => ({ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : cols, gap: 16 });
 
-  const cards = [
-    { id: 1, titulo: 'API Testing',            descripcion: 'Pruebas de integración y endpoints',          mediaSrc: '/assets/playG/apitest.png'       },
-    { id: 2, titulo: 'Code Sandbox',           descripcion: 'Entorno de desarrollo experimental',          mediaSrc: '/assets/playG/codesandbox.png'   },
-    { id: 3, titulo: 'IA Generativa',          descripcion: 'Modelos de lenguaje y prompts',               mediaSrc: '/assets/playG/ia-gen.png'        },
-    { id: 4, titulo: 'Visualización de Datos', descripcion: 'Gráficos y dashboards interactivos',          mediaSrc: '/assets/playG/visualizacion.png' },
-    { id: 5, titulo: 'Automatización',         descripcion: 'Scripts y flujos de trabajo',                 mediaSrc: '/assets/playG/automatizacion.png'},
-  ];
+  const toggle = (id: string) =>
+    setFormatos(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]);
 
-  const imgH = isMobile ? '180px' : '260px';
-  const minCard = isMobile ? '150px' : '200px';
+  const generar = () => {
+    if (formatos.length === 0) {
+      push({ kind: 'info', title: 'Elige un formato', msg: 'Selecciona al menos un formato para generar variantes.' });
+      return;
+    }
+    setGenerando(true);
+    setTimeout(() => {
+      setGenerando(false);
+      push({ kind: 'success', title: 'Variantes generadas', msg: `${formatos.length * 4} piezas listas para revisión en ${formatos.length} formatos.` });
+    }, 900);
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: isMobile ? '16px' : '0' }}>
-      <div>
-        <h2 style={{ fontSize: isMobile ? '24px' : '32px', fontWeight: 'bold', color: colores.textoClaro, marginBottom: '6px' }}>
-          StudioCreativo
-        </h2>
-        <p style={{ color: colores.textoMedio, fontSize: isMobile ? '14px' : '16px', margin: 0 }}>
-          Zona de pruebas y desarrollo experimental
-        </p>
-      </div>
+    <div style={wrap(isMobile)}>
+      <style>{keyframes}</style>
+      <div style={inner}>
+        <div style={{ marginBottom: 22 }}>
+          <h2 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 800, color: colores.textoClaro, margin: '0 0 6px' }}>
+            Studio Creativo
+          </h2>
+          <p style={{ color: colores.textoMedio, fontSize: isMobile ? 14 : 16, margin: 0 }}>
+            Sandbox de generación de piezas: del brief a las variantes por formato y su prueba A/B.
+          </p>
+        </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: `repeat(auto-fill, minmax(${minCard}, 1fr))`,
-        gap: isMobile ? '12px' : '20px',
-      }}>
-        {cards.map((card) => {
-          const isHovered = hoveredCard === card.id;
-          return (
-            <div
-              key={card.id}
-              onMouseEnter={() => setHoveredCard(card.id)}
-              onMouseLeave={() => setHoveredCard(null)}
+        <div style={{ ...grid('repeat(4, 1fr)'), marginBottom: 22 }}>
+          <Kpi label="Piezas generadas" value="486" delta="+31%" up />
+          <Kpi label="Formatos activos" value={String(FORMATOS.length)} sub="por campaña" />
+          <Kpi label="Aprobación 1er pase" value="72%" delta="+6 pts" up />
+          <Kpi label="Tiempo por variante" value="2.4 min" sub="vs 3.5 h manual" up />
+        </div>
+
+        <div style={{ ...grid('1fr 1.2fr'), marginBottom: 22 }}>
+          <Panel title="Brief y formatos" icon={<Wand2 size={17} color={V} />}>
+            <label style={{ fontSize: 12, fontWeight: 600, color: colores.textoOscuro, display: 'block', marginBottom: 7 }}>
+              Brief de la pieza
+            </label>
+            <textarea
+              value={brief}
+              onChange={e => setBrief(e.target.value)}
+              rows={4}
               style={{
-                backgroundColor: colores.fondoSecundario,
-                borderRadius: '16px',
-                border: isHovered ? `2px solid ${colores.primario}` : `1px solid ${colores.borde}`,
-                overflow: 'hidden',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: isHovered ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
-                boxShadow: isHovered ? `0 12px 28px rgba(3,140,174,0.25)` : '0 2px 8px rgba(0,0,0,0.1)',
+                width: '100%', resize: 'vertical', fontFamily: 'inherit', fontSize: 13, lineHeight: 1.5,
+                color: colores.textoClaro, background: colores.fondoSecundario,
+                border: `1px solid ${colores.borde}`, borderRadius: 12, padding: '11px 13px', marginBottom: 16,
               }}
-            >
-              <div style={{ width: '100%', height: imgH, position: 'relative', backgroundColor: colores.fondoTerciario, overflow: 'hidden' }}>
-                <img
-                  src={card.mediaSrc}
-                  alt={card.titulo}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s ease', transform: isHovered ? 'scale(1.08)' : 'scale(1)', filter: isHovered ? 'brightness(1.1)' : 'brightness(1)' }}
-                  onError={(e) => {
-                    const t = e.target as HTMLImageElement;
-                    t.style.display = 'none';
-                    const c = t.parentElement;
-                    if (c) c.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:${colores.textoMedio};background:${colores.fondoTerciario}"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>`;
-                  }}
-                />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(3,140,174,0.95) 0%, rgba(3,140,174,0.7) 40%, transparent 100%)', display: 'flex', alignItems: 'flex-end', padding: '16px', opacity: isHovered ? 1 : 0, transition: 'opacity 0.3s ease' }}>
-                  <p style={{ color: '#fff', fontSize: '12px', margin: 0, lineHeight: '1.5', fontWeight: '600' }}>{card.descripcion}</p>
-                </div>
-              </div>
-              <div style={{ padding: '12px 14px', backgroundColor: isHovered ? colores.fondoTerciario : 'transparent', transition: 'background-color 0.3s ease' }}>
-                <h4 style={{ fontSize: '13px', fontWeight: '600', color: isHovered ? colores.primario : colores.textoClaro, margin: 0, lineHeight: '1.3', transition: 'color 0.3s ease' }}>
-                  {card.titulo}
-                </h4>
-              </div>
+            />
+
+            <div style={{ fontSize: 12, fontWeight: 600, color: colores.textoOscuro, marginBottom: 9 }}>Formatos de salida</div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
+              {FORMATOS.map(f => {
+                const on = formatos.includes(f.id);
+                return (
+                  <button key={f.id} onClick={() => toggle(f.id)} title={f.nota}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+                      padding: '7px 13px', borderRadius: 999, fontSize: 12.5, fontWeight: 700, transition: 'all .2s',
+                      border: `1.5px solid ${on ? V : colores.borde}`,
+                      background: on ? V : colores.fondoSecundario,
+                      color: on ? '#fff' : colores.textoOscuro,
+                    }}>
+                    {on && <Check size={13} />}
+                    {f.nombre}
+                  </button>
+                );
+              })}
             </div>
-          );
-        })}
+
+            <button onClick={generar} disabled={generando}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, cursor: generando ? 'default' : 'pointer',
+                border: 'none', background: generando ? colores.textoOscuro : colores.textoClaro, color: '#fff',
+                fontSize: 13.5, fontWeight: 700, padding: '11px 20px', borderRadius: 12,
+              }}>
+              <Palette size={16} /> {generando ? 'Generando…' : `Generar ${formatos.length * 4} variantes`}
+            </button>
+          </Panel>
+
+          <Panel title="Variantes generadas" icon={<Layers size={17} color={V} />}
+            right={<span style={{ fontSize: 12, color: colores.textoOscuro }}>{formatos.length} formatos · {VARIANTES.length} ejes</span>}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 12 }}>
+              {VARIANTES.map(v => (
+                <div key={v.id} style={{
+                  background: colores.fondoSecundario, borderRadius: 14, padding: 14,
+                  border: `1px solid ${v.ganadora ? V : colores.borde}`,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{
+                      width: 24, height: 24, borderRadius: 8, background: v.ganadora ? V : colores.fondoTerciario,
+                      color: v.ganadora ? '#fff' : colores.textoMedio, fontSize: 12, fontWeight: 800,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>{v.id}</span>
+                    <span style={{ fontSize: 12.5, fontWeight: 700, color: colores.textoClaro, flex: 1 }}>{v.titulo}</span>
+                    <button onClick={() => push({ kind: 'info', title: `Vista previa · variante ${v.id}`, msg: v.copy })}
+                      style={{
+                        width: 28, height: 28, borderRadius: 8, cursor: 'pointer', flexShrink: 0,
+                        background: colores.fondoClaro, border: `1px solid ${colores.borde}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}><Play size={13} color={colores.textoMedio} /></button>
+                  </div>
+                  <p style={{ fontSize: 12.5, color: colores.textoMedio, fontStyle: 'italic', margin: '0 0 10px', lineHeight: 1.4 }}>“{v.copy}”</p>
+                  <div style={{ display: 'flex', gap: 14, fontSize: 11.5, color: colores.textoOscuro }}>
+                    <span>CTR <strong style={{ color: colores.textoClaro }}>{v.ctr}%</strong></span>
+                    <span>Conv. <strong style={{ color: colores.textoClaro }}>{v.conv}%</strong></span>
+                    {v.ganadora && <span style={{ color: colores.exito, fontWeight: 700 }}>Ganadora</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </div>
+
+        <Panel title="Prueba A/B en curso" icon={<FlaskConical size={17} color={V} />}
+          right={<span style={{ fontSize: 12, color: colores.textoOscuro }}>72% de significancia</span>}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {VARIANTES.map(v => {
+              const max = Math.max(...VARIANTES.map(x => x.ctr));
+              return (
+                <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 12, color: colores.textoMedio, width: isMobile ? 90 : 130, flexShrink: 0 }}>{v.titulo}</span>
+                  <div style={{ flex: 1, height: 10, background: colores.fondoTerciario, borderRadius: 999, overflow: 'hidden' }}>
+                    <div style={{ width: `${v.ctr / max * 100}%`, height: '100%', borderRadius: 999, background: v.ganadora ? colores.exito : V }} />
+                  </div>
+                  <span style={{ fontSize: 12.5, fontWeight: 800, color: colores.textoClaro, width: 44, textAlign: 'right' }}>{v.ctr}%</span>
+                </div>
+              );
+            })}
+          </div>
+          <p style={{ fontSize: 11.5, color: colores.textoOscuro, margin: '14px 0 0', lineHeight: 1.4 }}>
+            La variante B gana por 0.8 pts de CTR. Se necesitan ~2 días más de exposición para cerrar la prueba.
+          </p>
+        </Panel>
       </div>
     </div>
   );
