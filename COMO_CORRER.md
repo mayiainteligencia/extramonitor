@@ -10,8 +10,9 @@ Son **3 procesos** independientes. Hay que tener los 3 corriendo a la vez.
 
 El front (Vite) hace proxy:
 - `/api/monitor/*` → `localhost:8001/monitor/*` (servicio Python)
-- `/api/*` (resto: chat, departamentos) → `localhost:3001` (Node)
-- WebSocket `ws://localhost:8001/ws/...` → directo, sin proxy
+- `/api/chat/*` → `localhost:3001` (Node)
+- WebSocket → directo, sin proxy. URL en `VITE_MONITOR_WS_URL`
+  (`frontend/.env`), default `ws://localhost:8001`
 
 ---
 
@@ -69,25 +70,22 @@ git show "$C:backend/monitorsol/db/testigos.sqlite" > backend/monitorsol/db/test
 ```bash
 cd backend
 cp .env.example .env     # solo la primera vez
-# editar .env: GEMINI_API_KEY y datos de MySQL
+# editar .env: GEMINI_API_KEY
 npm install              # solo la primera vez
 npm run dev              # o: npm start
 ```
 
 `.env` requerido:
 ```
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=dashboard_ia_db
-DB_PORT=3306
 GEMINI_API_KEY=tu_api_key   # https://aistudio.google.com/app/apikey
 PORT=3001
 ```
 
-> Nota: en `index.js` la importación de `monitorRoutes.js` está comentada a propósito
-> (ese archivo nunca existió; el monitor es el servicio Python, no una ruta del Node).
-> Si lo descomentas, el Node crashea con `ERR_MODULE_NOT_FOUND`.
+> **Ya no usa MySQL.** El Node quedó reducido a una sola ruta, `/api/chat/message`,
+> que consume `AsistenteIAChat.tsx`. Se eliminaron `dbService.js`, `config/database.js`,
+> las rutas de departamentos y mayia, y la dependencia `mysql2`.
+>
+> El resto del tablero **no necesita este proceso**: solo el chat del header lo usa.
 
 ---
 
@@ -96,6 +94,7 @@ PORT=3001
 ```bash
 cd frontend
 npm install              # solo la primera vez
+cp .env.example .env     # solo si el monitor no está en localhost:8001
 npm run dev
 ```
 
@@ -109,9 +108,9 @@ El proxy está en `frontend/vite.config.ts`. Si reinicias el front, toma la conf
 
 | Error | Causa | Solución |
 |-------|-------|----------|
-| `ERR_MODULE_NOT_FOUND ...monitorRoutes.js` | Node importa una ruta inexistente | Ya comentado en `index.js`; no lo descomentes |
 | `GEMINI_API_KEY no está configurada` | Falta `.env` en `backend` | `cp .env.example .env` y llenar la key |
 | `[vite] http proxy error /api/monitor/... ECONNREFUSED` | El monitor Python (:8001) no está corriendo | Levanta el proceso 1 |
-| `[vite] http proxy error /api/chat ECONNREFUSED` | El Node (:3001) no está corriendo | Levanta el proceso 2 |
+| `[vite] http proxy error /api/chat ECONNREFUSED` | El Node (:3001) no está corriendo | Levanta el proceso 2 (solo afecta al chat del header) |
+| El WebSocket no conecta en producción | `VITE_MONITOR_WS_URL` sin definir | Ponla en `frontend/.env` apuntando al monitor real |
 | `uvicorn: Could not import module main` | Faltan los `.pyc` o no activaste el venv | `source venv/bin/activate` y revisa la sección de recuperar `.pyc` |
 | uvicorn falla al guardar/recargar | Usaste `--reload` con módulos sourceless | Corre sin `--reload` |
