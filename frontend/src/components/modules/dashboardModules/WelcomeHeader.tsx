@@ -1,26 +1,78 @@
 import React from 'react';
 import { brandingConfig } from '../../../config/branding';
+import { CLIENTE, COBERTURA, ULTIMO, fmt, porPeriodo } from '../../../data/media';
 
-export const WelcomeHeader: React.FC = () => {
+const D = porPeriodo[ULTIMO];
+
+export const WelcomeHeader: React.FC<{ isMobile?: boolean }> = ({ isMobile = false }) => {
   const { empresa, colores } = brandingConfig;
+  const V = colores.primario;
 
   return (
-    <div style={{ marginBottom: '32px' }}>
-      <h1 style={{
-        fontSize: '48px', fontWeight: '300',
-        color: colores.textoClaro, marginBottom: '8px', letterSpacing: '-0.5px',
-      }}>
-        Bienvenido a <span style={{ fontWeight: '700' }}>{empresa.nombre}</span>
-        <span style={{ fontWeight: '300', fontSize: '28px', color: colores.textoOscuro, marginLeft: '12px' }}>
-          {empresa.eslogan}
+    <div
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        height: '100%',
+        minHeight: isMobile ? 0 : 260,
+        borderRadius: 24,
+        padding: isMobile ? '24px 22px' : '34px 36px',
+        background: colores.gradientePrimario,
+        boxShadow: colores.sombraGrande,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      }}
+    >
+      {/* Resplandor de marca */}
+      <div style={{
+        position: 'absolute', top: -90, right: -60, width: 320, height: 320, borderRadius: '50%',
+        background: `radial-gradient(circle, ${V}55, transparent 70%)`, pointerEvents: 'none',
+      }} />
+
+      <div style={{ position: 'relative' }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 7,
+          fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase',
+          color: V, background: `${V}1F`, border: `1px solid ${V}40`,
+          padding: '4px 11px', borderRadius: 999, marginBottom: 16,
+        }}>
+          Cuenta activa · {CLIENTE.nombre}
         </span>
-      </h1>
-      <p style={{
-        fontSize: '20px', fontWeight: '300',
-        color: colores.textoMedio, margin: 0, letterSpacing: '-0.5px',
-      }}>
-        ¿Qué vamos a monitorear hoy?
-      </p>
+
+        <h1 style={{
+          fontSize: isMobile ? 28 : 42, fontWeight: 300, lineHeight: 1.15,
+          color: '#fff', margin: '0 0 10px', letterSpacing: '-0.5px',
+        }}>
+          Bienvenido a <span style={{ fontWeight: 700 }}>{empresa.nombre}</span>
+          {empresa.eslogan && (
+            <span style={{ fontWeight: 300, fontSize: isMobile ? 18 : 24, color: 'rgba(255,255,255,.6)', marginLeft: 12 }}>
+              {empresa.eslogan}
+            </span>
+          )}
+        </h1>
+
+        <p style={{
+          fontSize: isMobile ? 16 : 19, fontWeight: 300,
+          color: 'rgba(255,255,255,.72)', margin: 0, letterSpacing: '-0.3px',
+        }}>
+          ¿Qué vamos a monitorear hoy?
+        </p>
+
+        {/* Pulso de la operación */}
+        <div style={{ display: 'flex', gap: isMobile ? 18 : 30, marginTop: isMobile ? 20 : 26, flexWrap: 'wrap' }}>
+          {[
+            { v: fmt(COBERTURA.emisoras), l: 'emisoras al aire' },
+            { v: `${D.plazasLideradas}/${D.totalPlazas}`, l: 'plazas lideradas' },
+            { v: `${D.sovCliente}%`, l: 'share of voice' },
+          ].map(k => (
+            <div key={k.l}>
+              <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{k.v}</div>
+              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.55)', marginTop: 4 }}>{k.l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

@@ -13,6 +13,7 @@ import { ModuloDetalleModal } from './CerebroOrquestadorDetalles';
 import {
   porPeriodo, ULTIMO, COBERTURA, MARCAS, CLIENTE, ALERTAS, fmt, fmtMXNCorto,
 } from '../data/media';
+import { MODULOS_CEREBRO, type ModuloCerebro } from '../data/plataforma';
 
 const { colores } = brandingConfig;
 const D = porPeriodo[ULTIMO];
@@ -29,17 +30,16 @@ type Viz =
   | { tipo: 'gauge'; value: number }
   | { tipo: 'sparkbars'; data: number[] };
 
-interface Modulo {
-  num: number;
+// num/tag/titulo/descripcion salen del catálogo compartido (data/plataforma.ts).
+type Modulo = ModuloCerebro & {
   icon: React.ComponentType<{ size?: number; color?: string }>;
-  tag: string;
-  titulo: string;
-  descripcion: string;
   badge: { texto: string; color: string };
   kpis: { label: string; value: string; delta?: number }[];
   semanas: string;
   viz: Viz;
-}
+};
+
+const cat = (num: number) => MODULOS_CEREBRO.find(m => m.num === num)!;
 
 const serie = (vals: number[]): { x: string; v: number }[] =>
   vals.map((v, i) => ({ x: `${i}`, v }));
@@ -47,9 +47,7 @@ const serie = (vals: number[]): { x: string; v: number }[] =>
 // Jerarquía: Operadores ejecutan, Modelos predicen, Agentes de Insights generan hallazgos.
 const MODULOS: Modulo[] = [
   {
-    num: 1, icon: Radio, tag: 'Operador',
-    titulo: 'Operador de Testigos',
-    descripcion: 'Verificación on-air de la pauta contratada, conectado a la sección Testigos IA.',
+    ...cat(1), icon: Radio,
     badge: { texto: 'DATOS EN VIVO', color: colores.exito },
     kpis: [
       { label: 'Emisoras monitoreadas', value: fmt(COBERTURA.emisoras), delta: 4 },
@@ -60,9 +58,7 @@ const MODULOS: Modulo[] = [
     viz: { tipo: 'sparkbars', data: [40, 65, 50, 80, 72, 95, 88, 120, 110, 140] },
   },
   {
-    num: 2, icon: Megaphone, tag: 'Operador',
-    titulo: 'Operador de Pauta',
-    descripcion: 'Optimiza la compra online y offline y rebalancea la inversión entre plazas.',
+    ...cat(2), icon: Megaphone,
     badge: { texto: 'EJECUCIÓN', color: colores.primario },
     kpis: [
       { label: 'Plazas optimizadas', value: fmt(D.totalPlazas), delta: 12 },
@@ -73,9 +69,7 @@ const MODULOS: Modulo[] = [
     viz: { tipo: 'donut', data: [{ label: 'Offline', value: 61 }, { label: 'Online', value: 39 }] },
   },
   {
-    num: 3, icon: Palette, tag: 'Operador',
-    titulo: 'Operador de Contenido',
-    descripcion: 'Genera variantes creativas por formato y plaza a partir de la pieza maestra.',
+    ...cat(3), icon: Palette,
     badge: { texto: 'GENERATIVO', color: '#8B5CF6' },
     kpis: [
       { label: 'Piezas generadas', value: '486', delta: 31 },
@@ -91,9 +85,7 @@ const MODULOS: Modulo[] = [
     },
   },
   {
-    num: 4, icon: ShoppingCart, tag: 'Operador',
-    titulo: 'Operador de E-Commerce',
-    descripcion: 'Vigila catálogo, precio y disponibilidad en marketplaces y retail propio.',
+    ...cat(4), icon: ShoppingCart,
     badge: { texto: 'RETAIL', color: '#3B82F6' },
     kpis: [
       { label: 'SKUs monitoreados', value: '1,208' },
@@ -104,9 +96,7 @@ const MODULOS: Modulo[] = [
     viz: { tipo: 'area', data: serie([44, 52, 48, 61, 58, 70, 66, 78, 74, 86]) },
   },
   {
-    num: 5, icon: PieChartIcon, tag: 'Modelo',
-    titulo: 'Modelo de Mix de Medios (MMM)',
-    descripcion: 'Atribuye la contribución de cada canal a las ventas y guía el reparto de inversión.',
+    ...cat(5), icon: PieChartIcon,
     badge: { texto: 'ATRIBUCIÓN', color: colores.advertencia },
     kpis: [
       { label: 'Canales modelados', value: '7' },
@@ -122,9 +112,7 @@ const MODULOS: Modulo[] = [
     },
   },
   {
-    num: 6, icon: TrendingUp, tag: 'Modelo',
-    titulo: 'Modelo Predictivo de Alcance',
-    descripcion: 'Forecast de cobertura y frecuencia efectiva antes de comprometer la compra.',
+    ...cat(6), icon: TrendingUp,
     badge: { texto: 'FORECAST', color: colores.exito },
     kpis: [
       { label: 'Alcance proyectado', value: `${D.alcanceProm + 6}%`, delta: 6 },
@@ -135,9 +123,7 @@ const MODULOS: Modulo[] = [
     viz: { tipo: 'area', data: serie([20, 35, 28, 50, 44, 70, 62, 88, 76, 110]) },
   },
   {
-    num: 7, icon: Tag, tag: 'Modelo',
-    titulo: 'Modelo de Elasticidad de Precio',
-    descripcion: 'Estima la sensibilidad al precio por plaza y el umbral de promoción rentable.',
+    ...cat(7), icon: Tag,
     badge: { texto: 'PRICING', color: '#3B82F6' },
     kpis: [
       { label: 'Elasticidad media', value: '-1.34' },
@@ -153,9 +139,7 @@ const MODULOS: Modulo[] = [
     },
   },
   {
-    num: 8, icon: Users2, tag: 'Agente de Insights',
-    titulo: 'Agente de Insights de Consumidor',
-    descripcion: 'Convierte señales de audiencia en hallazgos accionables por segmento.',
+    ...cat(8), icon: Users2,
     badge: { texto: 'HALLAZGOS', color: '#8B5CF6' },
     kpis: [
       { label: 'Clústeres', value: '12' },
@@ -171,9 +155,7 @@ const MODULOS: Modulo[] = [
     },
   },
   {
-    num: 9, icon: Swords, tag: 'Agente de Insights',
-    titulo: 'Agente de Competencia',
-    descripcion: 'Sigue el Share of Voice y los movimientos de pauta del mercado.',
+    ...cat(9), icon: Swords,
     badge: { texto: 'SHARE OF VOICE', color: colores.advertencia },
     kpis: [
       { label: 'Marcas rastreadas', value: '52' },
@@ -187,9 +169,7 @@ const MODULOS: Modulo[] = [
     },
   },
   {
-    num: 10, icon: ShieldAlert, tag: 'Agente de Insights',
-    titulo: 'Agente de Anomalías',
-    descripcion: 'Detecta fraude publicitario, discrepancias de pauta y gasto desperdiciado.',
+    ...cat(10), icon: ShieldAlert,
     badge: { texto: 'VIGILANCIA', color: colores.peligro },
     kpis: [
       { label: 'Anomalías abiertas', value: fmt(ALERTAS.length) },

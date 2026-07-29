@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { brandingConfig } from '../config/branding';
 import { porPeriodo, ULTIMO, COBERTURA, MARCAS, CLIENTE, ALERTAS, fmt, fmtMXNCorto } from '../data/media';
+import { MODULOS_CEREBRO, type ModuloCerebro } from '../data/plataforma';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
@@ -97,21 +98,18 @@ const MiniChart: React.FC<{ g: Grafica }> = ({ g }) => (
 // ════════════════════════ CONTENIDO DE LOS 10 MÓDULOS ════════════════════════
 // Cada detalle: una línea de descripción, 3-4 métricas y una gráfica pequeña.
 
-type Detalle = {
-  num: number;
+// Lo visual del modal (icono, métricas, gráfica) se junta con el catálogo compartido.
+type Detalle = ModuloCerebro & {
   icon: React.ComponentType<{ size?: number; color?: string }>;
-  tag: 'Operador' | 'Modelo' | 'Agente de Insights';
-  titulo: string;
-  descripcion: string;
-  enVivo?: boolean;
   metricas: { label: string; value: string }[];
   grafica: Grafica;
 };
 
+const cat = (num: number) => MODULOS_CEREBRO.find(m => m.num === num)!;
+
 const DETALLES: Detalle[] = [
   {
-    num: 1, icon: Radio, tag: 'Operador', titulo: 'Operador de Testigos', enVivo: true,
-    descripcion: 'Escucha las emisoras en vivo y confirma que cada spot contratado salió al aire.',
+    ...cat(1), icon: Radio,
     metricas: [
       { label: 'Emisoras monitoreadas', value: fmt(COBERTURA.emisoras) },
       { label: 'Spots verificados hoy', value: '1,342' },
@@ -121,8 +119,7 @@ const DETALLES: Detalle[] = [
     grafica: { tipo: 'bars', titulo: 'Spots verificados por hora', data: serie([62, 88, 141, 120, 96, 133, 158, 112], ['06', '08', '10', '12', '14', '16', '18', '20']) },
   },
   {
-    num: 2, icon: Megaphone, tag: 'Operador', titulo: 'Operador de Pauta',
-    descripcion: 'Rebalancea la compra online y offline entre plazas según el costo por punto.',
+    ...cat(2), icon: Megaphone,
     metricas: [
       { label: 'Plazas optimizadas', value: fmt(D.totalPlazas) },
       { label: 'Inversión gestionada', value: fmtMXNCorto(D.inversionCliente) },
@@ -132,8 +129,7 @@ const DETALLES: Detalle[] = [
     grafica: { tipo: 'area', titulo: 'Costo por punto de rating (índice)', data: serie([100, 96, 93, 91, 88, 86, 84, 82]) },
   },
   {
-    num: 3, icon: Palette, tag: 'Operador', titulo: 'Operador de Contenido',
-    descripcion: 'Genera variantes creativas por formato y plaza a partir de la pieza maestra.',
+    ...cat(3), icon: Palette,
     metricas: [
       { label: 'Piezas generadas', value: '486' },
       { label: 'Formatos activos', value: '9' },
@@ -143,8 +139,7 @@ const DETALLES: Detalle[] = [
     grafica: { tipo: 'bars', titulo: 'Variantes por formato', data: serie([92, 78, 64, 51, 38], ['Radio 20s', 'Video 15s', 'Display', 'Social', 'OOH']) },
   },
   {
-    num: 4, icon: ShoppingCart, tag: 'Operador', titulo: 'Operador de E-Commerce',
-    descripcion: 'Vigila catálogo, precio y disponibilidad en marketplaces y retail propio.',
+    ...cat(4), icon: ShoppingCart,
     metricas: [
       { label: 'SKUs monitoreados', value: '1,208' },
       { label: 'Quiebres de stock', value: '17' },
@@ -154,8 +149,7 @@ const DETALLES: Detalle[] = [
     grafica: { tipo: 'area', titulo: 'Disponibilidad de catálogo (%)', data: serie([88, 91, 87, 93, 90, 95, 94, 96]) },
   },
   {
-    num: 5, icon: PieChartIcon, tag: 'Modelo', titulo: 'Modelo de Mix de Medios (MMM)',
-    descripcion: 'Atribuye a cada canal su contribución a las ventas y guía el reparto de inversión.',
+    ...cat(5), icon: PieChartIcon,
     metricas: [
       { label: 'Canales modelados', value: '7' },
       { label: 'R² del modelo', value: '0.86' },
@@ -165,8 +159,7 @@ const DETALLES: Detalle[] = [
     grafica: { tipo: 'bars', titulo: 'Contribución por canal (%)', data: serie([34, 28, 22, 11, 5], ['Radio', 'Digital', 'TV', 'OOH', 'Otros']) },
   },
   {
-    num: 6, icon: TrendingUp, tag: 'Modelo', titulo: 'Modelo Predictivo de Alcance',
-    descripcion: 'Proyecta cobertura y frecuencia efectiva antes de comprometer la compra.',
+    ...cat(6), icon: TrendingUp,
     metricas: [
       { label: 'Alcance proyectado', value: `${D.alcanceProm + 6}%` },
       { label: 'Frecuencia efectiva', value: '4.2' },
@@ -176,8 +169,7 @@ const DETALLES: Detalle[] = [
     grafica: { tipo: 'area', titulo: 'Curva de alcance vs GRPs', data: serie([12, 28, 42, 54, 63, 70, 75, 78]) },
   },
   {
-    num: 7, icon: Tag, tag: 'Modelo', titulo: 'Modelo de Elasticidad de Precio',
-    descripcion: 'Estima la sensibilidad al precio por plaza y el umbral de promoción rentable.',
+    ...cat(7), icon: Tag,
     metricas: [
       { label: 'Elasticidad media', value: '-1.34' },
       { label: 'Plazas sensibles', value: '11' },
@@ -194,8 +186,7 @@ const DETALLES: Detalle[] = [
     },
   },
   {
-    num: 8, icon: Users2, tag: 'Agente de Insights', titulo: 'Agente de Insights de Consumidor',
-    descripcion: 'Convierte señales de audiencia en hallazgos accionables por segmento.',
+    ...cat(8), icon: Users2,
     metricas: [
       { label: 'Clústeres', value: '12' },
       { label: 'Audiencia prioritaria', value: '8.4%' },
@@ -212,8 +203,7 @@ const DETALLES: Detalle[] = [
     },
   },
   {
-    num: 9, icon: Swords, tag: 'Agente de Insights', titulo: 'Agente de Competencia',
-    descripcion: 'Sigue el Share of Voice y los movimientos de pauta del mercado.',
+    ...cat(9), icon: Swords,
     metricas: [
       { label: 'Marcas rastreadas', value: '52' },
       { label: `SOV ${CLIENTE.nombre}`, value: `${D.sovCliente}%` },
@@ -226,8 +216,7 @@ const DETALLES: Detalle[] = [
     },
   },
   {
-    num: 10, icon: ShieldAlert, tag: 'Agente de Insights', titulo: 'Agente de Anomalías',
-    descripcion: 'Detecta fraude publicitario, discrepancias de pauta y gasto desperdiciado.',
+    ...cat(10), icon: ShieldAlert,
     metricas: [
       { label: 'Anomalías abiertas', value: fmt(ALERTAS.length) },
       { label: 'Presupuesto recuperable', value: fmtMXNCorto(recuperableMXN) },

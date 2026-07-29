@@ -28,16 +28,23 @@ export const WarRoom: React.FC<WarRoomProps> = ({ onSectionChange }) => {
   return (
     <div style={{ minHeight: '100vh', background: colores.fondoPrincipal, padding: isMobile ? '16px' : '32px' }}>
       <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
-        <WelcomeHeader />
-
-        {/* ── Fila 1: cartera de cuentas ── */}
-        <div style={{ marginBottom: isMobile ? 16 : 24 }}>
-          <CarteraClientes />
+        {/* ── Fila 1: bienvenida + MAYIA a su derecha ── */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1.55fr 1fr',
+          gap: isMobile ? 16 : 24,
+          marginBottom: isMobile ? 16 : 24,
+          alignItems: 'stretch',
+        }}>
+          <WelcomeHeader isMobile={isMobile} />
+          <div style={{ height: isMobile ? 300 : 'auto', minHeight: isMobile ? 0 : 260 }}>
+            <HeroCard onNavigate={onSectionChange} />
+          </div>
         </div>
 
-        {/* ── Fila 2: MAYIA, banda completa entre la cartera y el detalle ── */}
-        <div style={{ height: isMobile ? 300 : 260, marginBottom: isMobile ? 16 : 24 }}>
-          <HeroCard onNavigate={onSectionChange} />
+        {/* ── Fila 2: cartera de cuentas ── */}
+        <div style={{ marginBottom: isMobile ? 16 : 24 }}>
+          <CarteraClientes />
         </div>
 
         {/* ── Fila 3: [resumen] | [Mapa + Radios/Palabras/CSV] ── */}
