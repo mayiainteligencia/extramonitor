@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio, Smartphone, Globe, MessageCircle, Brain, Sparkles, Check, MapPin } from 'lucide-react';
+import { Radio, Smartphone, Globe, MessageCircle, Brain, Sparkles, MapPin } from 'lucide-react';
 import { brandingConfig } from '../../../config/branding';
 import { estadosPaths } from '../../../data/mexicoPaths';
 import { porPeriodo, ULTIMO, CLIENTE, fmt, fmtMXNCorto } from '../../../data/media';
@@ -38,7 +38,7 @@ const SPEECHES = [
   'las menciones suben cuando se habla de servicio; la audiencia lo valida.',
 ];
 
-function señal(id: string, _label: string): Señal {
+function señal(id: string): Señal {
   const p = PLAZA_POR_ID[id];
   const h = hash(id);
   const sov = p?.sovPorMarca[CLIENTE.id] ?? 0;
@@ -89,10 +89,10 @@ export const MapaMexicoDashboard: React.FC = () => {
   const { push } = useToast();
   const confirmar = useConfirm();
   const [sel, setSel] = useState<{ id: string; label: string }>({ id: PLAZA_VIVA, label: 'Ciudad de México' });
-  const s = señal(sel.id, sel.label);
+  const s = señal(sel.id);
   const dataMap = React.useMemo(() => {
     const m: Record<string, Señal> = {};
-    estadosPaths.forEach(e => { m[e.id] = señal(e.id, e.label); });
+    estadosPaths.forEach(e => { m[e.id] = señal(e.id); });
     return m;
   }, []);
 
