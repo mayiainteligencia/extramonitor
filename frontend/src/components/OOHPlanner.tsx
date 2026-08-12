@@ -6,6 +6,8 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer,
   CartesianGrid, Legend,
 } from 'recharts';
+// TODO: mover a import() dinámico antes de producción
+// los 3 JSON del datalab pesan ~437 kB en el bundle inicial
 import {
   soportesCircuito, todosSoportes, resumenPorZona, zonasMetropolitanas,
   CIRCUITO_COMEX, MXM_DISPONIBLES, MXM_OCUPADOS, MXM_DOOH, TOTAL_INVENTARIO, MAX_IMPACTOS,

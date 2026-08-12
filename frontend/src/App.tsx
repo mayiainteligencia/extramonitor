@@ -10,7 +10,6 @@ import { Academia } from './components/departamentos/Academia';
 import { TestigosIA } from './components/TestigosIA';
 import { CerebroOrquestador } from './components/CerebroOrquestador';
 import { MonitorDigital } from './components/MonitorDigital';
-import { JourneyIntelligence } from './components/JourneyIntelligence';
 import { OOHPlanner } from './components/OOHPlanner';
 import { ComandoCampana } from './components/ComandoCampana';
 import { InvestmentValue } from './components/InvestmentValue';
@@ -39,7 +38,6 @@ function App() {
       case 'investment': return <InvestmentValue />;
       case 'alertas':    return <AlertasMarca />;
       case 'digital':    return <MonitorDigital />;
-      case 'journey':    return <JourneyIntelligence />;
       case 'ooh':        return <OOHPlanner />;
 
       case 'adfraud':    return <AdFraudBrandSafety />;

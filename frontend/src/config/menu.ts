@@ -6,7 +6,6 @@ import {
   ClipboardList,
   Bell,
   Globe,
-  Route,
   MapPin,
   ShieldAlert,
   Palette,
@@ -44,8 +43,8 @@ export const secciones: ItemMenu[] = [
     descripcion: 'Discrepancias de pauta, menciones negativas, spikes de competencia y ad fraud. Cada alerta se puede convertir en un reclamo al medio.' },
   { id: 'digital',    nombre: 'Monitor Digital & E-Commerce', icono: Globe,           estado: 'en-activacion', grupo: 'principal',
     descripcion: 'Tráfico, embudo de conversión, marketplaces, sentimiento en redes y visibilidad en buscadores y en respuestas de IA (GEO/AEO).' },
-  { id: 'journey',    nombre: 'Journey Intelligence',         icono: Route,           estado: 'en-activacion', grupo: 'principal',
-    descripcion: 'El recorrido del consumidor por etapa (awareness, consideración, conversión, lealtad) con sus puntos de fricción, touchpoints por canal y drop-off.' },
+  // Journey Intelligence salió del menú: sin datos reales y su trazabilidad
+  // vive ahora dentro del OOH Planner. El componente sigue en disco.
   { id: 'ooh',        nombre: 'OOH Planner',                  icono: MapPin,          estado: 'demo',          grupo: 'principal',
     descripcion: 'Inventario exterior real: 775 soportes con tarifa y disponibilidad, el circuito medido con su audiencia por edad y NSE, y un builder para armar circuitos y ver sus métricas.' },
   { id: 'adfraud',    nombre: 'Ad Fraud & Brand Safety',      icono: ShieldAlert,     estado: 'en-activacion', grupo: 'extra',

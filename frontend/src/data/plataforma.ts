@@ -5,6 +5,10 @@
 // Jerarquía: Agentes operan el flujo de trabajo · Operadores ejecutan sobre los
 // medios · Modelos predicen · Agentes de Insights generan hallazgos.
 
+import {
+  todosSoportes, soportesCircuito, calcularOOHScore, MAX_IMPACTOS, MXM_TOTAL, TOTAL_INVENTARIO,
+} from './ooh';
+
 export type TipoModulo = 'Agente' | 'Operador' | 'Modelo' | 'Agente de Insights';
 
 export type EstadoModulo = 'activo' | 'demo' | 'en-activacion';
@@ -36,6 +40,17 @@ export interface ModuloCerebro {
   metricas: { label: string; valor: string; delta?: string }[];
   grafica: GraficaModulo;
 }
+
+// Cifras reales del OOH Opportunity Score: se calculan sobre el inventario que
+// ya está cargado, no se escriben a mano. Si el datalab reprocesa los Excel, el
+// módulo cambia solo — y nunca muestra un número que la fórmula no produce.
+const SCORES = todosSoportes.map(s => calcularOOHScore(s, MAX_IMPACTOS));
+const scorePromedio = Math.round(SCORES.reduce((a, b) => a + b, 0) / SCORES.length);
+const scoreMaximo = Math.max(...SCORES);
+const scoreSobre70 = SCORES.filter(x => x >= 70).length;
+const enRango = (min: number, max: number) => SCORES.filter(x => x >= min && x < max).length;
+/** Soportes con audiencia medida Y tarifa: los únicos que podrían llegar a score alto. */
+const conAmbasFuentes = todosSoportes.filter(s => s.audiencia && s.tarifa_publicada_mxn).length;
 
 const AZUL = '#1E3A8A';
 const VERDE = '#22c55e';
@@ -177,19 +192,19 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   },
   {
     num: 8, id: 'ooh_score', tag: 'Modelo', titulo: 'Modelo OOH Opportunity Score', estado: 'demo',
-    descripcion: 'Califica soportes OOH por afinidad de audiencia × alcance incremental × proximidad a PDV ÷ costo ajustado. Conectado al OOH Planner.',
+    descripcion: 'Califica soportes OOH por afinidad de audiencia × alcance incremental × proximidad a PDV ÷ costo ajustado. Conectado al OOH Planner. El score mejora cuando se cruzan audiencia + tarifa por soporte: hoy el circuito medido trae audiencia sin tarifa y el inventario trae tarifa sin audiencia, así que ningún soporte puntúa completo. Se destraba cuando el proveedor entregue ambas fuentes en un solo archivo.',
     metricas: [
-      { label: 'Soportes evaluados', valor: '775', delta: '77 medidos + 698 inventario' },
-      { label: 'Score promedio circuito COMEX', valor: '71/100', delta: 'bueno' },
-      { label: 'Soportes score >70', valor: '31', delta: '40% del circuito' },
-      { label: 'Ahorro potencial', valor: '~$420K MXN', delta: 'por reoptimización' },
+      { label: 'Soportes evaluados', valor: String(TOTAL_INVENTARIO), delta: `${soportesCircuito.length} medidos + ${MXM_TOTAL} inventario` },
+      { label: 'Score promedio', valor: `${scorePromedio}/100`, delta: `techo actual ${scoreMaximo}/100 por datos incompletos` },
+      { label: 'Soportes score >70', valor: String(scoreSobre70), delta: `${conAmbasFuentes} soportes con audiencia y tarifa` },
+      { label: 'Ahorro potencial', valor: '~$420K MXN', delta: 'estimado, pendiente de medición' },
     ],
     grafica: {
       tipo: 'barrasH', titulo: 'Distribución de scores', ejeX: 'rango',
       series: [{ key: 'count', label: 'Soportes' }],
       data: [
-        { rango: '0-40', count: 12 }, { rango: '40-60', count: 18 },
-        { rango: '60-80', count: 28 }, { rango: '80-100', count: 19 },
+        { rango: '0-40', count: enRango(0, 40) }, { rango: '40-60', count: enRango(40, 60) },
+        { rango: '60-80', count: enRango(60, 80) }, { rango: '80-100', count: enRango(80, 101) },
       ],
     },
   },
