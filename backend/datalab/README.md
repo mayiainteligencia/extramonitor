@@ -1,112 +1,61 @@
-# 🧪 datalab — Laboratorio de Datos de AgroMayia
+# DataLab — Pipeline ETL de Medios
 
-Bitácora viva de la preparación de datos del proyecto. Aquí se documenta **lo que se va haciendo**: hoy solo perfila, mañana también importa.
+Laboratorio de procesamiento de datos de inventario OOH, audiencias y
+circuitos publicitarios para la plataforma AI Acceleration Lab México.
 
-> **En qué fase estamos:** **descubrimiento y perfilado de datos** (*data discovery & data profiling*) — la etapa que va **antes de construir nada**, donde entiendes qué datos tienes de verdad antes de tocarlos.
-> Frase de una línea: *"estoy haciendo el **data profiling** previo al diseño del esquema."*
-
-Todo esto vive dentro de la **ingeniería de datos** (*data engineering*), **no** "análisis de datos": aquí se construyen las **tuberías**; el análisis viene después, encima de lo que dejamos limpio.
-
----
-
-## 🧭 Modelo mental que amarra todo
-
-**ETL — Extract, Transform, Load:**
-- **Extract:** sacar el dato del Excel.
-- **Transform:** limpiarlo y validarlo.
-- **Load:** cargarlo a MySQL.
-
-Todo lo que hay en `datalab/` hoy es la **preparación del ETL**.
-
-**Arquitectura en tres capas** (cada dato tiene **un solo dueño** y **un solo lugar donde se escribe**):
+## Flujo
 
 ```
-ingesta (ETL)  ──►  datos (MySQL)  ──►  inteligencia (Gemini / MAYIA)
-   datalab/            backend BD           backend IA
+uploads/ → perfilar → normalizar → datos/ → frontend consume datos/
 ```
 
----
-
-## 📋 Paso por paso: qué se hizo, cómo se llama y por qué
-
-### 1. Clasificar las hojas por tipo
-Separar **catálogos** (**dimensiones**), **registros** (**hechos** / *facts*) y **resúmenes** (**pivotes/reportes**).
-- Esto es **modelado dimensional**; el patrón objetivo es el **esquema estrella** (*star schema*): una dimensión al centro (ej. `BD-LOTES`) y los hechos alrededor.
-- **Por qué:** no todo Excel es dato importable — los **pivotes** son *dibujos* de datos que viven en otro lado; importarlos ensucia todo.
-
-### 2. Perfilar cada archivo
-Contar filas, columnas, tipos, **vacíos** y **llaves**.
-- Esto es **data profiling**.
-- **Por qué:** una base nunca se diseña "de memoria" ni sobre un solo archivo — se diseña sobre **evidencia**. *Mide dos veces, corta una.*
-
-### 3. Construir una herramienta para hacerlo solo
-El script [`perfilar.py`](perfilar.py).
-- Esto es **tooling** (construir tus herramientas internas).
-- **Por qué:** el cliente mandará decenas de archivos; hacerlo a mano **no escala**. Esta herramienta es la **semilla del importador** — se reúsa buena parte del trabajo.
-
-### 4. Cruzar los archivos
-Buscar qué se repite y qué no coincide entre ellos. Aparecen dos problemas con nombre propio:
-- **Sinónimos** — cosas **iguales con distinto nombre** (`CAMPO-ID` / `ID-LOTE`). Se resuelven con un **diccionario de alias**; el proceso de unificar se llama **canonicalización** (dejar **un solo nombre oficial**).
-- **Homónimos** — cosas que **se parecen pero son distintas** (ej. "tallo 1" azul vs verde).
-- **Por qué importa:** fusionar un homónimo por error **envenena todos los reportes** sin que se note. Por eso el diccionario es una **propuesta que confirma un experto del dominio**, nunca una fusión automática.
-
-### 5. Detectar calidad y riesgos
-- **Vacíos** (**NULL**), inconsistencias de mayúsculas (**casing**) y datos personales (**PII**, protegidos por la **LFPDPPP**).
-- **Por qué:** un **vacío es información**, no basura — por eso **nunca se rellena con "-"** en el dato (eso es solo maquillaje del frontend, al final). Y la **PII nunca va a Git**.
-
-### 6. Documentar las preguntas antes de construir
-El documento de dudas al cliente.
-- Es el **contrato de datos** en formación: el acuerdo de **qué significa cada dato** y **cómo debe entregarse**.
-- **Por qué:** construir sobre suposiciones es la forma **más cara** de equivocarse.
-
----
-
-## 🛠️ Herramientas y por qué
-
-| Herramienta | Para qué | Concepto clave |
-|-------------|----------|----------------|
-| **Python + pandas + openpyxl** | Leer y domar Excel caótico (por eso **no** se hizo en Node) | herramienta estándar del área |
-| **Entorno virtual (`venv`)** | "Cajita privada" de librerías del proyecto, sin choques entre proyectos | **reproducibilidad** (recrear el entorno con `requirements.txt`) |
-| **Git + `.gitignore`** | Versionar el **código**, nunca los **datos** del cliente | el dato del cliente **no** se versiona |
-
----
-
-## 📂 Estructura de la carpeta
-
-```
-datalab/
-├── perfilar.py         # Perfilador de Excel (data profiling)
-├── requirements.txt    # Dependencias Python (el "package.json" de este rincón)
-├── README.md           # Esta bitácora
-├── uploads/            # Excel reales del cliente — NUNCA a Git (PII)
-└── reportes/           # Diagnósticos generados — fuera de Git
-```
-
-> `uploads/` y `reportes/` están en `.gitignore`. Lo que entra a Git es el **script**, no los **datos**.
-
----
-
-## ▶️ Uso
+## Uso rápido
 
 ```bash
-# 1) Crear el entorno virtual (una sola vez)
-python3 -m venv venv
-source venv/bin/activate          # macOS/Linux
-
-# 2) Instalar dependencias
-pip install -r requirements.txt
-
-# 3) Perfilar un archivo
-python perfilar.py uploads/REG-FENOLOGICO_2026.xlsx
-# El diagnóstico se imprime y se guarda en reportes/
+source venv/bin/activate
+python run.py                        # procesa todo lo que esté en uploads/
+python run.py --solo circuito        # solo el normalizador de circuito exterior
+python run.py --solo inventario      # solo el normalizador de inventario OOH
+python run.py --perfil archivo.xlsx  # solo genera el perfil de calidad
 ```
 
----
+## Agregar un Excel nuevo
 
-## ✅ Estado y siguiente paso
+1. Copiarlo a `uploads/`
+2. Correr: `python run.py`
+3. El JSON limpio aparece en `datos/`
+4. El frontend lo consume desde `src/data/ooh.ts` (import directo del JSON)
 
-Resumen de una línea (para cuando pregunten en qué andas):
+El tipo de fuente se detecta por el nombre del archivo (`circuito`, `mxm`,
+`planta`, `inventario`). Si no coincide con ningún patrón, solo se corre el
+perfilador de calidad — nunca se inventa una normalización.
 
-> *"Estoy en la fase de **perfilado de datos** —*data profiling*— antes de diseñar el esquema. Ya clasifiqué las hojas en **dimensiones** y **hechos**, construí un **script de perfilado**, crucé los archivos para armar el **diccionario de alias**, y saqué las **dudas para el cliente**. El siguiente paso es el **diseño del esquema** de la base, ya con las respuestas confirmadas."*
+## Estructura
 
-**Siguiente:** diseño del **esquema de la base** (MySQL) con las respuestas del cliente confirmadas → luego el **importador** (ETL completo) reutilizando `perfilar.py`.
+```
+pipeline/perfilar.py       — data profiling genérico (conservado del v1)
+pipeline/extraer.py        — extracción por receta JSON (conservado del v1)
+pipeline/normalizar/       — reglas de limpieza por tipo de fuente
+recetas/                   — configuración de columnas por proveedor
+uploads/                   — Excels de entrada (no versionar datos de cliente)
+datos/                     — JSONs de salida (sí versionar, son el contrato con el frontend)
+reportes/                  — perfiles de calidad generados automáticamente
+```
+
+## Fuentes soportadas
+
+| Fuente | Entrada | Salida | Registros |
+|---|---|---|---|
+| Circuito Exterior Medido | `*circuito*.xlsx` (hojas HOJA/RESUMEN/FILTROS) | `datos/ooh_circuito.json` + `datos/ooh_resumen_circuito.json` | 77 soportes + 9 zonas |
+| Inventario MXM-Planta | `*mxm*` / `*planta*` / `*inventario*` | `datos/ooh_inventario.json` | 698 soportes |
+
+Cada receta en `recetas/` documenta el esquema y los problemas de calidad
+conocidos de esa fuente.
+
+## Reglas de datos
+
+1. Los vacíos se quedan como `null`. Nunca se rellenan ni se inventan.
+2. Se limpia forma (categorías, espacios, tipos), no fondo (no se corrigen
+   tarifas ni coordenadas).
+3. Un soporte sin coordenadas no se descarta: entra con `mapeable: false`.
+4. Toda corrida deja su reporte de calidad con timestamp en `reportes/`.
