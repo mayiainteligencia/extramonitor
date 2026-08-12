@@ -24,6 +24,7 @@ const ALIAS: Record<string, string[]> = {
   alertas:    ['alertas', 'marca', 'focos', 'riesgos', 'atencion'],
   digital:    ['digital', 'ecommerce', 'e-commerce', 'web', 'redes'],
   journey:    ['journey', 'customer journey', 'recorrido', 'embudo', 'funnel'],
+  ooh:        ['ooh', 'exterior', 'espectaculares', 'carteleras', 'vallas', 'planner'],
   adfraud:    ['fraude', 'ad fraud', 'brand safety', 'seguridad'],
   studio:     ['studio', 'creativo', 'piezas', 'creatividades'],
   academia:   ['academia', 'cursos', 'capacitacion'],
