@@ -7,7 +7,7 @@ import {
 } from './media';
 import { secciones, tituloEstado } from '../config/menu';
 import { brandingConfig } from '../config/branding';
-import { MODULOS_CEREBRO, modulosPorTipo } from './plataforma';
+import { MODULOS_CEREBRO, modulosPorTipo, composicion } from './plataforma';
 
 const D = porPeriodo[ULTIMO];
 const { ia } = brandingConfig;
@@ -84,9 +84,10 @@ export function responder(texto: string): Respuesta {
   // ── Módulos del Cerebro Orquestador ──
   if (/(operadores)/.test(t)) return { text: listaModulos('Operador') };
   if (/(modelos predictivos|los modelos|modelo de)/.test(t)) return { text: listaModulos('Modelo') };
-  if (/(agentes de insights|los agentes)/.test(t)) return { text: listaModulos('Agente de Insights') };
+  if (/(agentes de insights|insights)/.test(t)) return { text: listaModulos('Agente de Insights') };
+  if (/(agentes|los agentes)/.test(t)) return { text: listaModulos('Agente') };
   if (/(modulos|orquestador|cerebro)/.test(t)) {
-    return { text: `El Cerebro Orquestador coordina ${MODULOS_CEREBRO.length} módulos: ${modulosPorTipo('Operador').length} Operadores que ejecutan, ${modulosPorTipo('Modelo').length} Modelos que predicen y ${modulosPorTipo('Agente de Insights').length} Agentes de Insights que generan hallazgos. El único conectado a datos en vivo es el Operador de Testigos. Pregúntame por los Operadores, los Modelos o los Agentes de Insights para el desglose.` };
+    return { text: `El Cerebro Orquestador coordina ${MODULOS_CEREBRO.length} módulos: ${composicion()}. Los Agentes operan el flujo de trabajo, los Operadores ejecutan sobre los medios, los Modelos predicen y los Agentes de Insights generan hallazgos. El único conectado a datos en vivo es el Operador de Testigos. Pregúntame por los Agentes, los Operadores, los Modelos o los Agentes de Insights para el desglose.` };
   }
   const modulo = MODULOS_CEREBRO.find(m => t.includes(norm(m.titulo)) || t.includes(norm(m.titulo.replace(/^(Operador|Modelo|Agente) (de |Predictivo de )?/, ''))));
   if (modulo) {

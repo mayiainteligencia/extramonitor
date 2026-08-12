@@ -1,185 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Megaphone, Palette, ShoppingCart, Swords, TrendingUp, Users2, Tag,
-  ShieldAlert, PieChart as PieChartIcon, Radio, Activity,
-  ArrowUpRight, ArrowDownRight, CircleDot,
+  Megaphone, TrendingUp, Users2, ShieldAlert, Radio, Activity,
+  ArrowUpRight, ArrowDownRight, FileText, GitBranch, DollarSign, Settings,
+  MapPin, Eye, AlertTriangle,
 } from 'lucide-react';
 import {
-  ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  Tooltip, RadialBarChart, RadialBar,
+  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, XAxis, Tooltip,
 } from 'recharts';
 import { brandingConfig } from '../config/branding';
 import { ModuloDetalleModal } from './CerebroOrquestadorDetalles';
+import { porPeriodo, ULTIMO, COBERTURA, fmt } from '../data/media';
 import {
-  porPeriodo, ULTIMO, COBERTURA, MARCAS, CLIENTE, ALERTAS, fmt, fmtMXNCorto,
-} from '../data/media';
-import { MODULOS_CEREBRO, type ModuloCerebro } from '../data/plataforma';
+  MODULOS_CEREBRO, COLOR_CATEGORIA, ESTADO_MODULO, composicion,
+  type ModuloCerebro, type GraficaModulo,
+} from '../data/plataforma';
 
 const { colores } = brandingConfig;
 const D = porPeriodo[ULTIMO];
-const recuperableMXN = D.discrepancias.reduce((s, d) => s + d.montoMXN, 0);
 
 const PALETA = ['#7C3AED', '#1A1A1A', '#10B981', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'];
 
-// ───────────────────────── DATA DUMMY (la lógica/datos reales van después) ─────────────────────────
+// ───────────────────────── MÓDULOS ─────────────────────────
+// num/tag/titulo/descripcion/estado/metricas/grafica salen del catálogo
+// compartido (data/plataforma.ts); aquí solo se les pone cara.
 
-type Viz =
-  | { tipo: 'area'; data: { x: string; v: number }[] }
-  | { tipo: 'barsH'; data: { label: string; value: number }[] }
-  | { tipo: 'donut'; data: { label: string; value: number }[] }
-  | { tipo: 'gauge'; value: number }
-  | { tipo: 'sparkbars'; data: number[] };
-
-// num/tag/titulo/descripcion salen del catálogo compartido (data/plataforma.ts).
-type Modulo = ModuloCerebro & {
-  icon: React.ComponentType<{ size?: number; color?: string }>;
-  badge: { texto: string; color: string };
-  kpis: { label: string; value: string; delta?: number }[];
-  semanas: string;
-  viz: Viz;
+const ICONOS: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+  intake: FileText,
+  traffic: GitBranch,
+  sla: ShieldAlert,
+  budget: DollarSign,
+  testigos: Radio,
+  pauta: Settings,
+  mmm: TrendingUp,
+  ooh_score: MapPin,
+  competencia: Eye,
+  anomalias: AlertTriangle,
 };
-
-const cat = (num: number) => MODULOS_CEREBRO.find(m => m.num === num)!;
-
-const serie = (vals: number[]): { x: string; v: number }[] =>
-  vals.map((v, i) => ({ x: `${i}`, v }));
-
-// Jerarquía: Operadores ejecutan, Modelos predicen, Agentes de Insights generan hallazgos.
-const MODULOS: Modulo[] = [
-  {
-    ...cat(1), icon: Radio,
-    badge: { texto: 'DATOS EN VIVO', color: colores.exito },
-    kpis: [
-      { label: 'Emisoras monitoreadas', value: fmt(COBERTURA.emisoras), delta: 4 },
-      { label: 'Spots verificados hoy', value: '1,342', delta: 23 },
-      { label: 'Precisión de match', value: '98.6%' },
-    ],
-    semanas: 'Operando',
-    viz: { tipo: 'sparkbars', data: [40, 65, 50, 80, 72, 95, 88, 120, 110, 140] },
-  },
-  {
-    ...cat(2), icon: Megaphone,
-    badge: { texto: 'EJECUCIÓN', color: colores.primario },
-    kpis: [
-      { label: 'Plazas optimizadas', value: fmt(D.totalPlazas), delta: 12 },
-      { label: 'Inversión gestionada', value: fmtMXNCorto(D.inversionCliente), delta: 9 },
-      { label: 'Ahorro por rebalanceo', value: '7.4%' },
-    ],
-    semanas: '8–10 sem',
-    viz: { tipo: 'donut', data: [{ label: 'Offline', value: 61 }, { label: 'Online', value: 39 }] },
-  },
-  {
-    ...cat(3), icon: Palette,
-    badge: { texto: 'GENERATIVO', color: '#8B5CF6' },
-    kpis: [
-      { label: 'Piezas generadas', value: '486', delta: 31 },
-      { label: 'Formatos activos', value: '9' },
-      { label: 'Aprobación en 1er pase', value: '72%', delta: 6 },
-    ],
-    semanas: '10 sem',
-    viz: {
-      tipo: 'barsH', data: [
-        { label: 'Radio 20s', value: 92 }, { label: 'Video 15s', value: 78 },
-        { label: 'Display', value: 64 }, { label: 'Social', value: 51 },
-      ],
-    },
-  },
-  {
-    ...cat(4), icon: ShoppingCart,
-    badge: { texto: 'RETAIL', color: '#3B82F6' },
-    kpis: [
-      { label: 'SKUs monitoreados', value: '1,208' },
-      { label: 'Quiebres de stock', value: '17', delta: -22 },
-      { label: 'Buy box ganada', value: '68%', delta: 5 },
-    ],
-    semanas: '8 sem',
-    viz: { tipo: 'area', data: serie([44, 52, 48, 61, 58, 70, 66, 78, 74, 86]) },
-  },
-  {
-    ...cat(5), icon: PieChartIcon,
-    badge: { texto: 'ATRIBUCIÓN', color: colores.advertencia },
-    kpis: [
-      { label: 'Canales modelados', value: '7' },
-      { label: 'R² del modelo', value: '0.86' },
-      { label: 'ROI incremental', value: '2.4x', delta: 11 },
-    ],
-    semanas: '12 sem',
-    viz: {
-      tipo: 'donut', data: [
-        { label: 'Radio', value: 34 }, { label: 'Digital', value: 28 },
-        { label: 'TV', value: 22 }, { label: 'OOH', value: 16 },
-      ],
-    },
-  },
-  {
-    ...cat(6), icon: TrendingUp,
-    badge: { texto: 'FORECAST', color: colores.exito },
-    kpis: [
-      { label: 'Alcance proyectado', value: `${D.alcanceProm + 6}%`, delta: 6 },
-      { label: 'Frecuencia efectiva', value: '4.2' },
-      { label: 'Error vs real', value: '±3.1 pts' },
-    ],
-    semanas: '10 sem',
-    viz: { tipo: 'area', data: serie([20, 35, 28, 50, 44, 70, 62, 88, 76, 110]) },
-  },
-  {
-    ...cat(7), icon: Tag,
-    badge: { texto: 'PRICING', color: '#3B82F6' },
-    kpis: [
-      { label: 'Elasticidad media', value: '-1.34' },
-      { label: 'Plazas sensibles', value: '11' },
-      { label: 'Margen protegido', value: fmtMXNCorto(38_400_000), delta: 4 },
-    ],
-    semanas: '14 sem',
-    viz: {
-      tipo: 'barsH', data: [
-        { label: 'CDMX', value: 88 }, { label: 'Jalisco', value: 71 },
-        { label: 'N. León', value: 55 }, { label: 'Puebla', value: 40 },
-      ],
-    },
-  },
-  {
-    ...cat(8), icon: Users2,
-    badge: { texto: 'HALLAZGOS', color: '#8B5CF6' },
-    kpis: [
-      { label: 'Clústeres', value: '12' },
-      { label: 'Audiencia prioritaria', value: '8.4%', delta: 3 },
-      { label: 'Insights del mes', value: '46', delta: 18 },
-    ],
-    semanas: '18 sem',
-    viz: {
-      tipo: 'donut', data: [
-        { label: 'Prioritaria', value: 8 }, { label: 'Premium', value: 22 },
-        { label: 'Frecuente', value: 41 }, { label: 'Casual', value: 29 },
-      ],
-    },
-  },
-  {
-    ...cat(9), icon: Swords,
-    badge: { texto: 'SHARE OF VOICE', color: colores.advertencia },
-    kpis: [
-      { label: 'Marcas rastreadas', value: '52' },
-      { label: `SOV ${CLIENTE.nombre}`, value: `${D.sovCliente}%`, delta: 6 },
-      { label: 'Movimientos detectados', value: '17' },
-    ],
-    semanas: '6 sem',
-    viz: {
-      tipo: 'donut',
-      data: MARCAS.map(m => ({ label: m.nombre, value: Math.round(D.inversionPorMarca[m.id] / D.inversionTotal * 100) })),
-    },
-  },
-  {
-    ...cat(10), icon: ShieldAlert,
-    badge: { texto: 'VIGILANCIA', color: colores.peligro },
-    kpis: [
-      { label: 'Anomalías abiertas', value: fmt(ALERTAS.length) },
-      { label: 'Presupuesto recuperable', value: fmtMXNCorto(recuperableMXN), delta: 9 },
-      { label: 'Tráfico inválido', value: '4.7%', delta: -12 },
-    ],
-    semanas: '8 sem',
-    viz: { tipo: 'gauge', value: 95 },
-  },
-];
 
 // ───────────────────────── UI HELPERS ─────────────────────────
 
@@ -212,32 +68,42 @@ const tooltipStyle = {
   fontSize: 12, color: '#fff', padding: '6px 10px',
 } as const;
 
-const MiniViz: React.FC<{ viz: Viz; id: number }> = ({ viz, id }) => {
-  if (viz.tipo === 'area') {
+const MiniViz: React.FC<{ g: GraficaModulo }> = ({ g }) => {
+  const ejeX = g.ejeX;
+  const primera = g.series[0];
+
+  // Categórica: barras horizontales con su etiqueta, sin ejes.
+  if (g.tipo === 'barrasH') {
+    const max = Math.max(...g.data.map(d => Number(d[primera.key])));
     return (
-      <ResponsiveContainer width="100%" height={88}>
-        <AreaChart data={viz.data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id={`ar${id}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={colores.primario} stopOpacity={0.5} />
-              <stop offset="100%" stopColor={colores.primario} stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <Area type="monotone" dataKey="v" stroke={colores.primario} strokeWidth={2.5}
-            fill={`url(#ar${id})`} dot={false} isAnimationActive />
-          <Tooltip contentStyle={tooltipStyle} cursor={false} />
-        </AreaChart>
-      </ResponsiveContainer>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
+        {g.data.map((d, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 11, color: colores.textoMedio, width: 84, flexShrink: 0 }}>{d[ejeX]}</span>
+            <div style={{ flex: 1, height: 8, background: `${colores.secundario}12`, borderRadius: 999, overflow: 'hidden' }}>
+              <div className="mia-grow" style={{
+                width: `${(Number(d[primera.key]) / max) * 100}%`, height: '100%', borderRadius: 999,
+                background: `linear-gradient(90deg, ${colores.primario}, ${colores.exito})`,
+              }} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: colores.textoClaro, width: 26, textAlign: 'right' }}>
+              {d[primera.key]}
+            </span>
+          </div>
+        ))}
+      </div>
     );
   }
-  if (viz.tipo === 'sparkbars') {
-    const data = viz.data.map((v, i) => ({ x: i, v }));
+
+  // Serie temporal de una sola variable: última barra destacada.
+  if (g.tipo === 'spark') {
     return (
       <ResponsiveContainer width="100%" height={88}>
-        <BarChart data={data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
-          <Bar dataKey="v" radius={[4, 4, 0, 0]} isAnimationActive>
-            {data.map((_, i) => (
-              <Cell key={i} fill={i === data.length - 1 ? colores.primario : `${colores.secundario}33`} />
+        <BarChart data={g.data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+          <XAxis dataKey={ejeX} tick={{ fill: colores.textoOscuro, fontSize: 10 }} axisLine={false} tickLine={false} />
+          <Bar dataKey={primera.key} radius={[4, 4, 0, 0]} isAnimationActive>
+            {g.data.map((_, i) => (
+              <Cell key={i} fill={i === g.data.length - 1 ? colores.primario : `${colores.secundario}33`} />
             ))}
           </Bar>
           <Tooltip contentStyle={tooltipStyle} cursor={false} />
@@ -245,76 +111,71 @@ const MiniViz: React.FC<{ viz: Viz; id: number }> = ({ viz, id }) => {
       </ResponsiveContainer>
     );
   }
-  if (viz.tipo === 'barsH') {
-    const max = Math.max(...viz.data.map(d => d.value));
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 4 }}>
-        {viz.data.map((d, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 11, color: colores.textoMedio, width: 64, flexShrink: 0 }}>{d.label}</span>
-            <div style={{ flex: 1, height: 8, background: `${colores.secundario}12`, borderRadius: 999, overflow: 'hidden' }}>
-              <div className="mia-grow" style={{
-                width: `${(d.value / max) * 100}%`, height: '100%', borderRadius: 999,
-                background: `linear-gradient(90deg, ${colores.primario}, ${colores.exito})`,
-              }} />
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: colores.textoClaro, width: 24, textAlign: 'right' }}>{d.value}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  if (viz.tipo === 'donut') {
+
+  if (g.tipo === 'donut') {
+    const total = g.data.reduce((s, d) => s + Number(d[primera.key]), 0);
     return (
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <ResponsiveContainer width="50%" height={92}>
+        <ResponsiveContainer width="48%" height={98}>
           <PieChart>
-            <Pie data={viz.data} dataKey="value" innerRadius={26} outerRadius={42} paddingAngle={3} stroke="none">
-              {viz.data.map((_, i) => <Cell key={i} fill={PALETA[i % PALETA.length]} />)}
+            <Pie data={g.data} dataKey={primera.key} nameKey={ejeX} innerRadius={26} outerRadius={42} paddingAngle={3} stroke="none">
+              {g.data.map((d, i) => <Cell key={i} fill={(d.fill as string) ?? PALETA[i % PALETA.length]} />)}
             </Pie>
             <Tooltip contentStyle={tooltipStyle} />
           </PieChart>
         </ResponsiveContainer>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: 1 }}>
-          {viz.data.map((d, i) => (
+          {g.data.map((d, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
-              <span style={{ width: 8, height: 8, borderRadius: 2, background: PALETA[i % PALETA.length] }} />
-              <span style={{ color: colores.textoMedio, flex: 1 }}>{d.label}</span>
-              <span style={{ fontWeight: 700, color: colores.textoClaro }}>{d.value}%</span>
+              <span style={{ width: 8, height: 8, borderRadius: 2, background: (d.fill as string) ?? PALETA[i % PALETA.length] }} />
+              <span style={{ color: colores.textoMedio, flex: 1 }}>{d[ejeX]}</span>
+              <span style={{ fontWeight: 700, color: colores.textoClaro }}>
+                {Math.round((Number(d[primera.key]) / total) * 100)}%
+              </span>
             </div>
           ))}
         </div>
       </div>
     );
   }
-  if (viz.tipo !== 'gauge') return null;
-  const data = [{ value: viz.value, fill: colores.primario }];
+
+  // Series comparadas (planeado vs ejecutado, cliente vs competencia...).
   return (
-    <div style={{ position: 'relative', height: 92 }}>
-      <ResponsiveContainer width="100%" height={92}>
-        <RadialBarChart innerRadius="70%" outerRadius="100%" data={data} startAngle={210} endAngle={-30}>
-          <RadialBar background={{ fill: `${colores.secundario}14` }} dataKey="value" cornerRadius={999} />
-        </RadialBarChart>
+    <div>
+      <ResponsiveContainer width="100%" height={88}>
+        <BarChart data={g.data} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+          <XAxis dataKey={ejeX} tick={{ fill: colores.textoOscuro, fontSize: 10 }} axisLine={false} tickLine={false} />
+          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: `${colores.primario}10` }} />
+          {g.series.map(s => (
+            <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color ?? colores.primario} radius={[3, 3, 0, 0]} />
+          ))}
+        </BarChart>
       </ResponsiveContainer>
-      <div style={{
-        position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-      }}>
-        <span style={{ fontSize: 22, fontWeight: 800, color: colores.textoClaro }}>{viz.value}%</span>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 6 }}>
+        {g.series.map(s => (
+          <span key={s.key} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, color: colores.textoOscuro }}>
+            <span style={{ width: 8, height: 8, borderRadius: 2, background: s.color ?? colores.primario }} />
+            {s.label}
+          </span>
+        ))}
       </div>
     </div>
   );
 };
 
-const ModuloCard: React.FC<{ m: Modulo; i: number; onOpen: (num: number) => void }> = ({ m, i, onOpen }) => {
-  const Icon = m.icon;
+const ModuloCard: React.FC<{ m: ModuloCerebro; i: number; onOpen: (num: number) => void }> = ({ m, i, onOpen }) => {
+  const Icon = ICONOS[m.id] ?? Activity;
+  const catColor = COLOR_CATEGORIA[m.tag];
+  const est = ESTADO_MODULO[m.estado];
+  const live = m.estado === 'activo';
   return (
     <div className="mia-card" role="button" tabIndex={0}
       onClick={() => onOpen(m.num)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(m.num); } }}
       style={{
         background: colores.fondoClaro, borderRadius: 20, padding: 20, cursor: 'pointer',
-        border: `1px solid ${colores.borde}`, boxShadow: colores.sombra,
+        border: live ? `1.5px solid ${colores.exito}` : `1px solid ${colores.borde}`,
+        boxShadow: live ? `0 0 0 4px ${colores.exito}14, ${colores.sombraMedia}` : colores.sombra,
         display: 'flex', flexDirection: 'column', gap: 14,
         animationDelay: `${i * 0.05}s`,
       }}>
@@ -334,37 +195,38 @@ const ModuloCard: React.FC<{ m: Modulo; i: number; onOpen: (num: number) => void
             }}>{m.num}</span>
           </div>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: colores.primario, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{m.tag}</div>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: colores.textoClaro, margin: '2px 0 0', lineHeight: 1.2 }}>{m.titulo}</h3>
+            <Badge texto={m.tag} color={catColor} />
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: colores.textoClaro, margin: '6px 0 0', lineHeight: 1.2 }}>{m.titulo}</h3>
           </div>
         </div>
-        <Badge texto={m.badge.texto} color={m.badge.color} pulse={m.badge.texto === 'EN VIVO'} />
+        <Badge texto={live ? 'LIVE' : est.texto} color={est.color} pulse={live} />
       </div>
 
       <p style={{ fontSize: 12.5, color: colores.textoOscuro, margin: 0, lineHeight: 1.45 }}>{m.descripcion}</p>
 
       <div style={{ display: 'flex', gap: 8 }}>
-        {m.kpis.map((k, j) => (
+        {m.metricas.slice(0, 3).map((k, j) => (
           <div key={j} style={{
             flex: 1, background: colores.fondoSecundario, borderRadius: 12, padding: '10px 12px',
             border: `1px solid ${colores.borde}`,
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: colores.textoClaro, lineHeight: 1 }}>{k.value}</span>
-              {k.delta !== undefined && <Delta v={k.delta} />}
-            </div>
-            <div style={{ fontSize: 10, color: colores.textoOscuro, marginTop: 4 }}>{k.label}</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: colores.textoClaro, lineHeight: 1.1 }}>{k.valor}</div>
+            <div style={{ fontSize: 10, color: colores.textoOscuro, marginTop: 4, lineHeight: 1.3 }}>{k.label}</div>
+            {k.delta && <div style={{ fontSize: 9.5, color: colores.textoOscuro, opacity: .8, marginTop: 2 }}>{k.delta}</div>}
           </div>
         ))}
       </div>
 
       <div style={{ marginTop: 'auto' }}>
-        <MiniViz viz={m.viz} id={m.num} />
+        <div style={{ fontSize: 10, fontWeight: 700, color: colores.textoOscuro, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 6 }}>
+          {m.grafica.titulo}
+        </div>
+        <MiniViz g={m.grafica} />
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }}>
-        <span style={{ fontSize: 10, color: colores.textoOscuro, display: 'flex', alignItems: 'center', gap: 4 }}>
-          <CircleDot size={11} color={colores.primario} /> Desarrollo · {m.semanas}
+        <span style={{ fontSize: 10, color: colores.textoOscuro, display: 'flex', alignItems: 'center', gap: 5 }}>
+          <span style={{ width: 7, height: 7, borderRadius: 999, background: est.color }} /> {est.texto}
         </span>
         <span className="mia-vermas" style={{ fontSize: 11, fontWeight: 800, color: colores.primario }}>Ver detalle →</span>
       </div>
@@ -423,7 +285,7 @@ export const CerebroOrquestador: React.FC = () => {
             Cerebro <span style={{ fontWeight: 800, color: colores.primario }}>Orquestador</span>
           </h1>
           <p style={{ fontSize: isMobile ? 14 : 16, color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: 620, lineHeight: 1.5 }}>
-            La capa que coordina la plataforma: Operadores que ejecutan, Modelos que predicen y Agentes de Insights que generan hallazgos.
+            La capa que coordina la plataforma: Agentes que operan el flujo de trabajo, Operadores que ejecutan sobre los medios, Modelos que predicen y Agentes de Insights que generan hallazgos.
           </p>
 
           <div style={{
@@ -452,7 +314,7 @@ export const CerebroOrquestador: React.FC = () => {
         {/* SECCIÓN MÓDULOS */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 16px' }}>
           <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Módulos orquestados</h2>
-          <span style={{ fontSize: 12, color: colores.textoOscuro }}>4 Operadores · 3 Modelos · 3 Agentes de Insights</span>
+          <span style={{ fontSize: 12, color: colores.textoOscuro }}>{composicion()}</span>
         </div>
 
         <div style={{
@@ -460,7 +322,7 @@ export const CerebroOrquestador: React.FC = () => {
           gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))',
           gap: 20, marginBottom: 32,
         }}>
-          {MODULOS.map((m, i) => <ModuloCard key={m.num} m={m} i={i} onOpen={setOpenNum} />)}
+          {MODULOS_CEREBRO.map((m, i) => <ModuloCard key={m.num} m={m} i={i} onOpen={setOpenNum} />)}
         </div>
       </div>
 

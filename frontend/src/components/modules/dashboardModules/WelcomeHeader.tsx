@@ -1,6 +1,6 @@
 import React from 'react';
 import { brandingConfig } from '../../../config/branding';
-import { CLIENTE, COBERTURA, ULTIMO, fmt, porPeriodo } from '../../../data/media';
+import { ALERTAS, CARTERA, CLIENTE, ULTIMO, fmt, fmtMXNCorto, porPeriodo } from '../../../data/media';
 
 const D = porPeriodo[ULTIMO];
 
@@ -62,12 +62,16 @@ export const WelcomeHeader: React.FC<{ isMobile?: boolean }> = ({ isMobile = fal
         {/* Pulso de la operación */}
         <div style={{ display: 'flex', gap: isMobile ? 18 : 30, marginTop: isMobile ? 20 : 26, flexWrap: 'wrap' }}>
           {[
-            { v: fmt(COBERTURA.emisoras), l: 'emisoras al aire' },
-            { v: `${D.plazasLideradas}/${D.totalPlazas}`, l: 'plazas lideradas' },
-            { v: `${D.sovCliente}%`, l: 'share of voice' },
+            { v: fmt(CARTERA.length), l: 'campañas activas' },
+            { v: fmtMXNCorto(D.inversionCliente), l: 'inversión gestionada' },
+            { v: `${D.sovCliente}%`, l: 'share of voice promedio' },
+            { v: fmt(ALERTAS.length), l: 'alertas activas', alerta: ALERTAS.length > 0 },
           ].map(k => (
             <div key={k.l}>
-              <div style={{ fontSize: isMobile ? 20 : 24, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{k.v}</div>
+              <div style={{
+                fontSize: isMobile ? 20 : 24, fontWeight: 800, lineHeight: 1,
+                color: k.alerta ? colores.peligro : '#fff',
+              }}>{k.v}</div>
               <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.55)', marginTop: 4 }}>{k.l}</div>
             </div>
           ))}

@@ -35,7 +35,7 @@ export const secciones: ItemMenu[] = [
   { id: 'testigos',   nombre: 'Testigos IA',                  icono: Radio,           estado: 'activo',        grupo: 'principal',
     descripcion: 'Monitoreo on-air en vivo: escucha las emisoras, transcribe y verifica que cada spot contratado haya salido al aire. Es la única sección conectada a datos reales.' },
   { id: 'cerebro',    nombre: 'Cerebro Orquestador',          icono: BrainCircuit,    estado: 'en-activacion', grupo: 'principal',
-    descripcion: 'La capa que coordina la plataforma: 4 Operadores que ejecutan, 3 Modelos que predicen y 3 Agentes de Insights que generan hallazgos.' },
+    descripcion: 'La capa que coordina la plataforma: 4 Agentes que operan el flujo de trabajo (intake, tráfico, SLA y presupuesto), 2 Operadores que ejecutan sobre los medios, 2 Modelos que predicen y 2 Agentes de Insights que generan hallazgos.' },
   { id: 'comando',    nombre: 'Comando de Campaña',           icono: Command,         estado: 'demo',          grupo: 'principal',
     descripcion: 'Vista de mando de la campaña en curso: KPIs, alertas del sistema, actividad reciente, inversión por marca y reparto de pauta por franja horaria.' },
   { id: 'investment', nombre: 'Investment Value IA',          icono: ClipboardList,   estado: 'demo',          grupo: 'principal',

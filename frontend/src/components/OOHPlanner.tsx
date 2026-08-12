@@ -38,8 +38,8 @@ const zonaCorta = (z: string | null): string =>
 const truncar = (s: string | null, n = 40): string =>
   !s ? 'Sin dirección' : s.length > n ? `${s.slice(0, n - 1)}…` : s;
 
-const iconoTipo = (t: TipoSoporte) =>
-  t === 'cartelera_digital' || t === 'pantalla_digital' ? Monitor : MapPin;
+const esPantalla = (t: TipoSoporte) =>
+  t === 'cartelera_digital' || t === 'pantalla_digital';
 
 const tooltipStyle = {
   background: colores.fondoClaro, border: `1px solid ${colores.borde}`,
@@ -92,7 +92,6 @@ const KpiChip: React.FC<{ label: string; value: string; color?: string }> = ({ l
 
 const SoporteCard: React.FC<{ s: Soporte; score: number; onClick: () => void; accion?: React.ReactNode }> =
 ({ s, score, onClick, accion }) => {
-  const Icono = iconoTipo(s.tipo);
   return (
     <div role="button" tabIndex={0} onClick={onClick}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
@@ -107,7 +106,7 @@ const SoporteCard: React.FC<{ s: Soporte; score: number; onClick: () => void; ac
           width: 30, height: 30, borderRadius: 9, flexShrink: 0, background: `${V}14`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icono size={15} color={V} />
+          {esPantalla(s.tipo) ? <Monitor size={15} color={V} /> : <MapPin size={15} color={V} />}
         </div>
         <span style={{ fontSize: 12, fontWeight: 700, color: colores.textoClaro, flex: 1 }}>
           {NOMBRE_TIPO[s.tipo]}
@@ -300,7 +299,7 @@ export const OOHPlanner: React.FC = () => {
       grupos.get(k)!.push(s);
     });
     return Array.from(grupos.entries())
-      .map(([nombre, lista]) => ({ nombre, lista: [...lista].sort((a, b) => score(b) - score(a)) }))
+      .map(([nombre, lista]) => ({ nombre, lista: [...lista].sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0)) }))
       .sort((a, b) => b.lista.length - a.lista.length);
   }, [filtrados, scores]);
 
@@ -320,7 +319,7 @@ export const OOHPlanner: React.FC = () => {
   const disponiblesBuilder = useMemo(
     () => filtrados
       .filter(s => !seleccionados.some(x => x.id === s.id))
-      .sort((a, b) => score(b) - score(a))
+      .sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0))
       .slice(0, TOPE_LISTA_BUILDER),
     [filtrados, seleccionados, scores],
   );
