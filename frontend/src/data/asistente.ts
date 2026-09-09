@@ -1,10 +1,8 @@
 // Cerebro / asistente front-only (sin backend, sin Gemini).
-// Conoce el mapa completo de la plataforma: secciones (config/menu.ts), módulos
-// del Cerebro Orquestador (data/plataforma.ts) y las cifras de data/media.ts.
-import {
-  porPeriodo, ULTIMO, CLIENTE, CARTERA, COBERTURA, ALERTAS, MARCAS,
-  fmt, fmtMXNCorto, proyeccionSOV,
-} from './media';
+// Conoce el mapa de la plataforma: secciones (config/menu.ts), etapas del
+// Motor de Ingesta (data/plataforma.ts) y las cifras de industria de
+// data/media.ts. No habla de "cliente" ni de marca: ACAM es neutral.
+import { porPeriodo, ULTIMO, ASOCIADOS, fmtMXNCorto } from './media';
 import { secciones, tituloEstado } from '../config/menu';
 import { brandingConfig } from '../config/branding';
 import { MODULOS_CEREBRO, modulosPorTipo, composicion } from './plataforma';
@@ -16,17 +14,18 @@ export type Seccion = { id: string; titulo: string; alias: string[] };
 
 // Alias de voz/búsqueda por sección. Los títulos salen de config/menu.ts.
 const ALIAS: Record<string, string[]> = {
-  warroom:    ['inicio', 'principal', 'home', 'general', 'panel', 'war room'],
-  testigos:   ['testigos', 'radio', 'medios', 'on air', 'spots'],
-  cerebro:    ['cerebro', 'orquestador', 'operadores', 'modelos', 'mayia'],
-  comando:    ['comando', 'campana', 'mando', 'central'],
-  investment: ['investment', 'inversion', 'valor', 'roi', 'presupuesto'],
-  alertas:    ['alertas', 'marca', 'focos', 'riesgos', 'atencion'],
-  digital:    ['digital', 'ecommerce', 'e-commerce', 'web', 'redes'],
-  ooh:        ['ooh', 'exterior', 'espectaculares', 'carteleras', 'vallas', 'planner'],
-  adfraud:    ['fraude', 'ad fraud', 'brand safety', 'seguridad'],
-  studio:     ['studio', 'creativo', 'piezas', 'creatividades'],
-  academia:   ['academia', 'cursos', 'capacitacion'],
+  verificacion: ['verificacion', 'testigos', 'radio', 'on air', 'spots', 'evidencia'],
+  partners:     ['partners', 'proveedores', 'hr media', 'licitacion', 'hub'],
+  catalogo:     ['catalogo', 'homologacion', 'anunciantes', 'marcas', 'diccionario'],
+  conciliacion: ['conciliacion', 'disputa', 'casos', 'delta'],
+  inversion:    ['inversion', 'valor', 'presupuesto', 'gasto', 'spend'],
+  ingesta:      ['ingesta', 'normalizacion', 'pipeline', 'motor'],
+  trazabilidad: ['trazabilidad', 'auditoria', 'linaje', 'metodologia'],
+  ooh:          ['ooh', 'exterior', 'espectaculares', 'carteleras', 'vallas', 'censo'],
+  digital:      ['digital', 'web', 'redes', 'geo', 'aeo'],
+  ctv:          ['ctv', 'streaming', 'conectada'],
+  influencers:  ['influencers', 'creadores'],
+  academia:     ['academia', 'cursos', 'capacitacion'],
 };
 
 export const SECCIONES: Seccion[] = secciones.map(s => ({
@@ -64,7 +63,7 @@ export function responder(texto: string): Respuesta {
 
   // ── Qué es la plataforma / qué puede hacer ──
   if (/(que puedes hacer|que sabes|para que sirves|ayuda|que es esta plataforma|quien eres)/.test(t)) {
-    return { text: `Soy ${ia.nombre}, el asistente de la plataforma. Conozco las ${SECCIONES.length} secciones, los ${MODULOS_CEREBRO.length} módulos del Cerebro Orquestador y las cifras de la cuenta ${CLIENTE.nombre}. Puedes pedirme que te lleve a una sección ("ve a Alertas"), preguntarme qué hace cualquiera de ellas, o consultarme plazas, inversión, alcance, competencia y alertas.` };
+    return { text: `Soy ${ia.nombre}, el asistente de la plataforma de ACAM. Conozco las ${SECCIONES.length} secciones y las ${MODULOS_CEREBRO.length} etapas del Motor de Ingesta. Puedes pedirme que te lleve a una sección ("ve a Conciliación"), preguntarme qué hace cualquiera de ellas, o consultarme por la inversión de industria, los proveedores o los casos abiertos.` };
   }
 
   // ── Mapa de secciones ──
@@ -80,17 +79,17 @@ export function responder(texto: string): Respuesta {
     return { text: `${meta.nombre}: ${meta.descripcion} (${tituloEstado[meta.estado].toLowerCase()}). Dime "ve a ${meta.nombre}" y te llevo.` };
   }
 
-  // ── Módulos del Cerebro Orquestador ──
-  if (/(operadores)/.test(t)) return { text: listaModulos('Operador') };
-  if (/(modelos predictivos|los modelos|modelo de)/.test(t)) return { text: listaModulos('Modelo') };
-  if (/(agentes de insights|insights)/.test(t)) return { text: listaModulos('Agente de Insights') };
-  if (/(agentes|los agentes)/.test(t)) return { text: listaModulos('Agente') };
-  if (/(modulos|orquestador|cerebro)/.test(t)) {
-    return { text: `El Cerebro Orquestador coordina ${MODULOS_CEREBRO.length} módulos: ${composicion()}. Los Agentes operan el flujo de trabajo, los Operadores ejecutan sobre los medios, los Modelos predicen y los Agentes de Insights generan hallazgos. El único conectado a datos en vivo es el Operador de Testigos. Pregúntame por los Agentes, los Operadores, los Modelos o los Agentes de Insights para el desglose.` };
+  // ── Etapas del Motor de Ingesta ──
+  if (/(ingesta)/.test(t)) return { text: listaModulos('Ingesta') };
+  if (/(validacion)/.test(t)) return { text: listaModulos('Validación') };
+  if (/(modelos|los modelos|modelo de)/.test(t)) return { text: listaModulos('Modelo') };
+  if (/(distribucion)/.test(t)) return { text: listaModulos('Distribución') };
+  if (/(pipeline|motor de ingesta|etapas)/.test(t)) {
+    return { text: `El Motor de Ingesta y Normalización tiene ${MODULOS_CEREBRO.length} etapas: ${composicion()}. Ingesta recibe y ordena, Validación cruza contra la fuente, los Modelos predicen o califican, y Distribución publica hallazgos para Conciliación. La única enchufada a datos en vivo es Verificación On-Air.` };
   }
-  const modulo = MODULOS_CEREBRO.find(m => t.includes(norm(m.titulo)) || t.includes(norm(m.titulo.replace(/^(Operador|Modelo|Agente) (de |Predictivo de )?/, ''))));
+  const modulo = MODULOS_CEREBRO.find(m => t.includes(norm(m.titulo)));
   if (modulo) {
-    return { text: `${modulo.titulo} (${modulo.tag}): ${modulo.descripcion}${modulo.enVivo ? ' Es el único módulo enchufado al monitoreo real.' : ''} Ábrelo desde el Cerebro Orquestador.` };
+    return { text: `${modulo.titulo} (${modulo.tag}): ${modulo.descripcion}${modulo.enVivo ? ' Es la única etapa conectada al monitoreo real.' : ''} Ábrelo desde el Motor de Ingesta y Normalización.` };
   }
 
   // ── Qué está vivo y qué es demo ──
@@ -98,55 +97,33 @@ export function responder(texto: string): Respuesta {
     const activas = secciones.filter(s => s.estado === 'activo').map(s => s.nombre);
     const demo = secciones.filter(s => s.estado === 'demo').length;
     const act = secciones.filter(s => s.estado === 'en-activacion').length;
-    return { text: `Con datos reales solo ${activas.join(', ')}, que escucha ${fmt(COBERTURA.emisoras)} emisoras en vivo. Otras ${demo} secciones corren con datos estructurados de demo y ${act} están en activación. En el menú lateral cada sección lleva su punto de color: verde activo, ámbar demo, gris en activación.` };
+    return { text: `Con datos reales solo ${activas.join(', ')}, que escucha ${D.emisoras} emisoras en vivo. Otras ${demo} secciones corren con datos estructurados de demo (marcados como tal) y ${act} están en activación. En el menú lateral cada sección lleva su punto de color: verde activo, ámbar demo, gris en activación.` };
   }
 
-  // ── Cartera de clientes ──
-  if (/(clientes|cartera|cuentas|marcas que|portafolio)/.test(t)) {
-    const top = CARTERA.slice(0, 4).map(c => c.nombre).join(', ');
-    return { text: `La cartera tiene ${CARTERA.length} cuentas: ${top} y ${CARTERA.length - 4} más. La que alimenta este tablero es ${CLIENTE.nombre} (${CARTERA[0].categoria}), con ${CARTERA[0].sharePresupuesto}% de la inversión gestionada. La ves completa en el War Room.` };
+  // ── Asociados de ACAM ──
+  if (/(asociados|quienes forman|integrantes|televisoras|agencias|quien es acam|jic)/.test(t)) {
+    const tv = ASOCIADOS.filter(a => a.tipo === 'television').map(a => a.nombre).join(', ');
+    const ag = ASOCIADOS.filter(a => a.tipo === 'agencia').map(a => a.nombre).join(', ');
+    return { text: `ACAM tiene 9 asociados en dos bloques: 3 televisoras que venden espacio (${tv}) y 6 agencias que compran (${ag}). Las decisiones técnicas las toma un comité con representantes de cada uno.` };
   }
 
-  // ── Competencia y set competitivo ──
-  if (/(competencia|segunda marca|rival|competidor|contra quien)/.test(t)) {
-    const comp = MARCAS.filter(m => !m.esCliente).map(m => m.nombre).join(', ');
-    return { text: `${CLIENTE.nombre} compite contra ${comp}. La segunda marca es ${D.segundaMarca} con ${D.lideradasSegunda} plazas lideradas, ${D.plazasLideradas - D.lideradasSegunda} por debajo. El Agente de Competencia sigue esos movimientos.` };
+  // ── Inversión de industria ──
+  if (/(inversion|presupuesto|gasto|cuanto se invirtio|spend)/.test(t)) {
+    return { text: `La inversión de industria monitoreada en ${ULTIMO} es de ${fmtMXNCorto(D.inversionTotal)} (dato simulado). El desglose por medio, categoría y anunciante está en Inversión Publicitaria.` };
   }
 
-  // ── Alertas ──
-  if (/(alertas|que paso|novedades|urgente|pendientes)/.test(t)) {
-    const altas = ALERTAS.filter(a => a.severidad === 'alta');
-    return { text: `Hay ${ALERTAS.length} alertas abiertas, ${altas.length} de severidad alta. La más reciente: ${altas[0].descripcion} (${altas[0].plaza}, ${altas[0].medio}). Revísalas en Alertas de Marca.` };
+  // ── Casos y conciliación ──
+  if (/(casos|conciliacion|disputa|discrepancia)/.test(t)) {
+    return { text: `Los casos abiertos entre lo reportado por el medio y lo reportado por la agencia viven en Conciliación, con la evidencia de Verificación On-Air como respaldo. Ábrela para ver el delta y el estado de cada caso.` };
   }
 
-  // ── Preguntas sobre los datos ──
- if (/(redes|social|facebook|twitter|instagram|tiktok)/.test(t)) {
-    return { text: `En redes la conversación crece: ${fmt(Math.round(D.impactos / 1_000_000))}M de impactos estimados esta semana, +18% vs la anterior. El sentimiento a favor ronda el 46%. Abre Monitor Digital & E-Commerce para el detalle.` };
-  }
-  if (/(a favor|nos ven|como nos ven|sentimiento|percepcion)/.test(t)) {
-    return { text: `La audiencia ve a ${CLIENTE.nombre} mayormente a favor: 46% positivo, 34% neutral, 20% negativo. En las plazas líderes el positivo sube. Revisa Journey Intelligence para el desglose por etapa.` };
-  }
-  if (/(que dicen|dicen de|hablan de|menciones|narrativa)/.test(t)) {
-    return { text: `Lo que más se dice de ${CLIENTE.nombre}: servicio y disponibilidad (positivo), dudas sobre precio (neutral). El último spot se cita textual en 3 estaciones. ${D.segundaMarca} es la principal competencia con ${D.lideradasSegunda} plazas lideradas.` };
-  }
-  if (/(ultima mencion|mencion.*radio|radio.*mencion|en radio|on air|al aire)/.test(t)) {
-    return { text: `La última mención al aire fue hace 8 min en MVS Radio 102.5, sentimiento positivo. Abre Testigos IA para escuchar el testigo.` };
-  }
-  if (/(plazas|como vamos|share of voice|sov|cuantas plazas)/.test(t)) {
-    return { text: `Vamos bien: ${CLIENTE.nombre} lidera ${fmt(D.plazasLideradas)} de ${fmt(D.totalPlazas)} plazas con ${D.sovCliente}% de Share of Voice ponderado (${fmt(D.grpsTotal)} GRPs). Hay ${D.discrepancias.length} plazas con discrepancias de pauta abiertas.` };
-  }
-  if (/(inversion|presupuesto|gasto|cuanto invertimos)/.test(t)) {
-    return { text: `La inversión de ${CLIENTE.nombre} en el periodo es ${fmtMXNCorto(D.inversionCliente)} sobre ${fmtMXNCorto(D.inversionTotal)} de categoría. Investment Value IA tiene el desglose por plaza.` };
-  }
+  // ── Alcance / cobertura ──
   if (/(alcance|cobertura)/.test(t)) {
-    return { text: `El alcance promedio es ${D.alcanceProm}%. Hay ${D.riesgoAlcance.length} plazas por debajo del objetivo de cobertura — foco de trabajo en Alertas de Marca.` };
-  }
-  if (/(prediccion|proyeccion|proximo periodo|futuro|forecast)/.test(t)) {
-    return { text: `Proyección: si la tendencia se mantiene, ${CLIENTE.nombre} llegaría a ~${proyeccionSOV()}% de SOV el próximo periodo (venía de ${porPeriodo['2023'].sovCliente}% en 2023 a ${D.sovCliente}% en ${ULTIMO}).` };
+    return { text: `El alcance promedio de industria es ${D.alcanceProm}%, sobre ${D.totalPlazas} plazas monitoreadas. Detalle en Inversión Publicitaria.` };
   }
 
   return {
-    text: `Puedo llevarte a cualquiera de las ${SECCIONES.length} secciones ("ve a Alertas"), explicarte qué hace cada una o qué son los Operadores, Modelos y Agentes de Insights del Cerebro Orquestador. También te respondo cómo vamos en plazas, cuánto invertimos, qué dicen de la marca, cómo va el alcance, quién es la competencia o qué alertas hay abiertas.`,
+    text: `Puedo llevarte a cualquiera de las ${SECCIONES.length} secciones ("ve a Conciliación"), explicarte qué hace cada una o qué son las etapas del Motor de Ingesta. También te respondo sobre los asociados de ACAM, la inversión de industria, o los casos abiertos en Conciliación.`,
   };
 }
 
@@ -163,5 +140,5 @@ function seccionMencionada(t: string): Seccion | undefined {
 function listaModulos(tipo: Parameters<typeof modulosPorTipo>[0]): string {
   const ms = modulosPorTipo(tipo);
   const lista = ms.map(m => `· ${m.titulo} — ${m.descripcion}`).join('\n');
-  return `${ms.length} ${tipo}${ms.length > 1 ? 's' : ''} en el Cerebro Orquestador:\n${lista}`;
+  return `${ms.length} etapa${ms.length > 1 ? 's' : ''} de ${tipo} en el Motor de Ingesta:\n${lista}`;
 }

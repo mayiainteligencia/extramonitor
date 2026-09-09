@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Globe, Smartphone, Lock, User, ShieldCheck, Loader2, Plus, Check,
-  Music2, Instagram, Facebook, Youtube, Twitter, FileText, Megaphone,
+  Music2, Instagram, Facebook, Youtube, Twitter, Megaphone,
   ArrowUpRight, ArrowDownRight, Heart, Eye, Users2, Activity, X,
   ThumbsUp, ThumbsDown, Minus,
 } from 'lucide-react';
@@ -49,7 +49,7 @@ const PLATAFORMAS: Plataforma[] = [
       serie: [30, 45, 40, 62, 55, 80, 74, 96, 88, 120],
       topPosts: [
         { titulo: 'Haul de temporada — formato vertical', alcance: '412K', interacciones: '38.2K' },
-        { titulo: 'Reto viral #EstiloLiverpool', alcance: '287K', interacciones: '24.1K' },
+        { titulo: 'Reto viral de temporada', alcance: '287K', interacciones: '24.1K' },
         { titulo: 'Probador virtual (clip)', alcance: '155K', interacciones: '11.8K' },
       ],
     },
@@ -115,21 +115,6 @@ const PLATAFORMAS: Plataforma[] = [
     },
   },
   {
-    id: 'blog', nombre: 'Sitio propio / e-commerce', icon: FileText, color: '#8B5CF6', ambito: 'open-web',
-    placeholder: 'https://tublog.com',
-    feedback: {
-      seguidores: '18.4K', alcanceMes: '410K', engagement: '5.5%', impresionesInApp: '520K',
-      deltaSeguidores: 7, deltaEngagement: 6,
-      sentimiento: { pos: 64, neu: 29, neg: 7 },
-      serie: [15, 22, 20, 30, 34, 42, 48, 55, 60, 68],
-      topPosts: [
-        { titulo: 'Nota: guía de regalos de temporada', alcance: '86K', interacciones: '4.1K' },
-        { titulo: 'Comparativa contra la categoría', alcance: '52K', interacciones: '2.7K' },
-        { titulo: 'Ficha técnica y disponibilidad', alcance: '38K', interacciones: '1.9K' },
-      ],
-    },
-  },
-  {
     id: 'googleads', nombre: 'Google Ads', icon: Megaphone, color: '#F59E0B', ambito: 'open-web',
     placeholder: 'ID de cuenta',
     feedback: {
@@ -144,20 +129,6 @@ const PLATAFORMAS: Plataforma[] = [
       ],
     },
   },
-];
-
-const EMBUDO = [
-  { etapa: 'Visitas', valor: '1.24M', pct: 100 },
-  { etapa: 'Ficha de producto', valor: '486K', pct: 39 },
-  { etapa: 'Carrito', valor: '142K', pct: 11 },
-  { etapa: 'Pago iniciado', valor: '75K', pct: 6 },
-  { etapa: 'Compra', valor: '38.4K', pct: 3.1 },
-];
-
-const MARKETPLACES = [
-  { nombre: 'Amazon MX', skus: 412, stock: 94, buyBox: 71, rating: 4.5 },
-  { nombre: 'Mercado Libre', skus: 508, stock: 88, buyBox: 63, rating: 4.7 },
-  { nombre: 'liverpool.com.mx (propio)', skus: 1208, stock: 91, buyBox: 100, rating: 4.4 },
 ];
 
 const VISIBILIDAD = [
@@ -563,11 +534,12 @@ export const MonitorDigital: React.FC = () => {
             <span className="md-pulse" style={{ width: 7, height: 7, borderRadius: 999, background: colores.primario }} /> Monitoreo digital
           </span>
           <h1 style={{ fontSize: isMobile ? 26 : 38, fontWeight: 300, color: '#fff', margin: '14px 0 6px', letterSpacing: '-0.5px' }}>
-            Monitor <span style={{ fontWeight: 800, color: colores.primario }}>Digital</span> & E-Commerce
+            Monitor <span style={{ fontWeight: 800, color: colores.primario }}>Digital</span>
           </h1>
           <p style={{ fontSize: isMobile ? 14 : 16, color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: 640, lineHeight: 1.5 }}>
-            Tráfico, conversión y marketplaces en un solo tablero. Conecta las cuentas de la marca
-            y suma la visibilidad en buscadores y en respuestas de IA (GEO/AEO).
+            Tráfico, sentimiento en redes y visibilidad en buscadores en un solo tablero. Conecta
+            las cuentas y suma la visibilidad en respuestas de IA (GEO/AEO). Fuera de alcance:
+            e-commerce y marketplaces, terreno del anunciante, no de ACAM.
           </p>
 
           {/* explicación in-app vs open web */}
@@ -645,45 +617,8 @@ export const MonitorDigital: React.FC = () => {
           </div>
         </div>
 
-        {/* EMBUDO + MARKETPLACES + GEO/AEO */}
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1fr 1fr', gap: 20, marginBottom: 28 }}>
-          <Bloque titulo="Embudo de conversión" sub="Del clic a la compra, últimos 30 días">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {EMBUDO.map((e, i) => (
-                <div key={e.etapa}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 4 }}>
-                    <span style={{ color: colores.textoMedio, fontWeight: 600 }}>{e.etapa}</span>
-                    <span style={{ color: colores.textoOscuro, fontVariantNumeric: 'tabular-nums' }}>{e.valor} · {e.pct}%</span>
-                  </div>
-                  <div style={{ height: 10, borderRadius: 999, background: colores.fondoTerciario, overflow: 'hidden' }}>
-                    <div className="md-grow" style={{ width: `${e.pct}%`, height: '100%', borderRadius: 999, background: i === EMBUDO.length - 1 ? colores.exito : colores.primario }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p style={{ fontSize: 11, color: colores.textoOscuro, margin: '12px 0 0', lineHeight: 1.4 }}>
-              Mayor fuga entre carrito y pago: 47% de abandono. Foco de trabajo del Operador de E-Commerce.
-            </p>
-          </Bloque>
-
-          <Bloque titulo="Marketplaces" sub="Disponibilidad y buy box por canal">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {MARKETPLACES.map(m => (
-                <div key={m.nombre} style={{ background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, padding: '11px 13px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: colores.textoClaro }}>{m.nombre}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: m.buyBox >= 60 ? colores.exito : colores.advertencia }}>buy box {m.buyBox}%</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: 14, fontSize: 11, color: colores.textoOscuro }}>
-                    <span>{m.skus} SKUs</span>
-                    <span>{m.stock}% en stock</span>
-                    <span>★ {m.rating}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Bloque>
-
+        {/* VISIBILIDAD GEO/AEO */}
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr', gap: 20, marginBottom: 28 }}>
           <Bloque titulo="Visibilidad en buscadores e IA" sub="SEO tradicional + GEO/AEO">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {VISIBILIDAD.map(v => (

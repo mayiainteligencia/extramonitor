@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
-  MapPin, BarChart3, Layers, Filter, TrendingUp, Monitor, X, Plus, Trash2, Ruler,
+  MapPin, BarChart3, Filter, TrendingUp, Monitor, X,
 } from 'lucide-react';
 import {
   BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -24,13 +24,11 @@ const V = colores.primario;
 // ponytail: 755 soportes en el DOM matan el scroll — cada ciudad muestra sus
 // mejores TOPE_POR_CIUDAD por score y el resto queda en el contador.
 const TOPE_POR_CIUDAD = 12;
-const TOPE_LISTA_BUILDER = 40;
 
-type Tab = 'mapa' | 'builder' | 'measurement';
+type Tab = 'mapa' | 'measurement';
 
 const TABS: { id: Tab; label: string; icon: React.ComponentType<{ size?: number; color?: string }> }[] = [
   { id: 'mapa', label: 'Mapa de inventario', icon: MapPin },
-  { id: 'builder', label: 'Circuit Builder', icon: Layers },
   { id: 'measurement', label: 'Measurement Lab', icon: BarChart3 },
 ];
 
@@ -268,7 +266,6 @@ export const OOHPlanner: React.FC = () => {
   const [tipo, setTipo] = useState('Todos');
   const [disp, setDisp] = useState('Todas');
   const [abierto, setAbierto] = useState<Soporte | null>(null);
-  const [seleccionados, setSeleccionados] = useState<Soporte[]>([]);
 
   const scores = useMemo(() => {
     const m = new Map<string, number>();
@@ -304,27 +301,6 @@ export const OOHPlanner: React.FC = () => {
       .map(([nombre, lista]) => ({ nombre, lista: [...lista].sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0)) }))
       .sort((a, b) => b.lista.length - a.lista.length);
   }, [filtrados, scores]);
-
-  // ── métricas del circuito en construcción ──
-  const metricas = useMemo(() => {
-    const impactos = seleccionados.reduce((s, x) => s + (x.impactos_totales ?? 0), 0);
-    const usuarios = seleccionados.reduce((s, x) => s + (x.audiencia?.total ?? 0), 0);
-    // ponytail: dedup plana al 25%; el solapamiento real sale del proveedor de medición.
-    const usuariosDedup = Math.round(usuarios * 0.75);
-    const presupuesto = seleccionados.reduce((s, x) => s + (x.tarifa_publicada_mxn ?? 0), 0);
-    const alcancePromedio = seleccionados.length > 0
-      ? seleccionados.reduce((s, x) => s + (x.alcance_zona_pct ?? 0), 0) / seleccionados.length
-      : 0;
-    return { impactos, usuariosDedup, presupuesto, alcancePromedio };
-  }, [seleccionados]);
-
-  const disponiblesBuilder = useMemo(
-    () => filtrados
-      .filter(s => !seleccionados.some(x => x.id === s.id))
-      .sort((a, b) => (scores.get(b.id) ?? 0) - (scores.get(a.id) ?? 0))
-      .slice(0, TOPE_LISTA_BUILDER),
-    [filtrados, seleccionados, scores],
-  );
 
   // ── datos del Measurement Lab ──
   const zonas = useMemo(
@@ -369,9 +345,9 @@ export const OOHPlanner: React.FC = () => {
 
       <div style={inner}>
         <SectionHero
-          eyebrow="OOH Planner"
+          eyebrow="Censo OOH"
           title={<>Inventario <strong style={{ fontWeight: 800 }}>Exterior</strong></>}
-          subtitle="Inventario, circuito medido y planeación en una sola vista. Los datos salen de los Excel del circuito COMEX y del inventario del operador, procesados por el datalab."
+          subtitle="Inventario y circuito medido en una sola vista. ACAM no planea circuitos — cuenta soportes, tarifa, disponibilidad y audiencia. Los datos salen de los Excel del circuito COMEX y del inventario del operador, procesados por el datalab."
           right={
             <div style={{ display: 'inline-flex', gap: 6, background: 'rgba(255,255,255,.12)', padding: 5, borderRadius: 12, flexWrap: 'wrap' }}>
               {TABS.map(t => {
@@ -399,8 +375,8 @@ export const OOHPlanner: React.FC = () => {
             </Insight>
             <Insight kind="Sugerencia" title="El circuito medido rinde 269 GRPs con 77 soportes">
               El circuito COMEX alcanza {CIRCUITO_COMEX?.alcance_pct?.toFixed(1)}% de cobertura
-              nacional con frecuencia {CIRCUITO_COMEX?.frecuencia?.toFixed(1)}. Usa el Circuit
-              Builder para comparar tu selección contra esa referencia.
+              nacional con frecuencia {CIRCUITO_COMEX?.frecuencia?.toFixed(1)}. Revisa el detalle
+              en el tab Measurement Lab.
             </Insight>
           </>}
         />
@@ -464,114 +440,7 @@ export const OOHPlanner: React.FC = () => {
           </>
         )}
 
-        {/* ═════════════ TAB 2 · CIRCUIT BUILDER ═════════════ */}
-        {tab === 'builder' && (
-          <div style={grid('1.25fr 1fr')}>
-            <Panel
-              title="Soportes disponibles"
-              icon={<Layers size={16} color={V} />}
-              right={<span style={{ fontSize: 12, color: colores.textoOscuro }}>
-                top {Math.min(TOPE_LISTA_BUILDER, disponiblesBuilder.length)} de {fmtNum(filtrados.length)} · filtra en el tab de inventario
-              </span>}
-            >
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(220px, 1fr))',
-                gap: 12, maxHeight: 620, overflowY: 'auto',
-              }}>
-                {disponiblesBuilder.map(s => (
-                  <SoporteCard key={s.id} s={s} score={score(s)} onClick={() => setAbierto(s)}
-                    accion={
-                      <button onClick={e => { e.stopPropagation(); setSeleccionados(prev => [...prev, s]); }}
-                        aria-label="Agregar al circuito"
-                        style={{
-                          border: 'none', background: V, color: '#fff', cursor: 'pointer',
-                          width: 28, height: 28, borderRadius: 9, display: 'flex',
-                          alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                        }}><Plus size={16} /></button>
-                    } />
-                ))}
-                {disponiblesBuilder.length === 0 && (
-                  <p style={{ fontSize: 13, color: colores.textoOscuro, margin: 0 }}>
-                    No quedan soportes por agregar con los filtros actuales.
-                  </p>
-                )}
-              </div>
-            </Panel>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <Panel title="Tu circuito" icon={<TrendingUp size={16} color={V} />}
-                right={seleccionados.length > 0 ? (
-                  <button onClick={() => setSeleccionados([])} style={{
-                    border: `1px solid ${colores.borde}`, background: 'transparent', cursor: 'pointer',
-                    borderRadius: 9, padding: '5px 10px', fontSize: 11.5, fontWeight: 700,
-                    color: colores.textoMedio, display: 'inline-flex', alignItems: 'center', gap: 5,
-                  }}><Trash2 size={13} /> Vaciar</button>
-                ) : undefined}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10 }}>
-                  {[
-                    ['Soportes', fmtNum(seleccionados.length)],
-                    ['Impactos', fmtCorto(metricas.impactos)],
-                    ['Usuarios (dedup.)', fmtCorto(metricas.usuariosDedup)],
-                    ['Alcance promedio', `${metricas.alcancePromedio.toFixed(2)}%`],
-                    ['Presupuesto', `${fmtMXN(metricas.presupuesto)}`],
-                    ['DOOH en circuito', fmtNum(seleccionados.filter(s => s.es_digital).length)],
-                  ].map(([l, v]) => (
-                    <div key={l} style={{ background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, padding: 13 }}>
-                      <div style={{ fontSize: 19, fontWeight: 800, color: colores.textoClaro, lineHeight: 1.1 }}>{v}</div>
-                      <div style={{ fontSize: 10.5, color: colores.textoOscuro, marginTop: 4 }}>{l}</div>
-                    </div>
-                  ))}
-                </div>
-
-                {seleccionados.length > 0 && (
-                  <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 7, maxHeight: 230, overflowY: 'auto' }}>
-                    {seleccionados.map((s, i) => (
-                      <div key={`${s.id}-${i}`} style={{
-                        display: 'flex', alignItems: 'center', gap: 9, padding: '8px 10px',
-                        background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 10,
-                      }}>
-                        <span style={{ width: 7, height: 7, borderRadius: 999, background: colorScore(score(s)), flexShrink: 0 }} />
-                        <span style={{ fontSize: 11.5, color: colores.textoMedio, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {truncar(s.direccion, 34)}
-                        </span>
-                        <button onClick={() => setSeleccionados(prev => prev.filter((_, j) => j !== i))}
-                          aria-label="Quitar del circuito"
-                          style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: colores.textoOscuro, display: 'flex' }}>
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </Panel>
-
-              <Panel title="Referencia · Circuito COMEX medido" icon={<Ruler size={16} color={V} />}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-                  {[
-                    ['Soportes', fmtNum(CIRCUITO_COMEX?.soportes ?? soportesCircuito.length)],
-                    ['Impactos', fmtCorto(CIRCUITO_COMEX?.impactos_totales ?? 0)],
-                    ['Usuarios únicos', fmtCorto(CIRCUITO_COMEX?.usuarios_unicos ?? 0)],
-                    ['Alcance', `${(CIRCUITO_COMEX?.alcance_pct ?? 0).toFixed(1)}%`],
-                    ['Frecuencia', (CIRCUITO_COMEX?.frecuencia ?? 0).toFixed(1)],
-                    ['GRPs', Math.round(CIRCUITO_COMEX?.grp ?? 0).toString()],
-                  ].map(([l, v]) => (
-                    <div key={l} style={{ textAlign: 'center', background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 11, padding: 12 }}>
-                      <div style={{ fontSize: 17, fontWeight: 800, color: colores.textoClaro, lineHeight: 1.1 }}>{v}</div>
-                      <div style={{ fontSize: 10, color: colores.textoOscuro, marginTop: 4 }}>{l}</div>
-                    </div>
-                  ))}
-                </div>
-                <p style={{ fontSize: 11.5, color: colores.textoOscuro, margin: '12px 0 0', lineHeight: 1.5 }}>
-                  Cifras medidas del circuito nacional. Los soportes del circuito no traen tarifa
-                  publicada, por eso su presupuesto no suma en el builder.
-                </p>
-              </Panel>
-            </div>
-          </div>
-        )}
-
-        {/* ═════════════ TAB 3 · MEASUREMENT LAB ═════════════ */}
+        {/* ═════════════ TAB 2 · MEASUREMENT LAB ═════════════ */}
         {tab === 'measurement' && (
           <>
             <div style={{ ...grid('1fr 1fr'), marginBottom: 16 }}>

@@ -280,12 +280,12 @@ export const CerebroOrquestador: React.FC = () => {
             position: 'absolute', top: -60, right: -40, width: 220, height: 220, borderRadius: 999,
             background: `radial-gradient(circle, ${colores.primario}55, transparent 70%)`,
           }} />
-          <Badge texto="EN VIVO" color={colores.primario} pulse />
+          <Badge texto="PIPELINE EN OPERACIÓN" color={colores.primario} pulse />
           <h1 style={{ fontSize: isMobile ? 26 : 38, fontWeight: 300, color: '#fff', margin: '14px 0 6px', letterSpacing: '-0.5px' }}>
-            Cerebro <span style={{ fontWeight: 800, color: colores.primario }}>Orquestador</span>
+            Motor de <span style={{ fontWeight: 800, color: colores.primario }}>Ingesta y Normalización</span>
           </h1>
           <p style={{ fontSize: isMobile ? 14 : 16, color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: 620, lineHeight: 1.5 }}>
-            La capa que coordina la plataforma: Agentes que operan el flujo de trabajo, Operadores que ejecutan sobre los medios, Modelos que predicen y Agentes de Insights que generan hallazgos.
+            El pipeline que recibe el dato de cada proveedor, lo valida y homologa, y lo entrega con linaje: de qué proveedor viene, con qué timestamp y bajo qué versión de metodología.
           </p>
 
           <div style={{
@@ -313,7 +313,7 @@ export const CerebroOrquestador: React.FC = () => {
 
         {/* SECCIÓN MÓDULOS */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '8px 0 16px' }}>
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Módulos orquestados</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: colores.textoClaro, margin: 0 }}>Etapas del pipeline</h2>
           <span style={{ fontSize: 12, color: colores.textoOscuro }}>{composicion()}</span>
         </div>
 

@@ -11,10 +11,11 @@ import {
 } from 'lucide-react';
 import { brandingConfig } from '../config/branding';
 import { SECCIONES, buscarSeccion } from '../data/asistente';
-import { porPeriodo, ULTIMO, CLIENTE, fmt, fmtMXNCorto, ALERTAS } from '../data/media';
+import { porPeriodo, ULTIMO, fmtMXNCorto } from '../data/media';
 import { BrainCanvas } from './modules/dashboardModules/BrainCanvas';
 import { useConfirm } from './shared/confirm';
 import { useToast } from './shared/toast';
+import { useRole, ROL_LABEL, opcionesAsociado, type Rol } from './shared/role';
 
 interface HeaderProps {
   title: string;
@@ -32,13 +33,12 @@ interface Notification {
 }
 
 const D = porPeriodo[ULTIMO];
-const recuperableMXN = D.discrepancias.reduce((s, d) => s + d.montoMXN, 0);
 const notificacionesEstaticas: Notification[] = [
-  { id: 1, tipo: 'urgente', titulo: `Pauta no emitida: ${fmtMXNCorto(recuperableMXN)} recuperables`, mensaje: `Testigos IA detectó spots contratados que no salieron al aire en ${D.discrepancias.length} plazas. El monto es reclamable al medio. Revisa Alertas de Marca.`, tiempo: 'Hace 3 min',  leida: false, plan: `Generar el reclamo automático a las ${D.discrepancias.length} emisoras con spots faltantes.` },
-  { id: 2, tipo: 'alerta',  titulo: 'Detección on-air · MVS 102.5',                 mensaje: `Nueva mención de ${CLIENTE.nombre} en el bloque matutino, sentimiento positivo. Escucha el testigo en Testigos IA.`,       tiempo: 'Hace 8 min',  leida: false },
-  { id: 3, tipo: 'alerta',  titulo: `${ALERTAS[1].plaza}: spike de competencia`,     mensaje: ALERTAS[1].descripcion,                                                                                                          tiempo: 'Hace 22 min', leida: false, plan: 'Reforzar frecuencia en drive time en la plaza afectada durante 7 días.' },
-  { id: 4, tipo: 'exito',   titulo: 'Cálculo de Share of Voice completado',          mensaje: `${CLIENTE.nombre} lidera ${fmt(D.plazasLideradas)} de ${fmt(D.totalPlazas)} plazas (${D.sovCliente}% de SOV ponderado) en ${ULTIMO}.`, tiempo: 'Hace 1 hora', leida: true  },
-  { id: 5, tipo: 'info',    titulo: `${D.segundaMarca} avanza como 2ª marca`,        mensaje: `${D.segundaMarca} lidera ${D.lideradasSegunda} plazas. Vigilar su avance de cara al siguiente flight.`,                       tiempo: 'Hace 2 horas', leida: true  },
+  { id: 1, tipo: 'urgente', titulo: 'Nuevo caso en Conciliación',            mensaje: 'Verificación On-Air detectó una discrepancia entre lo reportado por el medio y lo reportado por la agencia. Requiere revisión del comité.', tiempo: 'Hace 3 min',  leida: false, plan: 'Abrir el caso en Conciliación y notificar a ambas partes para que adjunten evidencia.' },
+  { id: 2, tipo: 'alerta',  titulo: 'Detección on-air · MVS 102.5',          mensaje: 'Nueva detección en el bloque matutino. Escucha el clip con timestamp en Verificación On-Air.', tiempo: 'Hace 8 min',  leida: false },
+  { id: 3, tipo: 'info',    titulo: 'Entrega de HR Media validada',          mensaje: `Inversión de industria de ${fmtMXNCorto(D.inversionTotal)} consolidada para ${ULTIMO}. Disponible en Inversión Publicitaria.`, tiempo: 'Hace 22 min', leida: false },
+  { id: 4, tipo: 'exito',   titulo: 'Paquete de auditoría exportado',        mensaje: 'El comité descargó el paquete de trazabilidad del periodo en formato compatible con 3m3a.', tiempo: 'Hace 1 hora', leida: true  },
+  { id: 5, tipo: 'info',    titulo: 'Conflicto de homologación pendiente',   mensaje: 'El Catálogo Maestro detectó un anunciante reportado con dos nombres distintos entre proveedores.', tiempo: 'Hace 2 horas', leida: true  },
 ];
 
 export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
@@ -70,11 +70,14 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
     inputRef.current?.blur();
   };
 
-  // Mini-jarvis: va al dashboard (donde vive el asistente) y lo abre.
+  // Mini-jarvis: va a Verificación On-Air (la sección con datos reales) y lo abre.
   const abrirJarvis = () => {
-    onSectionChange?.('warroom');
+    onSectionChange?.('verificacion');
     setTimeout(() => window.dispatchEvent(new CustomEvent('jarvis:open')), 350);
   };
+
+  const { rol, asociadoId, setRol, setAsociadoId } = useRole();
+  const asociadosDelRol = opcionesAsociado(rol);
 
   const fecha = new Date();
   const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -221,7 +224,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
 
         {/* ── CENTRO: Logo ── */}
         <div style={{
-          backgroundColor: colores.secundario, borderRadius: '14px',
+          backgroundColor: '#FFFFFF', border: `1px solid ${colores.borde}`, borderRadius: '14px',
           padding: '10px 20px', display: 'flex', alignItems: 'center',
           flexShrink: 0, height: '52px', overflow: 'hidden',
         }}>
@@ -235,20 +238,40 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
 
         {/* ── DERECHA: Contexto de cliente + Jarvis + Fecha + Bell + Avatar ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Cliente y campaña activos */}
+          {/* Selector de rol — televisora / agencia / comité. Cambia lo que se
+              muestra en Verificación On-Air, Inversión Publicitaria y Conciliación. */}
           <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
-            padding: '5px 14px', borderRadius: '14px',
+            display: 'flex', flexDirection: 'column', gap: 4,
+            padding: '5px 12px', borderRadius: '14px',
             backgroundColor: colores.fondoTerciario, border: `1px solid ${colores.borde}`,
-            flexShrink: 0, maxWidth: 230,
-          }} title={`${CLIENTE.nombre} · ${title}`}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', fontWeight: 700, color: colores.textoClaro, whiteSpace: 'nowrap' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: CLIENTE.color }} />
-              {CLIENTE.nombre}
-            </span>
-            <span style={{ fontSize: '11px', color: colores.textoOscuro, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-              Campaña {ULTIMO} · {title}
-            </span>
+            flexShrink: 0,
+          }} title={`Viendo la plataforma como ${ROL_LABEL[rol]}`}>
+            <select
+              value={rol}
+              onChange={e => setRol(e.target.value as Rol)}
+              style={{
+                border: 'none', outline: 'none', background: 'transparent', cursor: 'pointer',
+                fontSize: '13px', fontWeight: 700, color: colores.textoClaro, appearance: 'none',
+              }}
+            >
+              {(['comite', 'televisora', 'agencia'] as Rol[]).map(r => (
+                <option key={r} value={r}>{ROL_LABEL[r]}</option>
+              ))}
+            </select>
+            {asociadosDelRol.length > 0 && (
+              <select
+                value={asociadoId}
+                onChange={e => setAsociadoId(e.target.value)}
+                style={{
+                  border: 'none', outline: 'none', background: 'transparent', cursor: 'pointer',
+                  fontSize: '11px', color: colores.textoOscuro, appearance: 'none',
+                }}
+              >
+                {asociadosDelRol.map(a => (
+                  <option key={a.id} value={a.id}>{a.nombre}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Mini-jarvis (átomo) — acceso rápido al asistente */}
@@ -384,7 +407,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
           <button
             style={{
               width: '52px', height: '52px', borderRadius: '50%',
-              backgroundColor: colores.secundario, border: `2px solid ${colores.borde}`,
+              backgroundColor: '#FFFFFF', border: `2px solid ${colores.borde}`,
               cursor: 'pointer', display: 'flex', alignItems: 'center',
               justifyContent: 'center', overflow: 'hidden', padding: '9px',
               transition: 'transform 0.2s',

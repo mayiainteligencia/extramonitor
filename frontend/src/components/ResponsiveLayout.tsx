@@ -206,7 +206,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
         <div style={{
           display: 'flex', alignItems: 'center',
-          background: colores.secundario, borderRadius: 10, padding: '7px 12px',
+          background: '#FFFFFF', border: `1px solid ${colores.borde}`, borderRadius: 10, padding: '7px 12px',
         }}>
           <img
             src={empresa.logo}
@@ -280,7 +280,7 @@ export const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '10px', overflow: 'hidden',
-                  background: `linear-gradient(135deg, ${colores.primario}, ${colores.secundario})`,
+                  background: '#FFFFFF', border: `1px solid ${colores.borde}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
                   <img

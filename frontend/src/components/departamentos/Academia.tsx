@@ -23,12 +23,12 @@ interface Curso {
 const RUTAS: { ruta: string; resumen: string; cursos: Curso[] }[] = [
   {
     ruta: 'Fundamentos de IA aplicada',
-    resumen: 'Base común para todo el equipo de cuenta y planning',
+    resumen: 'Base común para los equipos técnicos de los 9 asociados',
     cursos: [
-      { id: 1, titulo: 'Fundamentos del Prompting', descripcion: 'Ingeniería de prompts y casos de uso en agencia', duracion: '4 HORAS', nivel: 'PRINCIPIANTE', icono: Sparkles },
-      { id: 2, titulo: 'IA para Trabajo Inteligente', descripcion: 'Automatiza reportes, minutas y seguimiento de campaña', duracion: '25 HORAS', nivel: 'INTERMEDIO', icono: Gauge },
-      { id: 3, titulo: 'Gobernanza y uso responsable', descripcion: 'Datos de cliente, propiedad intelectual y sesgos', duracion: '8 HORAS', nivel: 'INTERMEDIO', icono: ShieldAlert },
-      { id: 4, titulo: 'IA para líderes de cuenta', descripcion: 'Adopción, ROI y conversación con el cliente', duracion: '12 HORAS', nivel: 'AVANZADO', icono: Users2 },
+      { id: 1, titulo: 'Fundamentos del Prompting', descripcion: 'Ingeniería de prompts y casos de uso en medición', duracion: '4 HORAS', nivel: 'PRINCIPIANTE', icono: Sparkles },
+      { id: 2, titulo: 'IA para Trabajo Inteligente', descripcion: 'Automatiza reportes, minutas y seguimiento de entregas', duracion: '25 HORAS', nivel: 'INTERMEDIO', icono: Gauge },
+      { id: 3, titulo: 'Gobernanza y uso responsable', descripcion: 'Datos de proveedor, propiedad intelectual y sesgos', duracion: '8 HORAS', nivel: 'INTERMEDIO', icono: ShieldAlert },
+      { id: 4, titulo: 'IA para el comité técnico', descripcion: 'Adopción, ROI y conversación con los asociados', duracion: '12 HORAS', nivel: 'AVANZADO', icono: Users2 },
     ],
   },
   {
@@ -161,7 +161,7 @@ export const Academia: React.FC = () => {
       }}>
         <GraduationCap size={18} color={colores.primario} />
         <span style={{ fontSize: 12.5, color: colores.textoMedio }}>
-          Las rutas se cursan en orden; cada una cierra con un caso real de la cuenta.
+          Las rutas se cursan en orden; cada una cierra con un caso real de medición.
         </span>
       </div>
     </div>

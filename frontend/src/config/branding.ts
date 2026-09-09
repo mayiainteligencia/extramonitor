@@ -1,17 +1,19 @@
 export const brandingConfig = {
   empresa: {
-    nombre: "AI Acceleration Lab México",
-    eslogan: "",
-    logo: "/assets/logosNativos/logohavas.png",
+    nombre: "ACAM",
+    eslogan: "Alianza para la Calidad de la Medición Multimedia en México",
+    logo: "/assets/logosNativos/LOGO-ACAM.png",
   },
 
+  // Paleta institucional neutral: azul, negro y blanco. Nada de rojo de agencia —
+  // ACAM es un JIC con 3 televisoras y 6 agencias como asociados, ninguna manda color.
   colores: {
-    primario: "#B22222",           // rojo claro — elemento primario activo (sidebar activo)
-    primarioOscuro: "#2D2D2D",     // Negro suave — hover
-    primarioClaro: "#FFFFFF",      // Blanco — superficies claras
+    primario: "#1E3A8A",           // azul institucional — elemento primario activo
+    primarioOscuro: "#0F1E4D",     // azul casi negro — hover
+    primarioClaro: "#FFFFFF",      // blanco — superficies claras
 
-    secundario: "#1A1A1A",
-    acento: "#1A1A1A",
+    secundario: "#0A0A0A",
+    acento: "#1E3A8A",
     acentoOscuro: "#A0AEC0",
 
     peligro: "#EF4444",
@@ -26,16 +28,16 @@ export const brandingConfig = {
     textoClaro: "#0A0A0A",
     textoMedio: "#2D2D2D",
     textoOscuro: "#6B7280",
-    textoEnOscuro: "#FFFFFF",      // Blanco — texto sobre fondos negros (sidebar activo)
+    textoEnOscuro: "#FFFFFF",      // blanco — texto sobre fondos oscuros (sidebar activo)
 
     borde: "#CCCCCC",
     bordeHover: "#888888",
 
-    gradientePrimario: "linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%)",
+    gradientePrimario: "linear-gradient(135deg, #0A0A0A 0%, #1E3A8A 100%)",
     gradienteSecundario: "linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)",
     gradienteAcento: "linear-gradient(135deg, #E8E8E8 0%, #FFFFFF 100%)",
 
-    fondoGlass: "#1C1C1C",
+    fondoGlass: "#0F1E4D",
 
     sombra: "0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04)",
     sombraMedia: "0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06)",

@@ -1,7 +1,8 @@
 // src/components/TestigosIA.tsx
 import { useState, useEffect, useRef } from 'react';
 import { brandingConfig } from '../config/branding';
-import { Search, RotateCcw, Radio, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, RotateCcw, Radio, ChevronDown, ChevronUp, Flag } from 'lucide-react';
+import { useRole, ROL_LABEL } from './shared/role';
 
 const { colores } = brandingConfig;
 
@@ -75,7 +76,9 @@ export const TestigosIA = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [vistaActiva, setVistaActiva] = useState<'config' | 'testigos'>('testigos');
   const [formColapsado, setFormColapsado] = useState(false);
+  const [impugnados, setImpugnados] = useState<Set<number>>(new Set());
   const wsRefs = useRef<Record<string, WebSocket>>({});
+  const { rol } = useRole();
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -563,6 +566,22 @@ export const TestigosIA = () => {
               }}>
                 "{t.transcripcion}"
               </p>
+              {rol !== 'comite' && (
+                <button
+                  onClick={() => setImpugnados(prev => new Set(prev).add(t.id ?? i))}
+                  disabled={impugnados.has(t.id ?? i)}
+                  style={{
+                    marginTop: 8, display: 'inline-flex', alignItems: 'center', gap: 5,
+                    padding: '4px 10px', borderRadius: 8, fontSize: 11, fontWeight: 600,
+                    border: `1px solid ${colores.borde}`, background: 'transparent',
+                    color: impugnados.has(t.id ?? i) ? colores.exito : colores.peligro,
+                    cursor: impugnados.has(t.id ?? i) ? 'default' : 'pointer',
+                  }}
+                >
+                  <Flag size={11} />
+                  {impugnados.has(t.id ?? i) ? 'Impugnada — enviada a Conciliación' : 'Impugnar detección'}
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -581,11 +600,19 @@ export const TestigosIA = () => {
         {/* Header */}
         <div style={{ marginBottom: isMobile ? 16 : 28 }}>
           <h1 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 700, color: colores.textoClaro, margin: 0 }}>
-            Testigos IA
+            Verificación On-Air
           </h1>
           <p style={{ fontSize: 13, color: colores.textoOscuro, margin: '4px 0 0' }}>
-            Verificación on-air: detección automática de marcas y spots en radio en vivo
+            Evidencia auditable: cada detección queda con clip, transcripción y timestamp — la base para resolver un caso en Conciliación.
           </p>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '6px 12px',
+            borderRadius: 999, background: colores.fondoSecundario, border: `1px solid ${colores.borde}`,
+            fontSize: 12, color: colores.textoMedio,
+          }}>
+            Viendo como <strong style={{ color: colores.textoClaro }}>{ROL_LABEL[rol]}</strong>
+            {rol !== 'comite' && ' — puedes impugnar una detección si no coincide con tu registro'}
+          </div>
         </div>
 
         {/* ── MOBILE: tabs de navegación ── */}

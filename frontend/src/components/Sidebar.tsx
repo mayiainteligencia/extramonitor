@@ -78,7 +78,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeSection, onSectionChange
               height: collapsed ? '48px' : '72px',
               transition: 'height 0.22s ease',
               borderRadius: '12px',
-              backgroundColor: colores.secundario,  // el logo es blanco: necesita fondo oscuro
+              backgroundColor: '#FFFFFF',
+              border: `1px solid ${colores.borde}`,
               padding: collapsed ? '8px' : '14px 18px',
               display: 'flex',
               alignItems: 'center',

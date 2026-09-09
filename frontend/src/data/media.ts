@@ -1,18 +1,69 @@
-// Capa de datos de la plataforma de medios. Mock determinista (misma salida en
-// cada carga) construido sobre las 32 entidades de data/mexicoPaths.ts, que aquí
-// se leen como PLAZAS / mercados. Las cifras se derivan unas de otras: la
-// inversión sale del peso de la plaza, los GRPs de la inversión, y el SOV por
-// plaza siempre suma 100%.
+// Capa de datos de industria para ACAM. Mock determinista (misma salida en
+// cada carga) construido sobre las 32 entidades de data/mexicoPaths.ts, que
+// aquí se leen como PLAZAS / mercados. Todo es DATO SIMULADO — no son cifras
+// oficiales de ACAM ni de HR Media: sirven para mostrar la forma del reporte,
+// no su contenido real.
+//
+// A diferencia del tablero de una agencia, aquí no hay "cliente": el reporte
+// es de industria, balanceado entre los 9 asociados (3 televisoras que venden,
+// 6 agencias que compran).
 //
 // ponytail: todo se calcula al importar el módulo (32 plazas × 3 periodos);
 // si el catálogo creciera a nivel municipio, mover a un JSON precomputado.
 
-export interface Marca {
+export type TipoAsociado = 'television' | 'agencia';
+
+export interface Asociado {
   id: string;
   nombre: string;
+  tipo: TipoAsociado;
   color: string;
-  esCliente: boolean;
 }
+
+// Los 9 asociados de ACAM, en dos bloques con intereses opuestos. Orden
+// alfabético dentro de cada bloque — nadie va primero por ser quien es.
+export const ASOCIADOS: Asociado[] = [
+  { id: 'AZTECA',   nombre: 'TV Azteca',          tipo: 'television', color: '#0F1E4D' },
+  { id: 'IMAGEN',   nombre: 'Imagen Televisión',  tipo: 'television', color: '#1E3A8A' },
+  { id: 'TELEVISA', nombre: 'Televisa Univision', tipo: 'television', color: '#3B5BDB' },
+  { id: 'DENTSU',   nombre: 'dentsu',             tipo: 'agencia',    color: '#334155' },
+  { id: 'GROUPM',   nombre: 'GroupM',             tipo: 'agencia',    color: '#475569' },
+  { id: 'HAVAS',    nombre: 'Havas',              tipo: 'agencia',    color: '#64748B' },
+  { id: 'IPG',      nombre: 'IPG Mediabrands',    tipo: 'agencia',    color: '#94A3B8' },
+  { id: 'OMG',      nombre: 'OMG',                tipo: 'agencia',    color: '#0EA5E9' },
+  { id: 'PUBLICIS', nombre: 'Publicis',           tipo: 'agencia',    color: '#0284C7' },
+];
+
+export const TELEVISORAS = ASOCIADOS.filter(a => a.tipo === 'television');
+export const AGENCIAS = ASOCIADOS.filter(a => a.tipo === 'agencia');
+
+export const ASOCIADO_COLOR: Record<string, string> = Object.fromEntries(ASOCIADOS.map(a => [a.id, a.color]));
+export const ASOCIADO_NOMBRE: Record<string, string> = Object.fromEntries(ASOCIADOS.map(a => [a.id, a.nombre]));
+
+/* ─────────────────────────── Anunciantes (dato simulado) ─────────────────────────── */
+
+export interface Anunciante {
+  nombre: string;
+  categoria: string;
+  agencia: string;   // id en AGENCIAS que gestiona la cuenta
+}
+
+export const ANUNCIANTES: Anunciante[] = [
+  { nombre: 'Liverpool',      categoria: 'Retail departamental',  agencia: 'HAVAS' },
+  { nombre: 'Coppel',         categoria: 'Retail departamental',  agencia: 'PUBLICIS' },
+  { nombre: 'Banorte',        categoria: 'Servicios financieros', agencia: 'GROUPM' },
+  { nombre: 'BBVA México',    categoria: 'Servicios financieros', agencia: 'DENTSU' },
+  { nombre: 'Cinépolis',      categoria: 'Entretenimiento',       agencia: 'OMG' },
+  { nombre: 'Aeroméxico',     categoria: 'Aviación',              agencia: 'IPG' },
+  { nombre: 'Hyundai',        categoria: 'Automotriz',            agencia: 'PUBLICIS' },
+  { nombre: 'Nissan',         categoria: 'Automotriz',            agencia: 'DENTSU' },
+  { nombre: 'LVMH',           categoria: 'Lujo',                  agencia: 'HAVAS' },
+  { nombre: 'Sephora',        categoria: 'Belleza',               agencia: 'GROUPM' },
+  { nombre: 'Little Caesars', categoria: 'QSR',                   agencia: 'OMG' },
+  { nombre: 'AT&T México',    categoria: 'Telecomunicaciones',    agencia: 'IPG' },
+];
+
+/* ─────────────────────────── Plazas ─────────────────────────── */
 
 export interface Plaza {
   id: string;          // mismo id que en mexicoPaths.ts
@@ -20,63 +71,7 @@ export interface Plaza {
   inversionMXN: number;
   grps: number;
   alcancePct: number;
-  sovPorMarca: Record<string, number>;  // marcaId -> % share of voice
 }
-
-export interface AlertaMarca {
-  id: string;
-  tipo: 'discrepancia-pauta' | 'mencion-negativa' | 'spike-competencia' | 'ad-fraud';
-  severidad: 'alta' | 'media' | 'baja';
-  plaza: string;
-  medio: string;
-  timestamp: string;
-  descripcion: string;
-}
-
-/* ─────────────────────────── Marcas ─────────────────────────── */
-
-// Cuenta activa del tablero: Liverpool, y su set competitivo real de retail
-// departamental. Suburbia no entra como competidor: es del mismo grupo.
-export const MARCAS: Marca[] = [
-  { id: 'LIVERPOOL', nombre: 'Liverpool',            color: '#8B5CF6', esCliente: true },
-  { id: 'PALACIO',   nombre: 'El Palacio de Hierro', color: '#0047AB', esCliente: false },
-  { id: 'SEARS',     nombre: 'Sears',                color: '#F58025', esCliente: false },
-  { id: 'COPPEL',    nombre: 'Coppel',               color: '#9B2247', esCliente: false },
-];
-
-export const CLIENTE = MARCAS[0];
-
-/** Cartera de cuentas de Havas Media México. `activa` es la que alimenta el tablero. */
-export interface CuentaCartera {
-  nombre: string;
-  categoria: string;
-  sharePresupuesto: number;   // % de la inversión gestionada por la agencia
-  activa?: boolean;
-}
-
-export const CARTERA: CuentaCartera[] = [
-  { nombre: 'Liverpool',     categoria: 'Retail departamental', sharePresupuesto: 17.4, activa: true },
-  { nombre: 'Suburbia',      categoria: 'Retail moda',          sharePresupuesto: 11.2 },
-  { nombre: 'Banorte',       categoria: 'Servicios financieros', sharePresupuesto: 10.8 },
-  { nombre: 'Cinépolis',     categoria: 'Entretenimiento',      sharePresupuesto: 9.6 },
-  { nombre: 'Aeroméxico',    categoria: 'Aviación',             sharePresupuesto: 8.9 },
-  { nombre: 'Hyundai',       categoria: 'Automotriz',           sharePresupuesto: 8.1 },
-  { nombre: 'KIA',           categoria: 'Automotriz',           sharePresupuesto: 7.3 },
-  { nombre: 'LVMH',          categoria: 'Lujo',                 sharePresupuesto: 6.5 },
-  { nombre: 'Posadas',       categoria: 'Hotelería',            sharePresupuesto: 5.4 },
-  { nombre: 'Sephora',       categoria: 'Belleza',              sharePresupuesto: 5.1 },
-  { nombre: 'Little Caesars', categoria: 'QSR',                 sharePresupuesto: 4.9 },
-  { nombre: 'Atún Dolores',  categoria: 'Consumo',              sharePresupuesto: 4.8 },
-];
-
-export const MARCA_COLOR: Record<string, string> = Object.fromEntries(
-  MARCAS.map(m => [m.id, m.color]),
-);
-export const MARCA_NOMBRE: Record<string, string> = Object.fromEntries(
-  MARCAS.map(m => [m.id, m.nombre]),
-);
-
-/* ─────────────────────────── Plazas ─────────────────────────── */
 
 // Peso de cada plaza en la inversión publicitaria nacional (%). Suma ~100.
 const PESO: { id: string; nombre: string; peso: number }[] = [
@@ -114,8 +109,8 @@ const PESO: { id: string; nombre: string; peso: number }[] = [
   { id: 'MX_BS', nombre: 'Baja California Sur',   peso: 0.5 },
 ];
 
-// Inversión total de la categoría (4 marcas) en el último periodo.
-const INVERSION_CATEGORIA = 1_840_000_000;
+// Inversión total de industria monitoreada en el último periodo (dato simulado).
+const INVERSION_INDUSTRIA = 21_400_000_000;
 
 function hash(s: string): number {
   let h = 0;
@@ -123,171 +118,99 @@ function hash(s: string): number {
   return Math.abs(h);
 }
 
-// SOV determinista por plaza: el cliente entre 22% y 40%, el resto se reparte
-// el remanente y el total siempre cierra en 100.
-function sovDe(id: string, sesgoCliente: number): Record<string, number> {
-  const h = hash(id);
-  const cliente = Math.round(22 + (h % 19) + sesgoCliente);
-  const resto = 100 - cliente;
-  const a = Math.round(resto * (0.30 + ((h >> 4) % 15) / 100));
-  const b = Math.round(resto * (0.28 + ((h >> 8) % 14) / 100));
-  const c = resto - a - b;
-  return { LIVERPOOL: cliente, PALACIO: a, SEARS: b, COPPEL: c };
-}
-
-function construirPlazas(factorInversion: number, sesgoCliente: number): Plaza[] {
+function construirPlazas(factorInversion: number): Plaza[] {
   return PESO.map(p => {
-    const inversionMXN = Math.round(INVERSION_CATEGORIA * factorInversion * p.peso / 100);
-    // GRPs correlacionados con la inversión (costo por GRP ~ $95k en plaza grande).
+    const inversionMXN = Math.round(INVERSION_INDUSTRIA * factorInversion * p.peso / 100);
     const grps = Math.round(inversionMXN / 95_000);
-    // Alcance: crece con el peso de la plaza, techo 92%.
     const alcancePct = Math.min(92, Math.round(52 + p.peso * 1.6 + (hash(p.id) % 9)));
-    return { id: p.id, nombre: p.nombre, inversionMXN, grps, alcancePct, sovPorMarca: sovDe(p.id, sesgoCliente) };
+    return { id: p.id, nombre: p.nombre, inversionMXN, grps, alcancePct };
   });
 }
 
-/* ─────────────────────── Periodos y agregados ─────────────────────── */
+/* ─────────────────── Periodos y agregados de industria ─────────────────── */
 
 export const PERIODOS = ['2023', '2024', '2025'];
 export const ULTIMO = PERIODOS[PERIODOS.length - 1];
 
-const FACTOR: Record<string, { inversion: number; sesgo: number }> = {
-  '2023': { inversion: 0.78, sesgo: -5 },
-  '2024': { inversion: 0.89, sesgo: -2 },
-  '2025': { inversion: 1.00, sesgo: 0 },
-};
+const FACTOR: Record<string, number> = { '2023': 0.82, '2024': 0.91, '2025': 1.00 };
 
-export type TopPlaza = { plaza: string; inversionMXN: number; lider: string };
-export type Discrepancia = { plaza: string; medio: string; esperados: number; detectados: number; montoMXN: number };
-export type RiesgoAlcance = { plaza: string; alcancePct: number };
+export type TopPlaza = { plaza: string; inversionMXN: number };
+export type TopAnunciante = { nombre: string; categoria: string; inversionMXN: number };
+
+export type MedioVenta = 'TV abierta' | 'Radio' | 'OOH' | 'Digital' | 'CTV';
 
 export type PeriodoData = {
   totalPlazas: number;
-  plazasLideradas: number;        // plazas donde el cliente es #1 en SOV
-  sovCliente: number;             // % SOV nacional ponderado
-  inversionCliente: number;
   inversionTotal: number;
-  alcanceProm: number;
   grpsTotal: number;
+  alcanceProm: number;
   emisoras: number;
   impactos: number;
-  segundaMarca: string;
-  lideradasSegunda: number;
-  lideradas: Record<string, number>;
-  inversionPorMarca: Record<string, number>;
+  inversionPorMedio: Record<MedioVenta, number>;
+  inversionPorAsociado: Record<string, number>;   // spend atribuible al inventario de cada televisora
+  topAnunciantes: TopAnunciante[];
   plazas: Plaza[];
   topPlazas: TopPlaza[];
-  discrepancias: Discrepancia[];
-  riesgoAlcance: RiesgoAlcance[];
 };
 
-const MEDIOS = ['MVS 102.5', 'W Radio 96.9', 'Los 40 101.7', 'Exa FM 104.9', 'Radio Fórmula 103.3', 'Imagen 90.5'];
-
-function agregar(plazas: Plaza[]): PeriodoData {
+function agregar(plazas: Plaza[], periodo: string): PeriodoData {
   const inversionTotal = plazas.reduce((s, p) => s + p.inversionMXN, 0);
   const grpsTotal = plazas.reduce((s, p) => s + p.grps, 0);
+  const h = hash(periodo);
 
-  const lideradas: Record<string, number> = Object.fromEntries(MARCAS.map(m => [m.id, 0]));
-  const sovPonderado: Record<string, number> = Object.fromEntries(MARCAS.map(m => [m.id, 0]));
+  const mediosPct: Record<MedioVenta, number> = {
+    'TV abierta': 0.42 + ((h % 5) - 2) / 100,
+    'Radio': 0.14,
+    'OOH': 0.12,
+    'Digital': 0.24,
+    'CTV': 0.05 + (Number(periodo) - 2023) * 0.02,
+  };
+  const inversionPorMedio = Object.fromEntries(
+    (Object.entries(mediosPct) as [MedioVenta, number][]).map(([m, pct]) => [m, Math.round(inversionTotal * pct)]),
+  ) as Record<MedioVenta, number>;
 
-  plazas.forEach(p => {
-    const lider = MARCAS.map(m => m.id).reduce((a, b) => (p.sovPorMarca[a] >= p.sovPorMarca[b] ? a : b));
-    lideradas[lider] += 1;
-    MARCAS.forEach(m => { sovPonderado[m.id] += p.sovPorMarca[m.id] * p.inversionMXN; });
-  });
-
-  const sov = (id: string) => Math.round(sovPonderado[id] / inversionTotal * 10) / 10;
-  const inversionPorMarca = Object.fromEntries(
-    MARCAS.map(m => [m.id, Math.round(inversionTotal * sov(m.id) / 100)]),
+  // Reparte el inventario de TV abierta entre las 3 televisoras por un peso
+  // pseudoaleatorio determinista, normalizado para sumar exacto el total.
+  const inversionTV = inversionPorMedio['TV abierta'];
+  const pesos = TELEVISORAS.map(tv => 0.8 + (hash(tv.id + periodo) % 40) / 100);
+  const sumaPesos = pesos.reduce((s, v) => s + v, 0);
+  const inversionPorAsociado = Object.fromEntries(
+    TELEVISORAS.map((tv, i) => [tv.id, Math.round(inversionTV * pesos[i] / sumaPesos)]),
   );
 
-  const competidores = MARCAS.filter(m => !m.esCliente).sort((a, b) => sov(b.id) - sov(a.id));
-  const segunda = competidores[0];
-
   const ordenadas = [...plazas].sort((a, b) => b.inversionMXN - a.inversionMXN);
+  const topPlazas: TopPlaza[] = ordenadas.slice(0, 8).map(p => ({ plaza: p.nombre, inversionMXN: p.inversionMXN }));
 
-  const topPlazas: TopPlaza[] = ordenadas.slice(0, 8).map(p => ({
-    plaza: p.nombre,
-    inversionMXN: p.inversionMXN,
-    lider: MARCAS.map(m => m.id).reduce((a, b) => (p.sovPorMarca[a] >= p.sovPorMarca[b] ? a : b)),
-  }));
-
-  // Discrepancias de pauta: spots contratados vs detectados on-air por Testigos IA.
-  const discrepancias: Discrepancia[] = ordenadas.slice(0, 6).map((p, i) => {
-    const esperados = 120 + (hash(p.id) % 90);
-    const detectados = esperados - (3 + (hash(p.id + 'd') % 14));
-    return {
-      plaza: p.nombre,
-      medio: MEDIOS[i % MEDIOS.length],
-      esperados,
-      detectados,
-      montoMXN: (esperados - detectados) * 14_500,
-    };
-  });
-
-  const riesgoAlcance: RiesgoAlcance[] = [...plazas]
-    .sort((a, b) => a.alcancePct - b.alcancePct)
-    .slice(0, 6)
-    .map(p => ({ plaza: p.nombre, alcancePct: p.alcancePct }));
+  const topAnunciantes: TopAnunciante[] = [...ANUNCIANTES]
+    .map(a => ({ nombre: a.nombre, categoria: a.categoria, inversionMXN: Math.round(inversionTotal * (0.02 + (hash(a.nombre + periodo) % 6) / 100)) }))
+    .sort((a, b) => b.inversionMXN - a.inversionMXN)
+    .slice(0, 8);
 
   return {
     totalPlazas: plazas.length,
-    plazasLideradas: lideradas[CLIENTE.id],
-    sovCliente: sov(CLIENTE.id),
-    inversionCliente: inversionPorMarca[CLIENTE.id],
     inversionTotal,
-    alcanceProm: Math.round(plazas.reduce((s, p) => s + p.alcancePct, 0) / plazas.length),
     grpsTotal,
+    alcanceProm: Math.round(plazas.reduce((s, p) => s + p.alcancePct, 0) / plazas.length),
     emisoras: 214,
     impactos: grpsTotal * 41_000,
-    segundaMarca: segunda.nombre,
-    lideradasSegunda: lideradas[segunda.id],
-    lideradas,
-    inversionPorMarca,
+    inversionPorMedio,
+    inversionPorAsociado,
+    topAnunciantes,
     plazas,
     topPlazas,
-    discrepancias,
-    riesgoAlcance,
   };
 }
 
 export const porPeriodo: Record<string, PeriodoData> = Object.fromEntries(
-  PERIODOS.map(p => [p, agregar(construirPlazas(FACTOR[p].inversion, FACTOR[p].sesgo))]),
+  PERIODOS.map(p => [p, agregar(construirPlazas(FACTOR[p]), p)]),
 );
 
 export const PLAZAS = porPeriodo[ULTIMO].plazas;
 
-/** Equipo y cobertura operativa del monitoreo (analogía del despliegue en campo). */
+/** Cobertura operativa del monitoreo. */
 export const COBERTURA = {
   plazas: 32,
   emisoras: 214,
-  presupuestoMXN: porPeriodo[ULTIMO].inversionCliente,
-};
-
-/* ─────────────────────────── Alertas ─────────────────────────── */
-
-export const ALERTAS: AlertaMarca[] = [
-  { id: 'AL-01', tipo: 'discrepancia-pauta', severidad: 'alta',  plaza: 'Ciudad de México', medio: 'MVS 102.5',        timestamp: 'hace 12 min', descripcion: '9 spots contratados no salieron al aire en el bloque de las 08:00' },
-  { id: 'AL-02', tipo: 'spike-competencia',  severidad: 'alta',  plaza: 'Nuevo León',       medio: 'Multimedios 106.1', timestamp: 'hace 34 min', descripcion: 'El Palacio de Hierro subió 11 pts de SOV en 48 h con pauta nueva en drive time' },
-  { id: 'AL-03', tipo: 'ad-fraud',           severidad: 'alta',  plaza: 'Jalisco',          medio: 'Programática',      timestamp: 'hace 1 h',    descripcion: '18.4% de tráfico inválido detectado en el line item de video' },
-  { id: 'AL-04', tipo: 'mencion-negativa',   severidad: 'media', plaza: 'Estado de México', medio: 'W Radio 96.9',      timestamp: 'hace 2 h',    descripcion: 'Mención negativa sobre tiempos de entrega en segmento de opinión' },
-  { id: 'AL-05', tipo: 'discrepancia-pauta', severidad: 'media', plaza: 'Puebla',           medio: 'Exa FM 104.9',      timestamp: 'hace 3 h',    descripcion: 'Spot emitido fuera de la franja contratada (22:40 vs 20:00-21:00)' },
-  { id: 'AL-06', tipo: 'spike-competencia',  severidad: 'media', plaza: 'Guanajuato',       medio: 'Los 40 101.7',      timestamp: 'hace 5 h',    descripcion: 'Sears duplicó su frecuencia semanal en la plaza' },
-  { id: 'AL-07', tipo: 'mencion-negativa',   severidad: 'baja',  plaza: 'Veracruz',         medio: 'Radio Fórmula',     timestamp: 'ayer',        descripcion: 'Comentario aislado sobre precio en programa matutino' },
-  { id: 'AL-08', tipo: 'ad-fraud',           severidad: 'baja',  plaza: 'Chihuahua',        medio: 'Display',           timestamp: 'ayer',        descripcion: 'Viewability por debajo del piso contratado (58% vs 70%)' },
-];
-
-export const SEVERIDAD_COLOR: Record<AlertaMarca['severidad'], string> = {
-  alta: '#EF4444',
-  media: '#F59E0B',
-  baja: '#6B7280',
-};
-
-export const TIPO_LABEL: Record<AlertaMarca['tipo'], string> = {
-  'discrepancia-pauta': 'Discrepancia de pauta',
-  'mencion-negativa': 'Mención negativa',
-  'spike-competencia': 'Spike de competencia',
-  'ad-fraud': 'Ad fraud',
 };
 
 /* ─────────────────────────── Helpers ─────────────────────────── */
@@ -299,10 +222,3 @@ export const fmtMXNCorto = (n: number) =>
   n >= 1_000_000_000 ? `$${(n / 1_000_000_000).toFixed(2)} MMDP`
   : n >= 1_000_000 ? `$${(n / 1_000_000).toFixed(1)} M`
   : fmtMXN(n);
-
-/** Proyección lineal simple del SOV del cliente al próximo periodo. */
-export function proyeccionSOV(): number {
-  const a = porPeriodo[PERIODOS[0]].sovCliente;
-  const b = porPeriodo[ULTIMO].sovCliente;
-  return Math.round((b + (b - a) / (PERIODOS.length - 1)) * 10) / 10;
-}

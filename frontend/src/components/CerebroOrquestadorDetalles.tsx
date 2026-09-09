@@ -120,7 +120,7 @@ const DetalleModulo: React.FC<{ d: ModuloCerebro; isMobile: boolean }> = ({ d, i
 
     {d.enVivo && (
       <p style={{ fontSize: 11.5, color: MUT, margin: 0 }}>
-        Único módulo conectado a datos en vivo — se alimenta del servicio de monitoreo de la sección Testigos IA.
+        Único módulo conectado a datos en vivo — se alimenta del servicio de monitoreo de la sección Verificación On-Air.
       </p>
     )}
   </div>
