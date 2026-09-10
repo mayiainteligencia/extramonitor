@@ -213,6 +213,34 @@ export const COBERTURA = {
   emisoras: 214,
 };
 
+/* ─────────────── Serie mensual de inversión por medio (Tablero) ───────────────
+ * Contrato: granularidad mensual, últimos 12 meses. Fuente futura: HR Media →
+ * Modelo de Mix de Medios, consolidado mes a mes. Aquí se deriva del mismo
+ * inversionPorMedio de ULTIMO con una variación mensual determinista. */
+export interface MesInversion {
+  mes: string;
+  'TV abierta': number;
+  'Radio': number;
+  'OOH': number;
+  'Digital': number;
+  'CTV': number;
+}
+
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+export const SERIE_INVERSION_MENSUAL: MesInversion[] = MESES.map((mes, i) => {
+  const base = porPeriodo[ULTIMO].inversionPorMedio;
+  const factor = 0.94 + (hash(mes) % 12) / 100; // variación mensual ±~6%
+  return {
+    mes,
+    'TV abierta': Math.round(base['TV abierta'] / 12 * factor),
+    'Radio': Math.round(base['Radio'] / 12 * factor),
+    'OOH': Math.round(base['OOH'] / 12 * factor),
+    'Digital': Math.round(base['Digital'] / 12 * factor),
+    'CTV': Math.round(base['CTV'] / 12 * (factor + i * 0.01)), // CTV con leve tendencia al alza
+  };
+});
+
 /* ─────────────────────────── Helpers ─────────────────────────── */
 
 export const fmt = (n: number) => n.toLocaleString('es-MX');

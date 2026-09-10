@@ -9,6 +9,7 @@ import {
   ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Tooltip,
 } from 'recharts';
 import { brandingConfig } from '../config/branding';
+import { EstadoBadge } from './shared/ui';
 
 const { colores } = brandingConfig;
 
@@ -526,13 +527,16 @@ export const MonitorDigital: React.FC = () => {
             position: 'absolute', top: -60, right: -40, width: 220, height: 220, borderRadius: 999,
             background: `radial-gradient(circle, ${colores.primario}55, transparent 70%)`,
           }} />
-          <span style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 800,
-            color: colores.primario, background: `${colores.primario}1A`, border: `1px solid ${colores.primario}40`,
-            padding: '4px 10px', borderRadius: 999, textTransform: 'uppercase',
-          }}>
-            <span className="md-pulse" style={{ width: 7, height: 7, borderRadius: 999, background: colores.primario }} /> Monitoreo digital
-          </span>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 800,
+              color: colores.primario, background: `${colores.primario}1A`, border: `1px solid ${colores.primario}40`,
+              padding: '4px 10px', borderRadius: 999, textTransform: 'uppercase',
+            }}>
+              <span className="md-pulse" style={{ width: 7, height: 7, borderRadius: 999, background: colores.primario }} /> Monitoreo digital
+            </span>
+            <EstadoBadge estado="en-activacion" />
+          </div>
           <h1 style={{ fontSize: isMobile ? 26 : 38, fontWeight: 300, color: '#fff', margin: '14px 0 6px', letterSpacing: '-0.5px' }}>
             Monitor <span style={{ fontWeight: 800, color: colores.primario }}>Digital</span>
           </h1>

@@ -1,4 +1,5 @@
 import {
+  LayoutDashboard,
   Radio,
   Cable,
   ClipboardList,
@@ -34,6 +35,8 @@ export interface ItemMenu {
 // demo o está en activación — ACAM audita proveedores, así que inflar el
 // estado de una sección propia se paga carísimo.
 export const secciones: ItemMenu[] = [
+  { id: 'tablero',      nombre: 'Tablero',                    icono: LayoutDashboard, estado: 'demo',       grupo: 'principal',
+    descripcion: 'Vista de entrada: ¿está sano el sistema de medición hoy? Salud de proveedores, casos de conciliación abiertos, cobertura de verificación e inversión de industria, todo respetando tu rol.' },
   { id: 'verificacion', nombre: 'Verificación On-Air',        icono: Radio,        estado: 'activo',        grupo: 'principal',
     descripcion: 'Evidencia auditable de que un spot salió al aire: escucha las emisoras, transcribe y deja el clip con timestamp que resuelve una disputa entre medio y agencia.' },
   { id: 'partners',     nombre: 'Hub de Partners',            icono: Network,      estado: 'en-activacion', grupo: 'principal',
@@ -49,7 +52,7 @@ export const secciones: ItemMenu[] = [
   { id: 'trazabilidad', nombre: 'Trazabilidad y Auditoría',    icono: ShieldCheck,  estado: 'en-activacion', grupo: 'principal',
     descripcion: 'Cada cifra con su origen, proveedor, timestamp y versión de metodología, con exportación de paquete de auditoría en el formato que ya reconocen 3m3a y RSMB.' },
   { id: 'ooh',          nombre: 'Censo OOH',                   icono: MapPin,       estado: 'demo',          grupo: 'principal',
-    descripcion: 'Inventario exterior real: 775 soportes con tarifa y disponibilidad, y el circuito medido con su audiencia por edad y NSE. ACAM no planea circuitos, ACAM los cuenta.' },
+    descripcion: 'Inventario exterior de referencia: soportes con tarifa y disponibilidad estimados, y el circuito medido con su audiencia por edad y NSE. Datos sintéticos / fuente genérica de mercado — sin atribución a operador. ACAM no planea circuitos, ACAM los cuenta.' },
   { id: 'digital',      nombre: 'Monitor Digital',             icono: Globe,        estado: 'en-activacion', grupo: 'principal',
     descripcion: 'Tráfico, sentimiento en redes y visibilidad en buscadores y en respuestas de IA (GEO/AEO), sin el terreno de e-commerce y marketplaces que no le toca a ACAM.' },
   { id: 'ctv',          nombre: 'CTV Spend',                   icono: Tv,           estado: 'en-activacion', grupo: 'extra',

@@ -1,37 +1,31 @@
 import React, { useState } from 'react';
-import { BookOpen, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { Panel, Kpi, Insight, SectionHero, keyframes, wrap, inner, useIsMobile } from './shared/ui';
+import { BookOpen, AlertTriangle, CheckCircle2, BarChart3 } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { Panel, Kpi, Insight, SectionHero, EmptyState, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
 import { ANUNCIANTES, ASOCIADOS } from '../data/media';
+import { CONFLICTOS, type TipoEntidad } from '../data/catalogo';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
 
-interface Conflicto {
-  entidad: string;
-  tipo: 'anunciante' | 'marca' | 'medio';
-  variantes: string[];
-  proveedores: string[];
-  estado: 'pendiente' | 'resuelto';
-}
-
-// Dato simulado — conflictos típicos de homologación entre proveedores.
-const CONFLICTOS: Conflicto[] = [
-  { entidad: 'Liverpool', tipo: 'anunciante', variantes: ['Liverpool', 'El Puerto de Liverpool', 'LIVERPOOL SAB'], proveedores: ['HR Media', 'Feed de licitación (piloto)'], estado: 'pendiente' },
-  { entidad: 'BBVA México', tipo: 'anunciante', variantes: ['BBVA', 'BBVA Bancomer', 'BBVA México'], proveedores: ['HR Media'], estado: 'pendiente' },
-  { entidad: 'Nissan', tipo: 'marca', variantes: ['Nissan', 'Nissan Mexicana'], proveedores: ['HR Media', 'Feed de licitación (piloto)'], estado: 'resuelto' },
-  { entidad: 'Imagen Televisión', tipo: 'medio', variantes: ['Imagen TV', 'Grupo Imagen', 'Imagen Televisión'], proveedores: ['HR Media'], estado: 'resuelto' },
-];
-
-const TIPO_COLOR: Record<Conflicto['tipo'], string> = { anunciante: V, marca: '#8B5CF6', medio: '#F97316' };
+const TIPO_COLOR: Record<TipoEntidad, string> = { anunciante: V, marca: '#8B5CF6', medio: '#F97316' };
+const TIPOS: TipoEntidad[] = ['anunciante', 'marca', 'medio'];
 
 export const CatalogoMaestro: React.FC = () => {
   const isMobile = useIsMobile();
   const [filtro, setFiltro] = useState<'todos' | 'pendiente' | 'resuelto'>('todos');
   const pendientes = CONFLICTOS.filter(c => c.estado === 'pendiente').length;
+  const tasaResolucion = CONFLICTOS.length ? Math.round(((CONFLICTOS.length - pendientes) / CONFLICTOS.length) * 100) : 0;
   const conflictosFiltrados = filtro === 'todos' ? CONFLICTOS : CONFLICTOS.filter(c => c.estado === filtro);
 
   const categorias = Array.from(new Set(ANUNCIANTES.map(a => a.categoria)));
+
+  const porTipo = TIPOS.map(tipo => ({
+    tipo,
+    pendientes: CONFLICTOS.filter(c => c.tipo === tipo && c.estado === 'pendiente').length,
+    resueltos: CONFLICTOS.filter(c => c.tipo === tipo && c.estado === 'resuelto').length,
+  }));
 
   return (
     <div style={wrap(isMobile)}>
@@ -39,6 +33,7 @@ export const CatalogoMaestro: React.FC = () => {
       <div style={inner}>
         <SectionHero
           eyebrow="Catálogo Maestro"
+          estado="demo"
           title={<>Diccionario <strong style={{ fontWeight: 800 }}>Único</strong></>}
           subtitle="Anunciantes, marcas, categorías y medios homologados entre proveedores, con las reglas de homologación y los conflictos pendientes de resolver. Dato simulado."
           insights={<>
@@ -52,11 +47,25 @@ export const CatalogoMaestro: React.FC = () => {
         />
 
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4,1fr)', gap: 16, marginBottom: 22 }}>
+          <Kpi label="Tasa de resolución" value={`${tasaResolucion}%`} sub={`${CONFLICTOS.length - pendientes} de ${CONFLICTOS.length}`} up={tasaResolucion >= 50} />
+          <Kpi label="Conflictos pendientes" value={String(pendientes)} up={pendientes === 0} />
           <Kpi label="Anunciantes catalogados" value={String(ANUNCIANTES.length)} sub="dato simulado" />
-          <Kpi label="Categorías" value={String(categorias.length)} />
-          <Kpi label="Medios / asociados" value={String(ASOCIADOS.length)} />
-          <Kpi label="Conflictos pendientes" value={String(pendientes)} sub="de homologación" up={pendientes === 0} />
+          <Kpi label="Categorías / medios" value={`${categorias.length} / ${ASOCIADOS.length}`} />
         </div>
+
+        <Panel title="Conflictos por tipo de entidad" icon={<BarChart3 size={17} color={V} />} style={{ marginBottom: 22 }}>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={porTipo} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={colores.borde} vertical={false} />
+              <XAxis dataKey="tipo" tick={{ fontSize: 12, fill: colores.textoOscuro }} axisLine={false} tickLine={false} style={{ textTransform: 'capitalize' }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="resueltos" name="Resueltos" stackId="c" fill={colores.exito} radius={[0, 0, 0, 0]} />
+              <Bar dataKey="pendientes" name="Pendientes" stackId="c" fill={colores.advertencia} radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </Panel>
 
         <Panel
           title="Conflictos de homologación"
@@ -74,6 +83,9 @@ export const CatalogoMaestro: React.FC = () => {
           }
           style={{ marginBottom: 22 }}
         >
+          {conflictosFiltrados.length === 0 ? (
+            <EmptyState mensaje="Sin conflictos en este filtro." />
+          ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {conflictosFiltrados.map(c => (
               <div key={c.entidad} style={{
@@ -97,10 +109,8 @@ export const CatalogoMaestro: React.FC = () => {
                 </span>
               </div>
             ))}
-            {conflictosFiltrados.length === 0 && (
-              <p style={{ fontSize: 13, color: colores.textoOscuro, margin: 0 }}>Sin conflictos en este filtro.</p>
-            )}
           </div>
+          )}
         </Panel>
 
         <Panel title="Anunciantes catalogados" icon={<BookOpen size={17} color={V} />}>
@@ -108,9 +118,9 @@ export const CatalogoMaestro: React.FC = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, minWidth: 520 }}>
               <thead>
                 <tr>
-                  {['Anunciante', 'Categoría', 'Agencia'].map((h, i) => (
+                  {['Anunciante', 'Categoría', 'Agencia'].map(h => (
                     <th key={h} style={{
-                      textAlign: i === 0 ? 'left' : 'left', padding: '10px 12px', color: colores.textoOscuro,
+                      textAlign: 'left', padding: '10px 12px', color: colores.textoOscuro,
                       fontWeight: 700, fontSize: 11, textTransform: 'uppercase', letterSpacing: '.04em',
                       borderBottom: `1px solid ${colores.borde}`,
                     }}>{h}</th>

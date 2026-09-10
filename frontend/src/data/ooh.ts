@@ -12,7 +12,8 @@ export type TipoSoporte =
 export type EstadoDisponibilidad =
   | 'inmediata' | 'ocupado' | 'fecha' | 'indefinido' | 'desconocido';
 
-export type FuenteSoporte = 'circuito_comex' | 'mxm' | 'combinado';
+export type FuenteSoporte =
+  | 'circuito_comex' | 'circuito_medido' | 'mxm' | 'censo_nacional' | 'censo_mercado' | 'combinado';
 
 export interface AudienciaSoporte {
   total: number;
@@ -71,10 +72,10 @@ export interface ZonaResumen {
   soportes: number | null;
 }
 
-// Soportes del circuito medido (77, con audiencia real)
+// Soportes del circuito medido (77, con audiencia)
 export const soportesCircuito = circuitoRaw.datos as unknown as Soporte[];
 
-// Soportes del inventario MXM (698, con tarifa y disponibilidad)
+// Soportes del censo de inventario sintético / de mercado (698, con tarifa y disponibilidad)
 // Solo exponer los mapeables (lat/lon válidos) para el mapa
 export const soportesInventario = (inventarioRaw.datos as unknown as Soporte[])
   .filter(s => s.mapeable !== false);
@@ -88,7 +89,7 @@ export const todosSoportes: Soporte[] = [
 // Resumen por zona (9 filas: Nacional + Ciudades Pauta + 7 ZM)
 export const resumenPorZona = resumenRaw.datos as unknown as ZonaResumen[];
 
-// Constantes del inventario completo MXM (incluye los no mapeables)
+// Constantes del inventario de mercado (incluye los no mapeables)
 export const MXM_TOTAL = inventarioRaw.meta.total_registros;
 export const MXM_DISPONIBLES = (inventarioRaw.datos as unknown as Soporte[])
   .filter(s => s.disponibilidad.estado === 'inmediata').length;
@@ -97,7 +98,13 @@ export const MXM_OCUPADOS = (inventarioRaw.datos as unknown as Soporte[])
 export const MXM_DOOH = (inventarioRaw.datos as unknown as Soporte[])
   .filter(s => s.es_digital).length;
 
-// Inventario total del planner: circuito medido + inventario del operador
+// Aliases neutrales
+export const INVENTARIO_TOTAL = MXM_TOTAL;
+export const INVENTARIO_DISPONIBLES = MXM_DISPONIBLES;
+export const INVENTARIO_OCUPADOS = MXM_OCUPADOS;
+export const INVENTARIO_DOOH = MXM_DOOH;
+
+// Inventario total del planner: circuito medido + inventario de mercado
 export const TOTAL_INVENTARIO = soportesCircuito.length + MXM_TOTAL;
 
 // Impactos del soporte más alto del circuito — normaliza el score

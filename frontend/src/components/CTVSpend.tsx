@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tv, TrendingUp } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { Panel, Kpi, Insight, SectionHero, keyframes, wrap, inner, useIsMobile } from './shared/ui';
+import { Panel, Kpi, Insight, SectionHero, EmptyState, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
 import { PERIODOS, ULTIMO, porPeriodo, fmtMXNCorto } from '../data/media';
 
@@ -33,6 +33,7 @@ export const CTVSpend: React.FC = () => {
       <div style={inner}>
         <SectionHero
           eyebrow="CTV Spend"
+          estado="en-activacion"
           title={<>Medición de <strong style={{ fontWeight: 800 }}>Streaming</strong></>}
           subtitle="Inventario, ocurrencias e inversión estimada en CTV — la prioridad #1 declarada por ACAM: evolucionar la medición de contenido para incluir streaming. Dato simulado."
           insights={<>
@@ -67,6 +68,9 @@ export const CTVSpend: React.FC = () => {
           </Panel>
 
           <Panel title="Inventario por plataforma" icon={<Tv size={17} color={V} />}>
+            {INVENTARIO_CTV.length === 0 ? (
+              <EmptyState mensaje="Aún no hay inventario CTV registrado." />
+            ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {INVENTARIO_CTV.map(i => (
                 <div key={i.plataforma} style={{ background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, padding: '11px 13px' }}>
@@ -78,6 +82,7 @@ export const CTVSpend: React.FC = () => {
                 </div>
               ))}
             </div>
+            )}
           </Panel>
         </div>
       </div>

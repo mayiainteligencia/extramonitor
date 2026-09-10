@@ -1,19 +1,34 @@
 import React, { useState } from 'react';
-import { PieChart as PieIcon, TrendingUp, Trophy, Megaphone } from 'lucide-react';
+import { PieChart as PieIcon, TrendingUp, Trophy, Megaphone, LayoutGrid } from 'lucide-react';
 import {
-  ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, CartesianGrid,
+  BarChart, Bar, Treemap,
 } from 'recharts';
 import { Panel, Kpi, Insight, SectionHero, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
 import { useRole, ROL_LABEL } from './shared/role';
 import {
-  porPeriodo, PERIODOS, ULTIMO, TELEVISORAS, ASOCIADO_COLOR, ASOCIADO_NOMBRE, fmt, fmtMXNCorto,
+  porPeriodo, PERIODOS, ULTIMO, TELEVISORAS, ASOCIADO_COLOR, ASOCIADO_NOMBRE, fmt, fmtMXNCorto, fmtMXN,
+  type MedioVenta,
 } from '../data/media';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
 
-const tendenciaInversion = PERIODOS.map(p => ({ periodo: p, inversion: Math.round(porPeriodo[p].inversionTotal / 1_000_000) }));
+const MEDIOS: { key: MedioVenta; color: string }[] = [
+  { key: 'TV abierta', color: '#0F1E4D' },
+  { key: 'Digital', color: '#1E3A8A' },
+  { key: 'Radio', color: '#3B5BDB' },
+  { key: 'OOH', color: '#64748B' },
+  { key: 'CTV', color: '#0EA5E9' },
+];
+
+const inversionPorPeriodoYMedio = PERIODOS.map(p => ({
+  periodo: p,
+  ...porPeriodo[p].inversionPorMedio,
+}));
+
+const TREEMAP_COLORES = ['#1E3A8A', '#3B5BDB', '#0EA5E9', '#64748B', '#0F1E4D', '#94A3B8'];
 
 export const InvestmentValue: React.FC = () => {
   const isMobile = useIsMobile();
@@ -26,12 +41,20 @@ export const InvestmentValue: React.FC = () => {
   const pieData = porAsociado.map(([id, v]) => ({ name: id, value: v }));
   const propioTV = rol === 'televisora' ? D.inversionPorAsociado[asociadoId] : undefined;
 
+  const porCategoria = Object.entries(
+    D.topAnunciantes.reduce<Record<string, number>>((acc, a) => {
+      acc[a.categoria] = (acc[a.categoria] ?? 0) + a.inversionMXN;
+      return acc;
+    }, {}),
+  ).map(([name, size]) => ({ name, size }));
+
   return (
     <div style={wrap(isMobile)}>
       <style>{keyframes}</style>
       <div style={inner}>
         <SectionHero
           eyebrow="Inversión Publicitaria"
+          estado="demo"
           title={<>Reporte de <strong style={{ fontWeight: 800 }}>Industria</strong></>}
           subtitle="Spend por medio, categoría y anunciante entre los 9 asociados de ACAM. Dato simulado — la cifra oficial la publica el proveedor de medición contratado. Selecciona el periodo para comparar la evolución."
           right={
@@ -103,20 +126,33 @@ export const InvestmentValue: React.FC = () => {
             </div>
           </Panel>
 
-          <Panel title="Tendencia de inversión de industria (MDP)" icon={<TrendingUp size={17} color={V} />}>
+          <Panel title="Inversión por medio y periodo" icon={<TrendingUp size={17} color={V} />} right={<span style={{ fontSize: 11, color: colores.textoOscuro }}>dato simulado</span>}>
             <div style={{ height: 210 }}>
               <ResponsiveContainer>
-                <LineChart data={tendenciaInversion} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
+                <BarChart data={inversionPorPeriodoYMedio} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={colores.borde} vertical={false} />
                   <XAxis dataKey="periodo" tick={{ fontSize: 12, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
-                  <Tooltip formatter={(v: number) => [`$${fmt(v)} MDP`, 'Inversión']} />
-                  <Line type="monotone" dataKey="inversion" stroke={V} strokeWidth={3} dot={{ r: 5, fill: V }} />
-                </LineChart>
+                  <YAxis tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} tickFormatter={v => `$${Math.round(v / 1_000_000)}M`} />
+                  <Tooltip formatter={(v: number, name: string) => [fmtMXN(v), name]} />
+                  {MEDIOS.map(m => (
+                    <Bar key={m.key} dataKey={m.key} name={m.key} stackId="medios" fill={m.color} />
+                  ))}
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </Panel>
         </div>
+
+        <Panel title={`Inversión por categoría · ${anio}`} icon={<LayoutGrid size={17} color={V} />} right={<span style={{ fontSize: 11, color: colores.textoOscuro }}>dato simulado, sobre top anunciantes</span>} style={{ marginBottom: 22 }}>
+          <div style={{ height: 220 }}>
+            <ResponsiveContainer>
+              <Treemap data={porCategoria} dataKey="size" nameKey="name" stroke="#fff" fill={V}>
+                {porCategoria.map((_, i) => <Cell key={i} fill={TREEMAP_COLORES[i % TREEMAP_COLORES.length]} />)}
+                <Tooltip formatter={(v: number) => fmtMXN(v)} />
+              </Treemap>
+            </ResponsiveContainer>
+          </div>
+        </Panel>
 
         {/* Inversión por medio + top anunciantes */}
         <div style={grid('1fr 1fr')}>

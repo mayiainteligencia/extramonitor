@@ -39,6 +39,10 @@ export interface ModuloCerebro {
   estado: EstadoModulo;
   /** Único módulo enchufado al servicio de monitoreo real. */
   enVivo?: boolean;
+  /** Unidades procesadas en la etapa (conteo), para el overview del pipeline. */
+  volumen: number;
+  /** % de esas unidades que la etapa marca como rechazadas/en riesgo/en disputa. */
+  tasaRechazoPct: number;
   metricas: { label: string; valor: string; delta?: string }[];
   grafica: GraficaModulo;
 }
@@ -64,6 +68,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 1, id: 'intake', tag: 'Ingesta', titulo: 'Recepción de Entregas', estado: 'en-activacion',
     descripcion: 'Recibe el archivo o feed de cada proveedor, detecta campos faltantes o fuera de formato y abre el expediente de linaje: quién lo entregó, cuándo y bajo qué versión de metodología.',
+    volumen: 147, tasaRechazoPct: 27,
     metricas: [
       { label: 'Entregas procesadas', valor: '147', delta: '+12 este mes' },
       { label: 'Campos detectados faltantes', valor: '89%', delta: 'precisión' },
@@ -84,6 +89,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 2, id: 'traffic', tag: 'Ingesta', titulo: 'Control de Capacidad', estado: 'en-activacion',
     descripcion: 'Distribuye la carga de procesamiento entre fuentes (TV, Radio, OOH, Digital, CTV) según su volumen real y detecta saturación de un hub antes de que retrase la publicación.',
+    volumen: 23, tasaRechazoPct: 22,
     metricas: [
       { label: 'Cargas en flujo activo', valor: '23', delta: '5 en riesgo' },
       { label: 'Utilización promedio hubs', valor: '78%', delta: 'Hub OOH: 94%' },
@@ -102,6 +108,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 3, id: 'sla', tag: 'Ingesta', titulo: 'Monitor de SLA', estado: 'en-activacion',
     descripcion: 'Semáforo de cumplimiento por proveedor: tiempo restante para la próxima entrega y dependencias bloqueadas, para anticipar un incumplimiento antes de que rompa el reporte de industria.',
+    volumen: 67, tasaRechazoPct: 7.5,
     metricas: [
       { label: 'SLAs activos monitoreados', valor: '67' },
       { label: 'En verde (a tiempo)', valor: '51', delta: '76%' },
@@ -121,6 +128,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 4, id: 'budget', tag: 'Ingesta', titulo: 'Control de Cambios', estado: 'en-activacion',
     descripcion: 'Detecta cambios de metodología, tarifa o alcance entre entregas del mismo proveedor y alerta antes de que un cambio no versionado rompa la comparabilidad histórica.',
+    volumen: 28, tasaRechazoPct: 10.7,
     metricas: [
       { label: 'Volumen total monitoreado', valor: '$21.4 MMDP', delta: 'este periodo' },
       { label: 'Cambios de metodología detectados', valor: '3', delta: 'sin versionar' },
@@ -140,6 +148,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 5, id: 'testigos', tag: 'Validación', titulo: 'Verificación On-Air', estado: 'activo', enVivo: true,
     descripcion: 'Escucha emisoras en vivo, transcribe menciones y cruza lo detectado contra lo contratado. Es el módulo que produce evidencia auditable, no una cifra de industria agregada.',
+    volumen: 34, tasaRechazoPct: 5.9,
     metricas: [
       { label: 'Emisoras monitoreadas', valor: '5', delta: 'en vivo' },
       { label: 'Detecciones hoy', valor: '34' },
@@ -158,6 +167,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 6, id: 'pauta', tag: 'Validación', titulo: 'Cruce de Entregas', estado: 'en-activacion',
     descripcion: 'Compara lo reportado por el medio contra lo reportado por la agencia línea por línea, y marca cada línea sin coincidencia como caso para Conciliación.',
+    volumen: 312, tasaRechazoPct: 5.8,
     metricas: [
       { label: 'Líneas cruzadas', valor: '312' },
       { label: 'Coincidencia medio vs. agencia', valor: '94.3%' },
@@ -176,6 +186,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 7, id: 'mmm', tag: 'Modelo', titulo: 'Modelo de Mix de Medios', estado: 'en-activacion',
     descripcion: 'Distribuye la inversión de industria por canal a partir del dato ya validado. No atribuye a un anunciante en particular: describe cómo se reparte el mercado entre medios.',
+    volumen: 142, tasaRechazoPct: 13,
     metricas: [
       { label: 'Inversión modelada', valor: '$14.2 MMDP', delta: 'últimos 6 meses' },
       { label: 'R² del modelo', valor: '0.87', delta: 'buena precisión' },
@@ -195,8 +206,9 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 8, id: 'ooh_score', tag: 'Modelo', titulo: 'Modelo de Oportunidad OOH', estado: 'demo',
     descripcion: 'Califica soportes OOH por audiencia × alcance incremental × proximidad ÷ costo ajustado, sobre el Censo OOH. El score mejora cuando se cruzan audiencia + tarifa por soporte: hoy el circuito medido trae audiencia sin tarifa y el inventario trae tarifa sin audiencia, así que ningún soporte puntúa completo.',
+    volumen: TOTAL_INVENTARIO, tasaRechazoPct: Math.round((1 - conAmbasFuentes / TOTAL_INVENTARIO) * 1000) / 10,
     metricas: [
-      { label: 'Soportes evaluados', valor: String(TOTAL_INVENTARIO), delta: `${soportesCircuito.length} medidos + ${MXM_TOTAL} inventario` },
+      { label: 'Soportes evaluados', valor: String(TOTAL_INVENTARIO), delta: `${soportesCircuito.length} medidos + ${MXM_TOTAL} censo de mercado` },
       { label: 'Score promedio', valor: `${scorePromedio}/100`, delta: `techo actual ${scoreMaximo}/100 por datos incompletos` },
       { label: 'Soportes score >70', valor: String(scoreSobre70), delta: `${conAmbasFuentes} soportes con audiencia y tarifa` },
       { label: 'Soportes pendientes de doble fuente', valor: String(TOTAL_INVENTARIO - conAmbasFuentes), delta: 'audiencia o tarifa faltante' },
@@ -213,6 +225,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 9, id: 'competencia', tag: 'Distribución', titulo: 'Consistencia entre Proveedores', estado: 'en-activacion',
     descripcion: 'Compara las cifras de HR Media contra el proveedor que resulte de la licitación en curso, sobre el mismo universo y periodo, para detectar desviaciones metodológicas entre ambos.',
+    volumen: 12, tasaRechazoPct: 2.1,
     metricas: [
       { label: 'Proveedores comparados', valor: '2', delta: 'HR Media + licitación' },
       { label: 'Desviación promedio', valor: '2.1%', delta: 'entre proveedores' },
@@ -236,6 +249,7 @@ export const MODULOS_CEREBRO: ModuloCerebro[] = [
   {
     num: 10, id: 'anomalias', tag: 'Distribución', titulo: 'Detección de Anomalías', estado: 'en-activacion',
     descripcion: 'Detecta discrepancias de pauta, tráfico inválido y gasto sin sustento en el dato ya validado, y alimenta con eso los casos que llegan a Conciliación.',
+    volumen: 23, tasaRechazoPct: 39.1,
     metricas: [
       { label: 'Anomalías detectadas este mes', valor: '23' },
       { label: 'Tráfico inválido identificado', valor: '3.2%', delta: 'de impresiones' },

@@ -1,11 +1,35 @@
 import React, { useState } from 'react';
-import { Brain, Check, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Brain, Check, ArrowUpRight, ArrowDownRight, Inbox } from 'lucide-react';
 import { brandingConfig } from '../../config/branding';
 import { useToast } from './toast';
 import { useConfirm } from './confirm';
+import { tituloEstado, colorEstado, type EstadoSeccion } from '../../config/menu';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
+
+// ── Badge de estado de sección (activo/demo/en-activación) — honesto siempre ──
+export const EstadoBadge: React.FC<{ estado: EstadoSeccion }> = ({ estado }) => (
+  <span style={{
+    display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700,
+    color: '#fff', background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.25)',
+    padding: '4px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '.04em',
+  }}>
+    <span style={{ width: 7, height: 7, borderRadius: '50%', background: colorEstado(estado), flexShrink: 0 }} />
+    {tituloEstado[estado]}
+  </span>
+);
+
+// ── Estado vacío genérico para tablas/listas sin datos en el filtro actual ──
+export const EmptyState: React.FC<{ mensaje: string }> = ({ mensaje }) => (
+  <div style={{
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    gap: 8, padding: '32px 16px', color: colores.textoOscuro,
+  }}>
+    <Inbox size={26} strokeWidth={1.5} />
+    <p style={{ fontSize: 13, margin: 0, textAlign: 'center' }}>{mensaje}</p>
+  </div>
+);
 
 export const keyframes = `
 @keyframes elFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -107,15 +131,18 @@ export const Insight: React.FC<{ kind: InsightKind; title: string; children: Rea
 };
 
 // ── Cabecera de sección con panel "MAYIA · análisis en vivo" ──
-export const SectionHero: React.FC<{ eyebrow: string; title: React.ReactNode; subtitle: string; right?: React.ReactNode; insights: React.ReactNode }> =
-({ eyebrow, title, subtitle, right, insights }) => (
+export const SectionHero: React.FC<{ eyebrow: string; title: React.ReactNode; subtitle: string; right?: React.ReactNode; insights: React.ReactNode; estado?: EstadoSeccion }> =
+({ eyebrow, title, subtitle, right, insights, estado }) => (
   <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr)', gap: 18, marginBottom: 22 }} className="el-hero">
     <div style={{
       background: colores.gradientePrimario, borderRadius: 22, padding: 26, color: '#fff', position: 'relative', overflow: 'hidden',
     }}>
       <div style={{ position: 'absolute', top: -60, right: -40, width: 240, height: 240, borderRadius: '50%', background: `radial-gradient(circle, ${V}55, transparent 70%)` }} />
       <div style={{ position: 'relative' }}>
-        <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: `${V}` }}>{eyebrow}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: `${V}` }}>{eyebrow}</span>
+          {estado && <EstadoBadge estado={estado} />}
+        </div>
         <h1 style={{ fontSize: 30, fontWeight: 300, margin: '10px 0 6px', letterSpacing: '-0.5px' }}>{title}</h1>
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,.72)', margin: 0, maxWidth: 560, lineHeight: 1.5 }}>{subtitle}</p>
         {right && <div style={{ marginTop: 16 }}>{right}</div>}

@@ -1,34 +1,13 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Download, FileCheck2 } from 'lucide-react';
-import { Panel, Kpi, Insight, SectionHero, keyframes, wrap, inner, useIsMobile } from './shared/ui';
+import { ShieldCheck, Download, FileCheck2, BarChart3 } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { Panel, Kpi, Insight, SectionHero, EmptyState, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
 import { useToast } from './shared/toast';
-import { ULTIMO, fmtMXNCorto, porPeriodo } from '../data/media';
+import { CIFRAS } from '../data/trazabilidad';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
-
-interface CifraTrazada {
-  cifra: string;
-  valor: string;
-  origen: string;
-  proveedor: string;
-  timestamp: string;
-  metodologia: string;
-  impugnable: boolean;
-}
-
-const D = porPeriodo[ULTIMO];
-
-// Dato simulado — la forma es real: toda cifra debe poder responder de qué
-// proveedor viene, con qué timestamp, bajo qué metodología, y quién la impugna.
-const CIFRAS: CifraTrazada[] = [
-  { cifra: 'Inversión total de industria', valor: fmtMXNCorto(D.inversionTotal), origen: 'Motor de Ingesta · etapa Cruce de Entregas', proveedor: 'HR Media', timestamp: `${ULTIMO}-12-01 06:40`, metodologia: 'v3.2 (vigente desde 2025-06)', impugnable: true },
-  { cifra: 'GRPs de industria', valor: `${D.grpsTotal.toLocaleString('es-MX')}`, origen: 'Motor de Ingesta · etapa Cruce de Entregas', proveedor: 'HR Media', timestamp: `${ULTIMO}-12-01 06:40`, metodologia: 'v3.2 (vigente desde 2025-06)', impugnable: true },
-  { cifra: 'Alcance promedio', valor: `${D.alcanceProm}%`, origen: 'Modelo de Mix de Medios', proveedor: 'HR Media', timestamp: `${ULTIMO}-12-01 07:10`, metodologia: 'v3.2 (vigente desde 2025-06)', impugnable: true },
-  { cifra: 'Score de oportunidad OOH (promedio)', valor: 'ver Censo OOH', origen: 'Modelo de Oportunidad OOH', proveedor: 'Datalab ACAM (interno)', timestamp: `${ULTIMO}-12-01 05:20`, metodologia: 'v1.0 (beta)', impugnable: false },
-  { cifra: 'Caso CC-101 · delta de spots', valor: '6 spots', origen: 'Verificación On-Air', proveedor: 'Monitoreo propio ACAM', timestamp: `${ULTIMO}-12-02 08:15`, metodologia: 'Transcripción Whisper + cruce de pauta', impugnable: true },
-];
 
 export const TrazabilidadAuditoria: React.FC = () => {
   const isMobile = useIsMobile();
@@ -45,12 +24,16 @@ export const TrazabilidadAuditoria: React.FC = () => {
     }, 1200);
   };
 
+  const versiones = Array.from(new Set(CIFRAS.map(c => c.versionCorta)));
+  const porVersion = versiones.map(v => ({ version: v, cifras: CIFRAS.filter(c => c.versionCorta === v).length }));
+
   return (
     <div style={wrap(isMobile)}>
       <style>{keyframes}</style>
       <div style={inner}>
         <SectionHero
           eyebrow="Trazabilidad y Auditoría"
+          estado="en-activacion"
           title={<>Linaje de <strong style={{ fontWeight: 800 }}>Cada Cifra</strong></>}
           subtitle="Toda cifra mostrada en la plataforma debe responder: ¿de qué proveedor viene, con qué timestamp, bajo qué versión de metodología, y quién la puede impugnar? Dato simulado."
           right={
@@ -63,7 +46,7 @@ export const TrazabilidadAuditoria: React.FC = () => {
             </button>
           }
           insights={<>
-            <Insight kind="Análisis" title="5 cifras con linaje completo en esta vista">
+            <Insight kind="Análisis" title={`${CIFRAS.length} cifras con linaje completo en esta vista`}>
               Cada una lleva su proveedor, timestamp y versión de metodología — la base para que un auditor externo (3m3a, RSMB) las reproduzca sin pedir contexto adicional.
             </Insight>
             <Insight kind="Sugerencia" title="El Score OOH aún no es impugnable">
@@ -75,10 +58,29 @@ export const TrazabilidadAuditoria: React.FC = () => {
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 16, marginBottom: 22 }}>
           <Kpi label="Cifras con linaje" value={String(CIFRAS.length)} />
           <Kpi label="Impugnables" value={String(CIFRAS.filter(c => c.impugnable).length)} sub="con proveedor externo" />
-          <Kpi label="Versión de metodología vigente" value="v3.2" sub="desde 2025-06" />
+          <Kpi label="Versiones de metodología en uso" value={String(versiones.length)} />
         </div>
 
+        <Panel title="Cifras publicadas por versión de metodología" icon={<BarChart3 size={17} color={V} />} style={{ marginBottom: 22 }}>
+          {porVersion.length === 0 ? (
+            <EmptyState mensaje="Aún no hay cifras publicadas." />
+          ) : (
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={porVersion} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke={colores.borde} vertical={false} />
+              <XAxis dataKey="version" tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+              <Tooltip formatter={(v: number) => [`${v} cifras`, 'Publicadas']} />
+              <Bar dataKey="cifras" fill={V} radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+          )}
+        </Panel>
+
         <Panel title="Cifras y su linaje" icon={<ShieldCheck size={17} color={V} />}>
+          {CIFRAS.length === 0 ? (
+            <EmptyState mensaje="Aún no hay cifras con linaje registrado." />
+          ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, minWidth: 760 }}>
               <thead>
@@ -111,6 +113,7 @@ export const TrazabilidadAuditoria: React.FC = () => {
               </tbody>
             </table>
           </div>
+          )}
         </Panel>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users2, TrendingUp } from 'lucide-react';
-import { Panel, Kpi, Insight, SectionHero, keyframes, wrap, inner, useIsMobile } from './shared/ui';
+import { Panel, Kpi, Insight, SectionHero, EmptyState, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
 import { fmtMXN } from '../data/media';
 
@@ -34,6 +34,7 @@ export const Influencers: React.FC = () => {
       <div style={inner}>
         <SectionHero
           eyebrow="Influencers"
+          estado="en-activacion"
           title={<>Medición de <strong style={{ fontWeight: 800 }}>Creadores</strong></>}
           subtitle="Spend e impacto estimado en influencers: un hueco que hoy nadie mide con método formal en México y que no compite con la licitación de monitoreo de ACAM. Dato simulado."
           insights={<>
@@ -53,6 +54,9 @@ export const Influencers: React.FC = () => {
         </div>
 
         <Panel title="Creadores monitoreados" icon={<Users2 size={17} color={V} />}>
+          {INFLUENCERS.length === 0 ? (
+            <EmptyState mensaje="Aún no hay creadores monitoreados." />
+          ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, minWidth: 620 }}>
               <thead>
@@ -80,6 +84,7 @@ export const Influencers: React.FC = () => {
               </tbody>
             </table>
           </div>
+          )}
         </Panel>
       </div>
     </div>

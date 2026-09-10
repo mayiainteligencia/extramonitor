@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Academia } from './components/departamentos/Academia';
 
+import { Tablero } from './components/Tablero';
 import { TestigosIA } from './components/TestigosIA';
 import { CerebroOrquestador } from './components/CerebroOrquestador';
 import { MonitorDigital } from './components/MonitorDigital';
@@ -25,14 +26,15 @@ import { secciones } from './config/menu';
 import './responsive.css';
 
 function App() {
-  const [activeSection, setActiveSection] = useState('verificacion');
+  const [activeSection, setActiveSection] = useState('tablero');
   const { colores } = brandingConfig;
 
   const getTitulo = () =>
-    secciones.find(s => s.id === activeSection)?.nombre ?? 'Verificación On-Air';
+    secciones.find(s => s.id === activeSection)?.nombre ?? 'Tablero';
 
   const renderContent = () => {
     switch (activeSection) {
+      case 'tablero':       return <Tablero />;
       case 'verificacion':  return <TestigosIA />;
       case 'partners':      return <HubPartners />;
       case 'catalogo':      return <CatalogoMaestro />;
@@ -45,7 +47,7 @@ function App() {
       case 'ctv':           return <CTVSpend />;
       case 'influencers':   return <Influencers />;
       case 'academia':      return <Academia />;
-      default:              return <TestigosIA />;
+      default:              return <Tablero />;
     }
   };
 

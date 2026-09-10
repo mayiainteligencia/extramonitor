@@ -5,7 +5,7 @@ import {
   MapPin, Eye, AlertTriangle,
 } from 'lucide-react';
 import {
-  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, XAxis, Tooltip,
+  ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip,
 } from 'recharts';
 import { brandingConfig } from '../config/branding';
 import { ModuloDetalleModal } from './CerebroOrquestadorDetalles';
@@ -280,7 +280,10 @@ export const CerebroOrquestador: React.FC = () => {
             position: 'absolute', top: -60, right: -40, width: 220, height: 220, borderRadius: 999,
             background: `radial-gradient(circle, ${colores.primario}55, transparent 70%)`,
           }} />
-          <Badge texto="PIPELINE EN OPERACIÓN" color={colores.primario} pulse />
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Badge texto="PIPELINE EN OPERACIÓN" color={colores.primario} pulse />
+            <Badge texto="EN ACTIVACIÓN" color={colores.textoOscuro} />
+          </div>
           <h1 style={{ fontSize: isMobile ? 26 : 38, fontWeight: 300, color: '#fff', margin: '14px 0 6px', letterSpacing: '-0.5px' }}>
             Motor de <span style={{ fontWeight: 800, color: colores.primario }}>Ingesta y Normalización</span>
           </h1>
@@ -308,6 +311,43 @@ export const CerebroOrquestador: React.FC = () => {
                 </div>
               );
             })}
+          </div>
+        </div>
+
+        {/* OVERVIEW: volumen y tasa de rechazo por etapa */}
+        <div style={{
+          background: colores.fondoClaro, border: `1px solid ${colores.borde}`, borderRadius: 20,
+          padding: isMobile ? 16 : 20, marginBottom: 24, boxShadow: colores.sombra,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <h3 style={{ fontSize: 15, fontWeight: 700, color: colores.textoClaro, margin: 0 }}>Volumen y tasa de rechazo por etapa</h3>
+            <span style={{ fontSize: 11, color: colores.textoOscuro }}>dato simulado</span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: colores.textoOscuro, textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>Volumen procesado</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={MODULOS_CEREBRO} layout="vertical" margin={{ top: 4, right: 16, bottom: 0, left: 8 }}>
+                  <XAxis type="number" tick={{ fill: colores.textoOscuro, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="titulo" tick={{ fill: colores.textoMedio, fontSize: 10 }} axisLine={false} tickLine={false} width={140} />
+                  <Tooltip formatter={(v: number) => [fmt(v), 'Volumen']} />
+                  <Bar dataKey="volumen" radius={[0, 5, 5, 0]}>
+                    {MODULOS_CEREBRO.map(m => <Cell key={m.num} fill={COLOR_CATEGORIA[m.tag]} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: colores.textoOscuro, textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>Tasa de rechazo / disputa (%)</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={MODULOS_CEREBRO} layout="vertical" margin={{ top: 4, right: 16, bottom: 0, left: 8 }}>
+                  <XAxis type="number" tick={{ fill: colores.textoOscuro, fontSize: 10 }} axisLine={false} tickLine={false} unit="%" />
+                  <YAxis type="category" dataKey="titulo" tick={{ fill: colores.textoMedio, fontSize: 10 }} axisLine={false} tickLine={false} width={140} />
+                  <Tooltip formatter={(v: number) => [`${v}%`, 'Rechazo']} />
+                  <Bar dataKey="tasaRechazoPct" fill={colores.advertencia} radius={[0, 5, 5, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 

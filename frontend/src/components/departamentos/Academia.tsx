@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import {
   GraduationCap, Radio, Megaphone, ShoppingCart, LineChart, Palette,
-  ShieldAlert, Users2, Sparkles, Database, Route, Gauge, type LucideIcon,
+  ShieldAlert, Users2, Sparkles, Database, Route, Gauge, BarChart3, type LucideIcon,
 } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
 import { brandingConfig } from '../../config/branding';
+import { Panel, Kpi, EstadoBadge } from '../shared/ui';
 
 const { colores } = brandingConfig;
 
@@ -69,20 +71,47 @@ export const Academia: React.FC = () => {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const total = RUTAS.reduce((s, r) => s + r.cursos.length, 0);
+  const cursos = RUTAS.flatMap(r => r.cursos);
+  const total = cursos.length;
+  const horasTotales = cursos.reduce((s, c) => s + (parseInt(c.duracion, 10) || 0), 0);
+  const niveles: Nivel[] = ['PRINCIPIANTE', 'INTERMEDIO', 'AVANZADO'];
+  const porNivel = niveles.map(nivel => ({ nivel, cursos: cursos.filter(c => c.nivel === nivel).length }));
   const portadaH = isMobile ? '120px' : '150px';
   const minCard = isMobile ? '150px' : '230px';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: isMobile ? 16 : 0 }}>
       <div>
-        <h2 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 'bold', color: colores.textoClaro, marginBottom: 6 }}>
-          Academia · AI Acceleration Lab México
-        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
+          <h2 style={{ fontSize: isMobile ? 24 : 32, fontWeight: 'bold', color: colores.textoClaro, margin: 0 }}>
+            Academia
+          </h2>
+          <EstadoBadge estado="en-activacion" />
+        </div>
         <p style={{ color: colores.textoMedio, fontSize: isMobile ? 14 : 16, margin: 0 }}>
-          {RUTAS.length} rutas de capacitación · {total} cursos para equipos de medios, creatividad y datos
+          {RUTAS.length} rutas de capacitación en metodología de medición para los 9 asociados de ACAM
         </p>
       </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: 16 }}>
+        <Kpi label="Rutas" value={String(RUTAS.length)} />
+        <Kpi label="Cursos totales" value={String(total)} />
+        <Kpi label="Horas de contenido" value={`${horasTotales} h`} />
+      </div>
+
+      <Panel title="Cursos por nivel" icon={<BarChart3 size={17} color={colores.primario} />}>
+        <ResponsiveContainer width="100%" height={160}>
+          <BarChart data={porNivel} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={colores.borde} vertical={false} />
+            <XAxis dataKey="nivel" tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+            <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+            <Tooltip formatter={(v: number) => [`${v} cursos`, 'Cursos']} />
+            <Bar dataKey="cursos" radius={[6, 6, 0, 0]}>
+              {porNivel.map(d => <Cell key={d.nivel} fill={NIVEL_COLOR[d.nivel]} />)}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </Panel>
 
       {RUTAS.map(r => (
         <div key={r.ruta}>

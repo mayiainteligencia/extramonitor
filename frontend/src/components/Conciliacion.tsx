@@ -1,46 +1,30 @@
 import React, { useMemo, useState } from 'react';
-import { Scale, Paperclip, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
-import { Panel, Kpi, Insight, SectionHero, keyframes, wrap, inner, useIsMobile } from './shared/ui';
+import { Scale, Paperclip, CheckCircle2, Clock, AlertCircle, PieChart as PieIcon, BarChart3 } from 'lucide-react';
+import {
+  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+} from 'recharts';
+import { Panel, Kpi, Insight, SectionHero, EmptyState, keyframes, wrap, inner, useIsMobile } from './shared/ui';
 import { brandingConfig } from '../config/branding';
 import { useRole, ROL_LABEL } from './shared/role';
 import { TELEVISORAS, AGENCIAS, ASOCIADO_NOMBRE, fmtMXN } from '../data/media';
+import { CASOS, type EstadoCaso } from '../data/conciliacion';
 
 const { colores } = brandingConfig;
 const V = colores.primario;
-
-type EstadoCaso = 'abierto' | 'en-revision' | 'resuelto';
-
-interface CasoConciliacion {
-  id: string;
-  television: string;   // id en TELEVISORAS
-  agencia: string;       // id en AGENCIAS
-  spot: string;
-  plaza: string;
-  reportadoMedio: number;   // spots que el medio dice haber transmitido
-  reportadoAgencia: number; // spots que la agencia dice haber contratado y esperaba
-  deltaMXN: number;
-  evidencia: boolean;       // hay clip de Verificación On-Air adjunto
-  estado: EstadoCaso;
-  actualizado: string;
-}
-
-// Dato simulado — la mecánica es real: el clip con timestamp de Verificación
-// On-Air es la evidencia que resuelve la disputa entre lo que el medio dice
-// haber transmitido y lo que la agencia dice haber contratado.
-const CASOS: CasoConciliacion[] = [
-  { id: 'CC-101', television: 'TELEVISA', agencia: 'HAVAS',    spot: 'Spot 20" — bloque matutino', plaza: 'Ciudad de México', reportadoMedio: 42, reportadoAgencia: 48, deltaMXN: 87_000, evidencia: true,  estado: 'abierto',     actualizado: 'hace 2 h' },
-  { id: 'CC-102', television: 'AZTECA',   agencia: 'GROUPM',   spot: 'Spot 30" — prime time',      plaza: 'Nuevo León',       reportadoMedio: 30, reportadoAgencia: 30, deltaMXN: 0,       evidencia: true,  estado: 'resuelto',    actualizado: 'ayer' },
-  { id: 'CC-103', television: 'IMAGEN',   agencia: 'PUBLICIS', spot: 'Spot 15" — noticiero',        plaza: 'Jalisco',          reportadoMedio: 18, reportadoAgencia: 24, deltaMXN: 54_000, evidencia: true,  estado: 'en-revision', actualizado: 'hace 5 h' },
-  { id: 'CC-104', television: 'TELEVISA', agencia: 'OMG',      spot: 'Spot 20" — fin de semana',    plaza: 'Puebla',           reportadoMedio: 12, reportadoAgencia: 16, deltaMXN: 38_000, evidencia: false, estado: 'abierto',     actualizado: 'hace 1 h' },
-  { id: 'CC-105', television: 'AZTECA',   agencia: 'DENTSU',   spot: 'Spot 30" — franja infantil',  plaza: 'Estado de México', reportadoMedio: 22, reportadoAgencia: 20, deltaMXN: 0,       evidencia: true,  estado: 'resuelto',    actualizado: 'hace 2 días' },
-  { id: 'CC-106', television: 'IMAGEN',   agencia: 'IPG',      spot: 'Spot 20" — deportivo',        plaza: 'Guanajuato',       reportadoMedio: 15, reportadoAgencia: 21, deltaMXN: 41_000, evidencia: false, estado: 'en-revision', actualizado: 'hace 8 h' },
-];
 
 const ESTADO_META: Record<EstadoCaso, { texto: string; color: string; icon: React.ComponentType<{ size?: number; color?: string }> }> = {
   'abierto':     { texto: 'Abierto',     color: colores.peligro,     icon: AlertCircle },
   'en-revision': { texto: 'En revisión', color: colores.advertencia, icon: Clock },
   'resuelto':    { texto: 'Resuelto',    color: colores.exito,       icon: CheckCircle2 },
 };
+
+// Rangos de antigüedad para el histograma — corte simple sobre abiertoDesdeDias.
+const RANGOS_ANTIGUEDAD: { label: string; min: number; max: number }[] = [
+  { label: '0-3 días', min: 0, max: 3 },
+  { label: '4-7 días', min: 4, max: 7 },
+  { label: '8-14 días', min: 8, max: 14 },
+  { label: '15+ días', min: 15, max: Infinity },
+];
 
 export const Conciliacion: React.FC = () => {
   const isMobile = useIsMobile();
@@ -57,12 +41,22 @@ export const Conciliacion: React.FC = () => {
   const abiertos = casosDelRol.filter(c => c.estado !== 'resuelto').length;
   const deltaTotal = casosDelRol.reduce((s, c) => s + c.deltaMXN, 0);
 
+  const porEstado = (['abierto', 'en-revision', 'resuelto'] as EstadoCaso[]).map(e => ({
+    estado: ESTADO_META[e].texto, valor: casosDelRol.filter(c => c.estado === e).length, fill: ESTADO_META[e].color,
+  })).filter(d => d.valor > 0);
+
+  const porAntiguedad = RANGOS_ANTIGUEDAD.map(r => ({
+    rango: r.label,
+    casos: casosDelRol.filter(c => c.abiertoDesdeDias >= r.min && c.abiertoDesdeDias <= r.max && c.estado !== 'resuelto').length,
+  }));
+
   return (
     <div style={wrap(isMobile)}>
       <style>{keyframes}</style>
       <div style={inner}>
         <SectionHero
           eyebrow="Conciliación"
+          estado="demo"
           title={<>Resolución de <strong style={{ fontWeight: 800 }}>Disputas</strong></>}
           subtitle="Cuando una televisora y una agencia difieren sobre si un spot salió al aire, el clip con timestamp de Verificación On-Air resuelve la disputa. Dato simulado."
           right={
@@ -94,7 +88,7 @@ export const Conciliacion: React.FC = () => {
           background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 12, fontSize: 12.5, color: colores.textoMedio,
         }}>
           Viendo como <strong style={{ color: colores.textoClaro }}>{ROL_LABEL[rol]}</strong>
-          {rol !== 'comite' && <> — solo tus propios casos ({rol === 'televisora' ? ASOCIADO_NOMBRE[asociadoId] : ASOCIADO_NOMBRE[asociadoId]})</>}
+          {rol !== 'comite' && <> — solo tus propios casos ({ASOCIADO_NOMBRE[asociadoId]})</>}
           {rol === 'comite' && <> — viendo ambas partes y el delta entre ellas</>}
         </div>
 
@@ -104,12 +98,45 @@ export const Conciliacion: React.FC = () => {
           <Kpi label="Delta acumulado" value={`${fmtMXN(deltaTotal)} MXN`} sub="entre medio y agencia" />
         </div>
 
+        {casosDelRol.length === 0 ? (
+          <Panel style={{ marginBottom: 22 }}><EmptyState mensaje="No tienes casos de conciliación en este momento." /></Panel>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1.2fr', gap: 16, marginBottom: 22 }}>
+            <Panel title="Casos por estado" icon={<PieIcon size={17} color={V} />}>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie data={porEstado} dataKey="valor" nameKey="estado" innerRadius={56} outerRadius={84} paddingAngle={3} stroke="none">
+                    {porEstado.map(d => <Cell key={d.estado} fill={d.fill} />)}
+                  </Pie>
+                  <Legend verticalAlign="bottom" height={28} />
+                  <Tooltip formatter={(v: number, n: string) => [`${v} casos`, n]} />
+                </PieChart>
+              </ResponsiveContainer>
+            </Panel>
+
+            <Panel title="Casos abiertos por antigüedad" icon={<BarChart3 size={17} color={V} />}>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={porAntiguedad} margin={{ top: 10, right: 10, bottom: 0, left: -18 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={colores.borde} vertical={false} />
+                  <XAxis dataKey="rango" tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: colores.textoOscuro }} axisLine={false} tickLine={false} />
+                  <Tooltip formatter={(v: number) => [`${v} casos`, 'Abiertos/en revisión']} />
+                  <Bar dataKey="casos" fill={colores.advertencia} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Panel>
+          </div>
+        )}
+
         <Panel title="Casos" icon={<Scale size={17} color={V} />} right={<span style={{ fontSize: 12, color: colores.textoOscuro }}>{casos.length} de {casosDelRol.length}</span>}>
+          {casos.length === 0 ? (
+            <EmptyState mensaje="Sin casos en este filtro." />
+          ) : (
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, minWidth: 760 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, minWidth: 780 }}>
               <thead>
                 <tr>
-                  {['Caso', 'Televisora', 'Agencia', 'Spot / plaza', 'Medio', 'Agencia (reportado)', 'Delta MXN', 'Evidencia', 'Estado'].map(h => (
+                  {['Caso', 'Televisora', 'Agencia', 'Spot / plaza', 'Medio', 'Agencia (reportado)', 'Delta MXN', 'Evidencia', 'Antigüedad', 'Estado'].map(h => (
                     <th key={h} style={{
                       textAlign: 'left', padding: '10px 12px', color: colores.textoOscuro,
                       fontWeight: 700, fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.04em',
@@ -138,6 +165,7 @@ export const Conciliacion: React.FC = () => {
                           <span style={{ fontSize: 11, color: colores.textoOscuro }}>Sin evidencia</span>
                         )}
                       </td>
+                      <td style={{ padding: '10px 12px', color: colores.textoOscuro, borderBottom: `1px solid ${colores.borde}` }}>{c.abiertoDesdeDias} días</td>
                       <td style={{ padding: '10px 12px', borderBottom: `1px solid ${colores.borde}` }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: est.color }}>
                           <Icon size={12} /> {est.texto}
@@ -146,12 +174,10 @@ export const Conciliacion: React.FC = () => {
                     </tr>
                   );
                 })}
-                {casos.length === 0 && (
-                  <tr><td colSpan={9} style={{ padding: '20px 12px', textAlign: 'center', color: colores.textoOscuro }}>Sin casos en este filtro.</td></tr>
-                )}
               </tbody>
             </table>
           </div>
+          )}
         </Panel>
 
         <p style={{ fontSize: 11, color: colores.textoOscuro, margin: '14px 0 0', textAlign: 'center' }}>

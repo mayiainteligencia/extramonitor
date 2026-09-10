@@ -192,7 +192,7 @@ const DetalleSoporte: React.FC<{ s: Soporte; onClose: () => void }> = ({ s, onCl
           </span>
           <BadgeDisp estado={s.disponibilidad.estado} fecha={s.disponibilidad.fecha} />
           <span style={{ fontSize: 11.5, fontWeight: 700, color: colores.textoMedio, background: colores.fondoSecundario, border: `1px solid ${colores.borde}`, borderRadius: 9, padding: '5px 10px' }}>
-            {s.fuente === 'circuito_comex' ? 'Circuito medido' : 'Inventario MXM'}
+            {s.fuente === 'circuito_comex' || s.fuente === 'circuito_medido' ? 'Circuito medido' : 'Inventario de mercado'}
           </span>
         </div>
 
@@ -226,9 +226,9 @@ const DetalleSoporte: React.FC<{ s: Soporte; onClose: () => void }> = ({ s, onCl
         ) : (
           <Panel style={{ marginBottom: 14 }}>
             <p style={{ fontSize: 12.5, color: colores.textoOscuro, margin: 0, lineHeight: 1.5 }}>
-              Este soporte viene del inventario del operador: trae tarifa y disponibilidad,
-              pero no tiene medición de audiencia. La medición llega al cruzarlo con el
-              circuito medido.
+              Este soporte forma parte del censo de inventario exterior: cuenta con tarifa
+              y disponibilidad estimadas de mercado. La audiencia se integra al correlacionarlo
+              con el circuito medido.
             </p>
           </Panel>
         )}
@@ -290,6 +290,30 @@ export const OOHPlanner: React.FC = () => {
     (disp === 'Todas' || NOMBRE_DISPONIBILIDAD[s.disponibilidad.estado] === disp),
   ), [ciudad, tipo, disp]);
 
+  // Distribución por zona y por formato — vistazo del censo completo, no filtrado.
+  const distribucionZona = useMemo(() => {
+    const conteo = new Map<string, number>();
+    todosSoportes.forEach(s => {
+      const k = s.ciudad ?? 'Sin ciudad';
+      conteo.set(k, (conteo.get(k) ?? 0) + 1);
+    });
+    return Array.from(conteo.entries())
+      .map(([zona, soportes]) => ({ zona, soportes }))
+      .sort((a, b) => b.soportes - a.soportes)
+      .slice(0, 8);
+  }, []);
+
+  const distribucionFormato = useMemo(() => {
+    const conteo = new Map<string, number>();
+    todosSoportes.forEach(s => {
+      const k = NOMBRE_TIPO[s.tipo];
+      conteo.set(k, (conteo.get(k) ?? 0) + 1);
+    });
+    return Array.from(conteo.entries())
+      .map(([formato, soportes]) => ({ formato, soportes }))
+      .sort((a, b) => b.soportes - a.soportes);
+  }, []);
+
   const porCiudad = useMemo(() => {
     const grupos = new Map<string, Soporte[]>();
     filtrados.forEach(s => {
@@ -346,8 +370,9 @@ export const OOHPlanner: React.FC = () => {
       <div style={inner}>
         <SectionHero
           eyebrow="Censo OOH"
+          estado="demo"
           title={<>Inventario <strong style={{ fontWeight: 800 }}>Exterior</strong></>}
-          subtitle="Inventario y circuito medido en una sola vista. ACAM no planea circuitos — cuenta soportes, tarifa, disponibilidad y audiencia. Los datos salen de los Excel del circuito COMEX y del inventario del operador, procesados por el datalab."
+          subtitle="Inventario de referencia y circuito medido en una sola vista. ACAM no planea circuitos — cuenta soportes, tarifa, disponibilidad y audiencia. Censo y mediciones homologadas para auditoría de industria."
           right={
             <div style={{ display: 'inline-flex', gap: 6, background: 'rgba(255,255,255,.12)', padding: 5, borderRadius: 12, flexWrap: 'wrap' }}>
               {TABS.map(t => {
@@ -374,7 +399,7 @@ export const OOHPlanner: React.FC = () => {
               es el 14% de la planta.
             </Insight>
             <Insight kind="Sugerencia" title="El circuito medido rinde 269 GRPs con 77 soportes">
-              El circuito COMEX alcanza {CIRCUITO_COMEX?.alcance_pct?.toFixed(1)}% de cobertura
+              El circuito de referencia alcanza {CIRCUITO_COMEX?.alcance_pct?.toFixed(1)}% de cobertura
               nacional con frecuencia {CIRCUITO_COMEX?.frecuencia?.toFixed(1)}. Revisa el detalle
               en el tab Measurement Lab.
             </Insight>
@@ -390,7 +415,33 @@ export const OOHPlanner: React.FC = () => {
           <KpiChip label="Disponibles" value={fmtNum(MXM_DISPONIBLES)} color={colores.exito} />
           <KpiChip label="Ocupados" value={fmtNum(MXM_OCUPADOS)} color={colores.peligro} />
           <KpiChip label="DOOH" value={fmtNum(MXM_DOOH)} color="#60A5FA" />
-          <KpiChip label="Medidos (COMEX)" value={fmtNum(soportesCircuito.length)} />
+          <KpiChip label="Medidos (circuito)" value={fmtNum(soportesCircuito.length)} />
+        </div>
+
+        <div style={grid('1fr 1fr')}>
+          <Panel title="Distribución por zona (top 8)" icon={<BarChart3 size={16} color={V} />} right={<span style={{ fontSize: 11, color: colores.textoOscuro }}>censo completo</span>} style={{ marginBottom: 18 }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={distribucionZona} layout="vertical" margin={{ top: 4, right: 16, bottom: 0, left: 8 }}>
+                <CartesianGrid stroke={colores.borde} strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" tick={tick} axisLine={false} tickLine={false} allowDecimals={false} />
+                <YAxis type="category" dataKey="zona" tick={tick} axisLine={false} tickLine={false} width={100} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${fmtNum(v)} soportes`, 'Soportes']} cursor={{ fill: `${V}12` }} />
+                <Bar dataKey="soportes" fill={V} radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </Panel>
+
+          <Panel title="Distribución por formato" icon={<Monitor size={16} color={V} />} right={<span style={{ fontSize: 11, color: colores.textoOscuro }}>censo completo</span>} style={{ marginBottom: 18 }}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={distribucionFormato} layout="vertical" margin={{ top: 4, right: 16, bottom: 0, left: 8 }}>
+                <CartesianGrid stroke={colores.borde} strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" tick={tick} axisLine={false} tickLine={false} allowDecimals={false} />
+                <YAxis type="category" dataKey="formato" tick={tick} axisLine={false} tickLine={false} width={130} />
+                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${fmtNum(v)} soportes`, 'Soportes']} cursor={{ fill: `${V}12` }} />
+                <Bar dataKey="soportes" fill={colores.exito} radius={[0, 6, 6, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </Panel>
         </div>
 
         {/* ═════════════ TAB 1 · MAPA DE INVENTARIO ═════════════ */}
