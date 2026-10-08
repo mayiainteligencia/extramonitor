@@ -29,7 +29,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({ tema, onNavigate }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Soy ${ia.nombre}. Pregúntame "¿cómo vamos en plazas?", "¿cuánto invertimos?", "¿qué dicen de la marca?" o dime "ve a Alertas".`,
+      content: `Soy ${ia.nombre}. Pregúntame "¿cuántos servicios hay hoy?", "¿cómo va el SLA?", "¿hay incidencias abiertas?" o dime "ve a Incidencias".`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -369,7 +369,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({ tema, onNavigate }) => {
               letterSpacing: '-0.3px',
             }}
           >
-            {ia.nombre} · tu asesor de campaña
+            {ia.nombre} · tu asistente de operación
           </h2>
 
           {/* Instrucción condensada */}

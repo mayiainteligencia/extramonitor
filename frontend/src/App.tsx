@@ -2,49 +2,52 @@ import { useState } from 'react';
 import { ResponsiveLayout } from './components/ResponsiveLayout';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { WarRoom } from './components/WarRoom';
-import { AdFraudBrandSafety } from './components/departamentos/AdFraudBrandSafety';
-import { StudioCreativo } from './components/departamentos/StudioCreativo';
-import { Academia } from './components/departamentos/Academia';
-
-import { TestigosIA } from './components/TestigosIA';
-import { CerebroOrquestador } from './components/CerebroOrquestador';
-import { MonitorDigital } from './components/MonitorDigital';
-import { OOHPlanner } from './components/OOHPlanner';
-import { ComandoCampana } from './components/ComandoCampana';
-import { InvestmentValue } from './components/InvestmentValue';
-import { AlertasMarca } from './components/AlertasMarca';
+import { EnConstruccion } from './components/shared/EnConstruccion';
+import { DashboardGeneral } from './components/DashboardGeneral';
+import { Clientes } from './components/Clientes';
+import { Servicios } from './components/Servicios';
+import { RutasFlota } from './components/RutasFlota';
+import { OperacionVivo } from './components/OperacionVivo';
+import { OficialesSeguridad } from './components/OficialesSeguridad';
+import { CustodiaValores } from './components/CustodiaValores';
+import { MonitoreoAlarmas } from './components/MonitoreoAlarmas';
+import { TransporteMercancias } from './components/TransporteMercancias';
+import { Incidencias } from './components/Incidencias';
+import { AnaliticaSLA } from './components/AnaliticaSLA';
+import { Facturacion } from './components/Facturacion';
+import { PortalCliente } from './components/PortalCliente';
+import { UsuariosAuditoria } from './components/UsuariosAuditoria';
 import { ToastProvider } from './components/shared/toast';
 import { ConfirmProvider } from './components/shared/confirm';
 import { brandingConfig } from './config/branding';
 import { secciones } from './config/menu';
 
-
 import './responsive.css';
 
 function App() {
-  const [activeSection, setActiveSection] = useState('warroom');
+  const [activeSection, setActiveSection] = useState('dashboard');
   const { colores } = brandingConfig;
 
-  const getTitulo = () =>
-    secciones.find(s => s.id === activeSection)?.nombre ?? 'War Room de Cliente';
+  const seccionActiva = () =>
+    secciones.find(s => s.id === activeSection) ?? secciones[0];
 
   const renderContent = () => {
-    switch (activeSection) {
-      case 'warroom':    return <WarRoom onSectionChange={setActiveSection} />;
-      case 'testigos':   return <TestigosIA />;
-      case 'cerebro':    return <CerebroOrquestador />;
-      case 'comando':    return <ComandoCampana />;
-      case 'investment': return <InvestmentValue />;
-      case 'alertas':    return <AlertasMarca />;
-      case 'digital':    return <MonitorDigital />;
-      case 'ooh':        return <OOHPlanner />;
-
-      case 'adfraud':    return <AdFraudBrandSafety />;
-      case 'studio':     return <StudioCreativo />;
-      case 'academia':   return <Academia />;
-      default:           return <WarRoom onSectionChange={setActiveSection} />;
-    }
+    if (activeSection === 'dashboard') return <DashboardGeneral onSectionChange={setActiveSection} />;
+    if (activeSection === 'clientes') return <Clientes />;
+    if (activeSection === 'servicios') return <Servicios />;
+    if (activeSection === 'rutas') return <RutasFlota />;
+    if (activeSection === 'operacion') return <OperacionVivo />;
+    if (activeSection === 'seguridad') return <OficialesSeguridad />;
+    if (activeSection === 'custodia') return <CustodiaValores />;
+    if (activeSection === 'alarmas') return <MonitoreoAlarmas />;
+    if (activeSection === 'transporte') return <TransporteMercancias />;
+    if (activeSection === 'incidencias') return <Incidencias />;
+    if (activeSection === 'analitica') return <AnaliticaSLA />;
+    if (activeSection === 'facturacion') return <Facturacion />;
+    if (activeSection === 'portal') return <PortalCliente />;
+    if (activeSection === 'usuarios') return <UsuariosAuditoria />;
+    const seccion = seccionActiva();
+    return <EnConstruccion titulo={seccion.nombre} descripcion={seccion.descripcion} />;
   };
 
   return (
@@ -53,7 +56,7 @@ function App() {
       <ResponsiveLayout
         activeSection={activeSection}
         onSectionChange={setActiveSection}
-        header={<Header title={getTitulo()} onSectionChange={setActiveSection} />}
+        header={<Header title={seccionActiva().nombre} onSectionChange={setActiveSection} />}
         sidebar={
           <Sidebar
             activeSection={activeSection}

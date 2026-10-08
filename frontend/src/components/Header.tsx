@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { brandingConfig } from '../config/branding';
 import { SECCIONES, buscarSeccion } from '../data/asistente';
-import { porPeriodo, ULTIMO, CLIENTE, fmt, fmtMXNCorto, ALERTAS } from '../data/media';
+import { KPIS_HOY, INCIDENCIAS_RECIENTES } from '../data/operaciones';
 import { BrainCanvas } from './modules/dashboardModules/BrainCanvas';
 import { useConfirm } from './shared/confirm';
 import { useToast } from './shared/toast';
@@ -31,14 +31,12 @@ interface Notification {
   plan?: string;
 }
 
-const D = porPeriodo[ULTIMO];
-const recuperableMXN = D.discrepancias.reduce((s, d) => s + d.montoMXN, 0);
+const altaSeveridad = INCIDENCIAS_RECIENTES.filter(i => i.severidad === 'Alta');
 const notificacionesEstaticas: Notification[] = [
-  { id: 1, tipo: 'urgente', titulo: `Pauta no emitida: ${fmtMXNCorto(recuperableMXN)} recuperables`, mensaje: `Testigos IA detectó spots contratados que no salieron al aire en ${D.discrepancias.length} plazas. El monto es reclamable al medio. Revisa Alertas de Marca.`, tiempo: 'Hace 3 min',  leida: false, plan: `Generar el reclamo automático a las ${D.discrepancias.length} emisoras con spots faltantes.` },
-  { id: 2, tipo: 'alerta',  titulo: 'Detección on-air · MVS 102.5',                 mensaje: `Nueva mención de ${CLIENTE.nombre} en el bloque matutino, sentimiento positivo. Escucha el testigo en Testigos IA.`,       tiempo: 'Hace 8 min',  leida: false },
-  { id: 3, tipo: 'alerta',  titulo: `${ALERTAS[1].plaza}: spike de competencia`,     mensaje: ALERTAS[1].descripcion,                                                                                                          tiempo: 'Hace 22 min', leida: false, plan: 'Reforzar frecuencia en drive time en la plaza afectada durante 7 días.' },
-  { id: 4, tipo: 'exito',   titulo: 'Cálculo de Share of Voice completado',          mensaje: `${CLIENTE.nombre} lidera ${fmt(D.plazasLideradas)} de ${fmt(D.totalPlazas)} plazas (${D.sovCliente}% de SOV ponderado) en ${ULTIMO}.`, tiempo: 'Hace 1 hora', leida: true  },
-  { id: 5, tipo: 'info',    titulo: `${D.segundaMarca} avanza como 2ª marca`,        mensaje: `${D.segundaMarca} lidera ${D.lideradasSegunda} plazas. Vigilar su avance de cara al siguiente flight.`,                       tiempo: 'Hace 2 horas', leida: true  },
+  { id: 1, tipo: 'urgente', titulo: `${KPIS_HOY.incidenciasAbiertas} incidencias abiertas`, mensaje: `${altaSeveridad[0]?.descripcion ?? 'Hay incidencias que requieren seguimiento.'} Revisa Incidencias.`, tiempo: 'Hace 3 min', leida: false, plan: 'Abrir Incidencias y dar seguimiento a las de severidad alta.' },
+  { id: 2, tipo: 'alerta',  titulo: 'Servicio en ruta', mensaje: 'Una unidad está en tránsito hacia su siguiente parada. Revisa Operación en Vivo.', tiempo: 'Hace 8 min', leida: false },
+  { id: 3, tipo: 'exito',   titulo: 'Cumplimiento de SLA', mensaje: `El cumplimiento de SLA de hoy es ${KPIS_HOY.cumplimientoSLA}%. Revisa Analítica & SLA para el desglose por cliente.`, tiempo: 'Hace 1 hora', leida: true },
+  { id: 4, tipo: 'info',    titulo: `${KPIS_HOY.serviciosHoy} servicios programados hoy`, mensaje: 'Consulta el calendario de Servicios para ver cómo se distribuyen por día.', tiempo: 'Hace 2 horas', leida: true },
 ];
 
 export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
@@ -72,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
 
   // Mini-jarvis: va al dashboard (donde vive el asistente) y lo abre.
   const abrirJarvis = () => {
-    onSectionChange?.('warroom');
+    onSectionChange?.('dashboard');
     setTimeout(() => window.dispatchEvent(new CustomEvent('jarvis:open')), 350);
   };
 
@@ -235,19 +233,19 @@ export const Header: React.FC<HeaderProps> = ({ title, onSectionChange }) => {
 
         {/* ── DERECHA: Contexto de cliente + Jarvis + Fecha + Bell + Avatar ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Cliente y campaña activos */}
+          {/* Empresa y sección activa */}
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             padding: '5px 14px', borderRadius: '14px',
             backgroundColor: colores.fondoTerciario, border: `1px solid ${colores.borde}`,
             flexShrink: 0, maxWidth: 230,
-          }} title={`${CLIENTE.nombre} · ${title}`}>
+          }} title={`${empresa.nombre} · ${title}`}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', fontWeight: 700, color: colores.textoClaro, whiteSpace: 'nowrap' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: CLIENTE.color }} />
-              {CLIENTE.nombre}
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: colores.exito }} />
+              {empresa.nombre}
             </span>
             <span style={{ fontSize: '11px', color: colores.textoOscuro, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
-              Campaña {ULTIMO} · {title}
+              Centro de operaciones · {title}
             </span>
           </div>
 

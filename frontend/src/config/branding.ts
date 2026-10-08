@@ -1,18 +1,18 @@
 export const brandingConfig = {
   empresa: {
-    nombre: "AI Acceleration Lab México",
+    nombre: "BBOX Security",
     eslogan: "",
-    logo: "/assets/logosNativos/logohavas.png",
+    logo: "/assets/logosNativos/bbox.png",
   },
 
   colores: {
-    primario: "#B22222",           // rojo claro — elemento primario activo (sidebar activo)
-    primarioOscuro: "#2D2D2D",     // Negro suave — hover
+    primario: "#0B5FA8",           // azul corporativo — elemento primario activo (sidebar activo)
+    primarioOscuro: "#0A3D73",     // azul oscuro — hover
     primarioClaro: "#FFFFFF",      // Blanco — superficies claras
 
-    secundario: "#1A1A1A",
-    acento: "#1A1A1A",
-    acentoOscuro: "#A0AEC0",
+    secundario: "#0A2A4A",
+    acento: "#0A2A4A",
+    acentoOscuro: "#7FA8D9",
 
     peligro: "#EF4444",
     advertencia: "#F59E0B",
@@ -26,16 +26,16 @@ export const brandingConfig = {
     textoClaro: "#0A0A0A",
     textoMedio: "#2D2D2D",
     textoOscuro: "#6B7280",
-    textoEnOscuro: "#FFFFFF",      // Blanco — texto sobre fondos negros (sidebar activo)
+    textoEnOscuro: "#FFFFFF",      // Blanco — texto sobre fondos azul oscuro (sidebar activo)
 
     borde: "#CCCCCC",
     bordeHover: "#888888",
 
-    gradientePrimario: "linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%)",
-    gradienteSecundario: "linear-gradient(135deg, #0A0A0A 0%, #1A1A1A 100%)",
-    gradienteAcento: "linear-gradient(135deg, #E8E8E8 0%, #FFFFFF 100%)",
+    gradientePrimario: "linear-gradient(135deg, #0A2A4A 0%, #123B63 100%)",
+    gradienteSecundario: "linear-gradient(135deg, #07213B 0%, #0A2A4A 100%)",
+    gradienteAcento: "linear-gradient(135deg, #E8F0FA 0%, #FFFFFF 100%)",
 
-    fondoGlass: "#1C1C1C",
+    fondoGlass: "#0A2A4A",
 
     sombra: "0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04)",
     sombraMedia: "0 4px 12px rgba(0, 0, 0, 0.10), 0 2px 4px rgba(0, 0, 0, 0.06)",
