@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Briefcase, Search, Plus, MapPin, User, FileText, ShieldQuestion, X } from 'lucide-react';
+import { Briefcase, Search, Plus, MapPin, User, FileText, ShieldQuestion, X, Receipt } from 'lucide-react';
 import { brandingConfig } from '../config/branding';
 import { useToast } from './shared/toast';
-import { CLIENTES, type Cliente, type EstatusCliente, type NivelRiesgo } from '../data/clientes';
+import {
+  CLIENTES, type Cliente, type EstatusCliente, type NivelRiesgo,
+  type CondicionesPago, type MetodoPago, type Moneda,
+} from '../data/clientes';
+
+const fmtMXN = (n: number) => n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
 
 const COLOR_RIESGO: Record<NivelRiesgo, string> = { Bajo: '#10B981', Medio: '#F59E0B', Alto: '#EF4444' };
 const COLOR_ESTATUS: Record<EstatusCliente, string> = { Activo: '#10B981', Prospecto: '#F59E0B', Inactivo: '#9CA3AF' };
@@ -136,6 +141,21 @@ export const Clientes: React.FC = () => {
           </div>
 
           <div style={cardStyle}>
+            <SeccionTitulo icono={Receipt} titulo="Order to Cash · Facturación y cobranza" />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, fontSize: 13 }}>
+              <Campo label="Razón social" valor={cliente.facturacion.razonSocial} colores={colores} />
+              <Campo label="RFC" valor={cliente.facturacion.rfc} colores={colores} />
+              <Campo label="Régimen fiscal" valor={cliente.facturacion.regimenFiscal} colores={colores} />
+              <Campo label="Dirección fiscal" valor={cliente.facturacion.direccionFiscal} colores={colores} />
+              <Campo label="Condiciones de pago" valor={cliente.facturacion.condicionesPago} colores={colores} />
+              <Campo label="Límite de crédito" valor={fmtMXN(cliente.facturacion.limiteCredito)} colores={colores} />
+              <Campo label="Moneda" valor={cliente.facturacion.moneda} colores={colores} />
+              <Campo label="Método de pago" valor={cliente.facturacion.metodoPago} colores={colores} />
+              <Campo label="Requiere orden de compra" valor={cliente.facturacion.requierePO ? 'Sí' : 'No'} colores={colores} />
+            </div>
+          </div>
+
+          <div style={cardStyle}>
             <SeccionTitulo icono={FileText} titulo="Condiciones de servicio" />
             <p style={{ margin: 0, fontSize: 13.5, color: colores.textoMedio, lineHeight: 1.6 }}>
               {cliente.condicionesServicio}
@@ -194,6 +214,15 @@ const NuevoClienteModal: React.FC<NuevoClienteModalProps> = ({ onClose, onCrear 
   const [puesto, setPuesto] = useState('');
   const [telefono, setTelefono] = useState('');
   const [email, setEmail] = useState('');
+  const [razonSocial, setRazonSocial] = useState('');
+  const [rfc, setRfc] = useState('');
+  const [regimenFiscal, setRegimenFiscal] = useState('601 - General de Ley Personas Morales');
+  const [direccionFiscal, setDireccionFiscal] = useState('');
+  const [condicionesPago, setCondicionesPago] = useState<CondicionesPago>('Contado');
+  const [limiteCredito, setLimiteCredito] = useState('0');
+  const [moneda, setMoneda] = useState<Moneda>('MXN');
+  const [metodoPago, setMetodoPago] = useState<MetodoPago>('Transferencia');
+  const [requierePO, setRequierePO] = useState(false);
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '9px 12px', borderRadius: 8, border: `1px solid ${colores.borde}`,
@@ -213,6 +242,17 @@ const NuevoClienteModal: React.FC<NuevoClienteModalProps> = ({ onClose, onCrear 
       condicionesServicio: condiciones.trim() || 'Pendiente de definir con el cliente.',
       sucursales: sucursalNombre.trim() ? [{ nombre: sucursalNombre.trim(), domicilio: domicilio.trim(), ciudad: ciudad.trim() }] : [],
       contactos: contactoNombre.trim() ? [{ nombre: contactoNombre.trim(), puesto: puesto.trim(), telefono: telefono.trim(), email: email.trim() }] : [],
+      facturacion: {
+        razonSocial: razonSocial.trim() || nombre.trim(),
+        rfc: rfc.trim() || 'Pendiente',
+        regimenFiscal,
+        direccionFiscal: direccionFiscal.trim() || 'Pendiente de definir',
+        condicionesPago,
+        limiteCredito: Number(limiteCredito) || 0,
+        moneda,
+        metodoPago,
+        requierePO,
+      },
     });
   };
 
@@ -288,6 +328,39 @@ const NuevoClienteModal: React.FC<NuevoClienteModalProps> = ({ onClose, onCrear 
               <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" style={inputStyle} />
             </div>
           </div>
+
+          <div style={{ borderTop: `1px solid ${colores.borde}`, paddingTop: 12 }}>
+            <label style={{ ...labelStyle, marginBottom: 10 }}>Order to Cash · Facturación y cobranza</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 10, marginBottom: 10 }}>
+              <input value={razonSocial} onChange={e => setRazonSocial(e.target.value)} placeholder="Razón social" style={inputStyle} />
+              <input value={rfc} onChange={e => setRfc(e.target.value)} placeholder="RFC" style={inputStyle} />
+            </div>
+            <input value={direccionFiscal} onChange={e => setDireccionFiscal(e.target.value)} placeholder="Dirección fiscal" style={{ ...inputStyle, marginBottom: 10 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+              <select value={condicionesPago} onChange={e => setCondicionesPago(e.target.value as CondicionesPago)} style={inputStyle}>
+                <option value="Contado">Contado</option>
+                <option value="Crédito 15 días">Crédito 15 días</option>
+                <option value="Crédito 30 días">Crédito 30 días</option>
+                <option value="Crédito 60 días">Crédito 60 días</option>
+              </select>
+              <input value={limiteCredito} onChange={e => setLimiteCredito(e.target.value)} type="number" placeholder="Límite de crédito (MXN)" style={inputStyle} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+              <select value={moneda} onChange={e => setMoneda(e.target.value as Moneda)} style={inputStyle}>
+                <option value="MXN">MXN</option>
+                <option value="USD">USD</option>
+              </select>
+              <select value={metodoPago} onChange={e => setMetodoPago(e.target.value as MetodoPago)} style={inputStyle}>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Tarjeta">Tarjeta</option>
+              </select>
+            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: colores.textoMedio, cursor: 'pointer' }}>
+              <input type="checkbox" checked={requierePO} onChange={e => setRequierePO(e.target.checked)} />
+              Requiere orden de compra (PO) antes de facturar
+            </label>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: 10, padding: '16px 20px', borderTop: `1px solid ${colores.borde}`, flexShrink: 0 }}>
@@ -309,6 +382,13 @@ const NuevoClienteModal: React.FC<NuevoClienteModalProps> = ({ onClose, onCrear 
     </div>
   );
 };
+
+const Campo: React.FC<{ label: string; valor: string; colores: typeof brandingConfig.colores }> = ({ label, valor, colores }) => (
+  <div>
+    <div style={{ fontSize: 11, color: colores.textoOscuro, marginBottom: 2 }}>{label}</div>
+    <div style={{ fontSize: 13, fontWeight: 600, color: colores.textoClaro }}>{valor}</div>
+  </div>
+);
 
 const SeccionTitulo: React.FC<{ icono: React.ElementType; titulo: string }> = ({ icono: Icono, titulo }) => {
   const { colores } = brandingConfig;

@@ -16,6 +16,23 @@ export interface Sucursal {
   ciudad: string;
 }
 
+export type CondicionesPago = 'Contado' | 'Crédito 15 días' | 'Crédito 30 días' | 'Crédito 60 días';
+export type MetodoPago = 'Transferencia' | 'Cheque' | 'Tarjeta';
+export type Moneda = 'MXN' | 'USD';
+
+/** Datos de facturación y cobranza (Order to Cash): lo que se necesita para poder facturar y cobrarle al cliente. */
+export interface DatosFacturacion {
+  razonSocial: string;
+  rfc: string;
+  regimenFiscal: string;
+  direccionFiscal: string;
+  condicionesPago: CondicionesPago;
+  limiteCredito: number;
+  moneda: Moneda;
+  metodoPago: MetodoPago;
+  requierePO: boolean;
+}
+
 export interface Cliente {
   id: string;
   nombre: string;
@@ -25,6 +42,7 @@ export interface Cliente {
   condicionesServicio: string;
   sucursales: Sucursal[];
   contactos: Contacto[];
+  facturacion: DatosFacturacion;
 }
 
 export const CLIENTES: Cliente[] = [
@@ -42,6 +60,11 @@ export const CLIENTES: Cliente[] = [
     contactos: [
       { nombre: 'Laura Mendoza', puesto: 'Gerente de Operaciones', telefono: '33 1234 5678', email: 'lmendoza@bancogenerico.mx' },
     ],
+    facturacion: {
+      razonSocial: 'Banco Genérico S.A. de C.V.', rfc: 'BGE010101AAA', regimenFiscal: '601 - General de Ley Personas Morales',
+      direccionFiscal: 'Av. Juárez 123, Guadalajara, Jalisco', condicionesPago: 'Crédito 30 días', limiteCredito: 500_000,
+      moneda: 'MXN', metodoPago: 'Transferencia', requierePO: true,
+    },
   },
   {
     id: 'CLI-002',
@@ -57,6 +80,11 @@ export const CLIENTES: Cliente[] = [
     contactos: [
       { nombre: 'Jorge Ramírez', puesto: 'Supervisor Regional', telefono: '33 2345 6789', email: 'jramirez@farmaciagenerica.mx' },
     ],
+    facturacion: {
+      razonSocial: 'Farmacia Genérica S.A. de C.V.', rfc: 'FGE020202BBB', regimenFiscal: '601 - General de Ley Personas Morales',
+      direccionFiscal: 'Calz. Independencia 800, Guadalajara, Jalisco', condicionesPago: 'Crédito 15 días', limiteCredito: 150_000,
+      moneda: 'MXN', metodoPago: 'Transferencia', requierePO: false,
+    },
   },
   {
     id: 'CLI-003',
@@ -71,6 +99,11 @@ export const CLIENTES: Cliente[] = [
     contactos: [
       { nombre: 'Patricia Luna', puesto: 'Coordinadora de Seguridad', telefono: '33 3456 7890', email: 'pluna@abarrotes.mx' },
     ],
+    facturacion: {
+      razonSocial: 'Abarrotes Zona Industrial S.A. de C.V.', rfc: 'AZI030303CCC', regimenFiscal: '601 - General de Ley Personas Morales',
+      direccionFiscal: 'Periférico Norte 4500, Guadalajara, Jalisco', condicionesPago: 'Contado', limiteCredito: 0,
+      moneda: 'MXN', metodoPago: 'Transferencia', requierePO: false,
+    },
   },
   {
     id: 'CLI-004',
@@ -85,6 +118,11 @@ export const CLIENTES: Cliente[] = [
     contactos: [
       { nombre: 'Miguel Torres', puesto: 'Gerente de Tienda', telefono: '33 4567 8901', email: 'mtorres@supermercadogenerico.mx' },
     ],
+    facturacion: {
+      razonSocial: 'Supermercado Genérico S.A. de C.V.', rfc: 'SGE040404DDD', regimenFiscal: '601 - General de Ley Personas Morales',
+      direccionFiscal: 'Av. López Mateos Sur 2375, Guadalajara, Jalisco', condicionesPago: 'Crédito 60 días', limiteCredito: 900_000,
+      moneda: 'MXN', metodoPago: 'Transferencia', requierePO: true,
+    },
   },
   {
     id: 'CLI-005',
@@ -99,6 +137,11 @@ export const CLIENTES: Cliente[] = [
     contactos: [
       { nombre: 'Adriana Flores', puesto: 'Administradora', telefono: '33 5678 9012', email: 'aflores@clinicagenerica.mx' },
     ],
+    facturacion: {
+      razonSocial: 'Clínica Genérica S.A. de C.V.', rfc: 'CGE050505EEE', regimenFiscal: '601 - General de Ley Personas Morales',
+      direccionFiscal: 'Av. Pablo Casals 640, Zapopan, Jalisco', condicionesPago: 'Crédito 30 días', limiteCredito: 80_000,
+      moneda: 'MXN', metodoPago: 'Transferencia', requierePO: false,
+    },
   },
   {
     id: 'CLI-006',
@@ -113,5 +156,10 @@ export const CLIENTES: Cliente[] = [
     contactos: [
       { nombre: 'Héctor Vargas', puesto: 'Gerente Regional', telefono: '33 6789 0123', email: 'hvargas@convenienciagenerica.mx' },
     ],
+    facturacion: {
+      razonSocial: 'Tienda de Conveniencia Chapultepec S.A. de C.V.', rfc: 'TCC060606FFF', regimenFiscal: '601 - General de Ley Personas Morales',
+      direccionFiscal: 'Av. Chapultepec Sur 198, Guadalajara, Jalisco', condicionesPago: 'Crédito 30 días', limiteCredito: 200_000,
+      moneda: 'MXN', metodoPago: 'Transferencia', requierePO: false,
+    },
   },
 ];
